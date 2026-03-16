@@ -1,0 +1,175 @@
+.container {
+  padding: 1.5rem 1rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.kpiCard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiValuePositive {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--success);
+}
+
+.kpiValueNegative {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--destructive);
+}
+
+.kpiValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.positiveText { color: var(--success); }
+.negativeText { color: var(--destructive); }
+
+.addButtonWrapper {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 2rem;
+}
+
+.addButton {
+  width: 100%;
+  padding: 1rem;
+  border-radius: var(--radius);
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.addButton:hover {
+  opacity: 0.9;
+}
+
+.chartsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+
+.chartCard {
+  background: var(--card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.chartTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  color: var(--foreground);
+}
+
+.chartContainer {
+  height: 200px;
+  width: 100%;
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.budgetList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.budgetItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.budgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budgetCategory {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.budgetAmounts {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.progressContainer {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.empty {
+  color: var(--muted-foreground);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.loading {
+  color: var(--muted-foreground);
+  text-align: center;
+  padding: 2rem 0;
+}

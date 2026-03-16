@@ -1,0 +1,151 @@
+.container {
+  padding: 1.5rem 1rem;
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.yearSelector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.yearBtn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.yearBtn:hover {
+  background: var(--accent);
+}
+
+.yearDisplay {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.kpiGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 400px) {
+  .kpiGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kpiCard {
+  background: var(--card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.kpiInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.kpiLabel {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiValuePositive { font-size: 1.25rem; font-weight: 700; color: var(--success); }
+.kpiValueNegative { font-size: 1.25rem; font-weight: 700; color: var(--destructive); }
+.kpiValue { font-size: 1.25rem; font-weight: 700; }
+
+.incomeIcon { color: var(--success); }
+.expenseIcon { color: var(--destructive); }
+.netIcon { color: var(--primary); }
+
+.savingsSash {
+  background: var(--accent);
+  border-radius: var(--radius);
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(10px);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table th {
+  text-align: left;
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted-foreground);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+
+.monthName {
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.incomeCol { color: var(--success); }
+.expenseCol { color: var(--destructive); }
+
+.rateTag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 700;
+}
+
+.ratePositive { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+.rateNegative { background: rgba(239, 68, 68, 0.1); color: var(--destructive); }
+
+.positiveText { color: var(--success); }
+.negativeText { color: var(--destructive); }
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--muted-foreground);
+}
