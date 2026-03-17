@@ -1,7 +1,7 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-export interface ListItemProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface ListItemProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'content'> {
   left: React.ReactNode;
   content: React.ReactNode;
   right?: React.ReactNode;
