@@ -57,10 +57,10 @@ export default function SummaryPage() {
       </div>
 
       <div className={styles.savingsSash}>
-          <span>Annual Savings Rate: </span>
-          <span className={annualSavingsRate >= 0 ? styles.positiveText : styles.negativeText}>
-            {annualSavingsRate.toFixed(1)}%
-          </span>
+        <span>Annual Savings Rate: </span>
+        <span className={annualSavingsRate >= 0 ? styles.positiveText : styles.negativeText}>
+          {annualSavingsRate.toFixed(2)}%
+        </span>
       </div>
 
       {loading ? (
@@ -88,7 +88,7 @@ export default function SummaryPage() {
                   </td>
                   <td className={styles.rateCol}>
                     <span className={`${styles.rateTag} ${m.savingsRate >= 0 ? styles.ratePositive : styles.rateNegative}`}>
-                      {m.savingsRate.toFixed(0)}%
+                      {m.savingsRate.toFixed(1)}%
                     </span>
                   </td>
                 </tr>

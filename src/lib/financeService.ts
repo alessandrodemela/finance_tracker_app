@@ -65,14 +65,14 @@ export const financeService = {
   async getBudgetVsActual(month: string): Promise<BudgetVariance[]> {
     const { data: budgets, error: bError } = await supabase
       .from('budgets')
-      .select('*, categories(name)')
+      .select('*, budget_categories(name)')
       .eq('month', month);
 
     if (bError) throw bError;
 
     const { data: txs, error: tError } = await supabase
       .from('transactions')
-      .select('amount, category_id')
+      .select('amount, budget_category_id')
       .eq('type', 'expense')
       .gte('date', `${month}-01`)
       .lt('date', this.nextMonth(month));
@@ -81,17 +81,17 @@ export const financeService = {
 
     // Aggregate actuals by category
     const actuals = txs.reduce((acc: any, tx) => {
-      if (tx.category_id) {
-        acc[tx.category_id] = (acc[tx.category_id] || 0) + Number(tx.amount);
+      if (tx.budget_category_id) {
+        acc[tx.budget_category_id] = (acc[tx.budget_category_id] || 0) + Number(tx.amount);
       }
       return acc;
     }, {});
 
     return budgets.map((b: any) => {
-      const actual = actuals[b.category_id] || 0;
+      const actual = actuals[b.budget_category_id] || 0;
       return {
-        category_id: b.category_id,
-        category_name: b.categories.name,
+        budget_category_id: b.budget_category_id,
+        budget_category_name: b.budget_categories?.name || 'Unknown',
         budgeted: Number(b.amount),
         actual,
         variance: Number(b.amount) - actual

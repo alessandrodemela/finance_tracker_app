@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Account, Category, Transaction } from '@/types/database';
+import { Account, Category, Transaction, BudgetCategory } from '@/types/database';
 
 export function useAccounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -56,6 +56,32 @@ export function useCategories(type?: 'income' | 'expense') {
   return { categories, loading };
 }
 
+export function useBudgetCategories() {
+  const [budgetCategories, setBudgetCategories] = useState<BudgetCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchBudgetCategories() {
+      const { data, error } = await supabase
+        .from('budget_categories')
+        .select('*')
+        .order('name');
+      
+      if (!error && data) {
+        const formatted = data.map((cat: BudgetCategory) => ({
+          ...cat,
+          name: cat.name.charAt(0).toUpperCase() + cat.name.slice(1)
+        }));
+        setBudgetCategories(formatted);
+      }
+      setLoading(false);
+    }
+    fetchBudgetCategories();
+  }, []);
+
+  return { budgetCategories, loading, setBudgetCategories };
+}
+
 export function useTransactions(limit = 10, month?: string) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -103,7 +129,7 @@ export function useBudgets(month: string) {
       if (!error && data) {
         const bMap: Record<string, number> = {};
         data.forEach((b: any) => {
-          bMap[b.category_id] = Number(b.amount);
+          bMap[b.budget_category_id] = Number(b.amount);
         });
         setBudgets(bMap);
       } else {
@@ -114,20 +140,20 @@ export function useBudgets(month: string) {
     fetchBudgets();
   }, [month]);
 
-  const saveBudget = async (categoryId: string, amount: number) => {
+  const saveBudget = async (budgetCategoryId: string, amount: number) => {
     // Upsert budget
     const { error } = await supabase
       .from('budgets')
       .upsert({ 
         month, 
-        category_id: categoryId, 
+        budget_category_id: budgetCategoryId, 
         amount: amount 
       }, { 
-        onConflict: 'month,category_id' 
+        onConflict: 'month,budget_category_id' 
       });
     
     if (!error) {
-      setBudgets(prev => ({ ...prev, [categoryId]: amount }));
+      setBudgets(prev => ({ ...prev, [budgetCategoryId]: amount }));
     }
     return { error };
   };

@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { ArrowLeft, Save, Trash2 } from 'lucide-react';
 import styles from './page.module.css';
 import { MovementType, Transaction } from '@/types/database';
-import { useAccounts, useCategories } from '@/hooks/useData';
+import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
 
 export default function EditTransaction({ params }: { params: Promise<{ id: string }> }) {
@@ -20,12 +20,14 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
   const [saving, setSaving] = useState(false);
   const [type, setType] = useState<MovementType>('expense');
   const { categories } = useCategories(type as 'income' | 'expense');
+  const { budgetCategories } = useBudgetCategories();
 
   // Form state
   const [formData, setFormData] = useState({
     amount: '',
     date: '',
     category_id: '',
+    budget_category_id: '',
     account_id: '',
     from_account_id: '',
     to_account_id: '',
@@ -48,6 +50,7 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
           amount: Math.abs(data.amount).toString(),
           date: data.date,
           category_id: data.category_id || '',
+          budget_category_id: data.budget_category_id || '',
           account_id: data.account_id || '',
           from_account_id: data.from_account_id || '',
           to_account_id: data.to_account_id || '',
@@ -89,6 +92,7 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
     } else {
       updateData.account_id = formData.account_id;
       updateData.category_id = formData.category_id;
+      updateData.budget_category_id = formData.budget_category_id || null;
       updateData.from_account_id = null;
       updateData.to_account_id = null;
     }
@@ -189,6 +193,16 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
                     options={categories.map(c => ({ value: c.id, label: c.name }))}
                     value={formData.category_id}
                     onChange={(e) => setFormData({ ...formData, category_id: e.target.value })}
+                  />
+                  <Select
+                    label="Budget Category (Macro)"
+                    required={false}
+                    options={[
+                      { value: '', label: '-- Nessuna --' },
+                      ...budgetCategories.map(c => ({ value: c.id, label: c.name }))
+                    ]}
+                    value={formData.budget_category_id}
+                    onChange={(e) => setFormData({ ...formData, budget_category_id: e.target.value })}
                   />
                 </>
               ) : (

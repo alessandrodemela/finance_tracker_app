@@ -10,6 +10,12 @@ export interface Category {
   created_at: string;
 }
 
+export interface BudgetCategory {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Account {
   id: string;
   name: string;
@@ -24,6 +30,7 @@ export interface Transaction {
   amount: number;
   type: MovementType;
   category_id: string | null;
+  budget_category_id?: string | null;
   account_id: string | null;
   from_account_id: string | null;
   to_account_id: string | null;
@@ -37,7 +44,8 @@ export interface Transaction {
 export interface Budget {
   id: string;
   month: string; // YYYY-MM
-  category_id: string;
+  category_id?: string | null;
+  budget_category_id: string;
   amount: number;
   created_at: string;
 }
@@ -50,8 +58,8 @@ export interface MonthlySummary {
 }
 
 export interface BudgetVariance {
-  category_id: string;
-  category_name: string;
+  budget_category_id: string;
+  budget_category_name: string;
   budgeted: number;
   actual: number;
   variance: number;

@@ -1,26 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { useCategories, useTransactions, useBudgets } from '@/hooks/useData';
+import { useBudgetCategories, useTransactions, useBudgets } from '@/hooks/useData';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Edit2, Check, X } from 'lucide-react';
+import { Edit2, Check, X, Plus } from 'lucide-react';
+import { useDate } from '@/context/DateContext';
 import styles from './page.module.css';
+import { supabase } from '@/lib/supabase';
 
 export default function BudgetPage() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const currentMonthStr = currentDate.toISOString().slice(0, 7);
+  const { currentDate, setCurrentDate, currentMonthStr } = useDate();
   
-  const { categories, loading: catLoading } = useCategories('expense');
+  const { budgetCategories, setBudgetCategories, loading: catLoading } = useBudgetCategories();
   const { transactions, loading: txLoading } = useTransactions(0, currentMonthStr);
   const { budgets, loading: bgtLoading, saveBudget } = useBudgets(currentMonthStr);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [isSavingCategory, setIsSavingCategory] = useState(false);
 
   const spentByCategory = transactions
     .filter(m => m.type === 'expense')
     .reduce((acc: Record<string, number>, m) => {
-      const catId = m.category_id || 'unassigned';
+      const catId = m.budget_category_id || 'unassigned';
       acc[catId] = (acc[catId] || 0) + Number(m.amount);
       return acc;
     }, {});
@@ -38,6 +43,31 @@ export default function BudgetPage() {
     setEditingId(null);
   };
 
+  const handleCreateCategory = async () => {
+    if (!newCategoryName.trim()) return;
+    
+    setIsSavingCategory(true);
+    const { data: newCat, error } = await supabase
+      .from('budget_categories')
+      .insert([{ name: newCategoryName.trim().toLowerCase() }])
+      .select()
+      .single();
+
+    if (error) {
+      alert('Error creating category: ' + error.message);
+    } else if (newCat) {
+      newCat.name = newCat.name.charAt(0).toUpperCase() + newCat.name.slice(1);
+      setBudgetCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));
+      setIsAddingCategory(false);
+      setNewCategoryName('');
+      
+      // Auto enter edit mode for the new category
+      setEditingId(newCat.id);
+      setEditValue('0');
+    }
+    setIsSavingCategory(false);
+  };
+
   return (
     <main className={styles.container}>
       <header className={styles.header}>
@@ -48,11 +78,11 @@ export default function BudgetPage() {
 
       {catLoading || txLoading || bgtLoading ? (
         <div className={styles.loading}>Loading...</div>
-      ) : categories.length === 0 ? (
+      ) : budgetCategories.length === 0 && !isAddingCategory ? (
         <div className={styles.empty}>No categories found</div>
       ) : (
         <div className={styles.budgetList}>
-          {categories.map(cat => {
+          {budgetCategories.map(cat => {
             const budgetAmt = budgets[cat.id] || 0;
             const spent = spentByCategory[cat.id] || 0;
             const remaining = budgetAmt - spent;
@@ -114,6 +144,44 @@ export default function BudgetPage() {
               </div>
             );
           })}
+
+          {isAddingCategory ? (
+            <div className={`${styles.row} ${styles.newCategoryRow}`}>
+              <div className={styles.newCategoryInputs}>
+                <input 
+                  type="text" 
+                  value={newCategoryName} 
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className={styles.input}
+                  placeholder="Category Name..."
+                  autoFocus
+                  disabled={isSavingCategory}
+                />
+                <button 
+                  className={styles.iconBtn} 
+                  onClick={handleCreateCategory}
+                  disabled={isSavingCategory}
+                >
+                  <Check size={18} className={styles.successColor} />
+                </button>
+                <button 
+                  className={styles.iconBtn} 
+                  onClick={() => setIsAddingCategory(false)}
+                  disabled={isSavingCategory}
+                >
+                  <X size={18} className={styles.destructiveColor} />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              className={styles.addCategoryBtn}
+              onClick={() => setIsAddingCategory(true)}
+            >
+              <Plus size={20} />
+              <span>Add Budget Category</span>
+            </button>
+          )}
         </div>
       )}
     </main>

@@ -9,7 +9,7 @@ import { Select } from '@/components/ui/Select';
 import { ArrowLeft, Save } from 'lucide-react';
 import styles from './page.module.css';
 import { MovementType } from '@/types/database';
-import { useAccounts, useCategories } from '@/hooks/useData';
+import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
 
 export default function AddTransaction() {
@@ -17,6 +17,7 @@ export default function AddTransaction() {
   const { accounts } = useAccounts();
   const [type, setType] = useState<MovementType>('expense');
   const { categories } = useCategories(type as 'income' | 'expense');
+  const { budgetCategories } = useBudgetCategories();
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [lastAccountId, setLastAccountId] = useState<string>('');
@@ -26,6 +27,7 @@ export default function AddTransaction() {
     amount: '',
     date: new Date().toISOString().split('T')[0],
     category_id: '',
+    budget_category_id: '',
     account_id: '',
     from_account_id: '',
     to_account_id: '',
@@ -37,6 +39,8 @@ export default function AddTransaction() {
 
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [isAddingBudgetCategory, setIsAddingBudgetCategory] = useState(false);
+  const [newBudgetCategoryName, setNewBudgetCategoryName] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +52,7 @@ export default function AddTransaction() {
     const amountNum = Math.abs(parseFloat(formData.amount));
 
     let categoryId = formData.category_id;
+    let budgetCategoryId = formData.budget_category_id;
 
     // Handle new category creation
     if (type !== 'transfer' && isAddingCategory && newCategoryName.trim()) {
@@ -68,6 +73,24 @@ export default function AddTransaction() {
       categoryId = newCat.id;
     }
 
+    // Handle new budget category creation
+    if (type !== 'transfer' && isAddingBudgetCategory && newBudgetCategoryName.trim()) {
+      const { data: newCat, error: catError } = await supabase
+        .from('budget_categories')
+        .insert([{ 
+          name: newBudgetCategoryName.trim().toLowerCase()
+        }])
+        .select()
+        .single();
+      
+      if (catError) {
+        alert('Error creating budget category: ' + catError.message);
+        setLoading(false);
+        return;
+      }
+      budgetCategoryId = newCat.id;
+    }
+
     const insertData: any = {
       date: formData.date,
       amount: amountNum,
@@ -84,6 +107,7 @@ export default function AddTransaction() {
     } else {
       insertData.account_id = formData.account_id;
       insertData.category_id = categoryId;
+      insertData.budget_category_id = budgetCategoryId || null;
     }
 
     const { error } = await supabase.from('transactions').insert([insertData]);
@@ -110,6 +134,8 @@ export default function AddTransaction() {
     setSubmitted(false);
     setIsAddingCategory(false);
     setNewCategoryName('');
+    setIsAddingBudgetCategory(false);
+    setNewBudgetCategoryName('');
   };
 
   if (submitted) {
@@ -162,6 +188,7 @@ export default function AddTransaction() {
                   onClick={() => {
                     setType(t);
                     setIsAddingCategory(false);
+                    setIsAddingBudgetCategory(false);
                   }}
                 >
                   {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -238,6 +265,50 @@ export default function AddTransaction() {
                       </button>
                     </div>
                   )}
+
+                  {!isAddingBudgetCategory ? (
+                    <div className={styles.categorySelectWrapper}>
+                      <Select
+                        label="Budget Category (Macro)"
+                        required={false}
+                        options={[
+                          { value: '', label: '-- Nessuna --' },
+                          ...budgetCategories.map(c => ({ value: c.id, label: c.name })),
+                          { value: 'ADD_NEW', label: '+ New Budget Category...' }
+                        ]}
+                        value={formData.budget_category_id}
+                        onChange={(e) => {
+                          if (e.target.value === 'ADD_NEW') {
+                            setIsAddingBudgetCategory(true);
+                          } else {
+                            setFormData({ ...formData, budget_category_id: e.target.value });
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.newCategoryWrapper}>
+                      <Input
+                        label="New Budget Category"
+                        placeholder="Budget Category name..."
+                        required
+                        value={newBudgetCategoryName}
+                        onChange={(e) => setNewBudgetCategoryName(e.target.value)}
+                        autoFocus
+                      />
+                      <button 
+                        type="button" 
+                        className={styles.cancelBtn}
+                        onClick={() => {
+                          setIsAddingBudgetCategory(false);
+                          setNewBudgetCategoryName('');
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
+
                 </>
               ) : (
                 <>

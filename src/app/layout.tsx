@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BottomNav } from "@/components/BottomNav";
+import { DateProvider } from "@/context/DateContext";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,8 +17,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="mobile-wrapper">
-          {children}
-          <BottomNav />
+          <DateProvider>
+            {children}
+            <BottomNav />
+          </DateProvider>
         </div>
       </body>
     </html>

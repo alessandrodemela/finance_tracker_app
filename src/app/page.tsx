@@ -5,18 +5,16 @@ import { MonthSelector } from '@/components/MonthSelector';
 import { Button } from '@/components/ui/Button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useTransactions, useCategories, useBudgets } from '@/hooks/useData';
-import { Transaction, Category } from '@/types/database';
+import { useTransactions, useBudgetCategories, useBudgets } from '@/hooks/useData';
+import { Transaction, BudgetCategory } from '@/types/database';
 import { SpendingTrendChart, CategoryPieChart } from '@/components/DashboardCharts';
+import { useDate } from '@/context/DateContext';
 import styles from './page.module.css';
 
 export default function Dashboard() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  
-  // Fetch data for the current month
-  const currentMonthStr = currentDate.toISOString().slice(0, 7); // YYYY-MM
+  const { currentDate, setCurrentDate, currentMonthStr } = useDate();
   const { transactions, loading: mvmtLoading } = useTransactions(0, currentMonthStr);
-  const { categories, loading: catLoading } = useCategories();
+  const { budgetCategories, loading: catLoading } = useBudgetCategories();
   const { budgets, loading: bgtLoading } = useBudgets(currentMonthStr);
 
   // KPIs
@@ -32,16 +30,17 @@ export default function Dashboard() {
   const categorySpendingMap = transactions
     .filter((m: Transaction) => m.type === 'expense')
     .reduce((acc: Record<string, number>, m: Transaction) => {
-      const cat = categories.find((c: Category) => c.id === m.category_id);
-      const name = cat ? cat.name : 'Other';
-      acc[name] = (acc[name] || 0) + Number(m.amount);
+      const catId = m.budget_category_id || 'unassigned';
+      acc[catId] = (acc[catId] || 0) + Number(m.amount);
       return acc;
     }, {});
 
-  const pieData = Object.entries(categorySpendingMap).map(([name, value]) => ({
-    name,
-    value: value as number
-  }));
+  const pieData = budgetCategories
+    .map(cat => ({
+      name: cat.name,
+      value: categorySpendingMap[cat.id] || 0
+    }))
+    .filter(item => item.value > 0);
 
   // Group by day for trend chart
   const dailySpending = transactions
@@ -59,11 +58,10 @@ export default function Dashboard() {
       amount: amount as number
     }));
 
-  const budgetItems = categories
-    .filter((c: Category) => c.type === 'expense')
-    .map((cat: Category) => {
-      const spent = categorySpendingMap[cat.name] || 0;
-      const budget = budgets[cat.id] || 0; 
+  const budgetItems = budgetCategories
+    .map((cat: BudgetCategory) => {
+      const spent = categorySpendingMap[cat.id] || 0;
+      const budget = budgets[cat.id] || 0;
       return { ...cat, spent, budget };
     })
     .filter((item: any) => item.spent > 0 || item.budget > 0);
@@ -120,12 +118,12 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className={styles.progressContainer}>
-                    <div 
-                      className={styles.progressBar} 
-                      style={{ 
-                        width: `${percent}%`, 
-                        backgroundColor: percent > 90 ? 'var(--destructive)' : 'var(--primary)' 
-                      }} 
+                    <div
+                      className={styles.progressBar}
+                      style={{
+                        width: `${percent}%`,
+                        backgroundColor: percent > 90 ? 'var(--destructive)' : 'var(--primary)'
+                      }}
                     />
                   </div>
                 </div>

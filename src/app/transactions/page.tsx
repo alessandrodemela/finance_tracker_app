@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { MonthSelector } from '@/components/MonthSelector';
 import { useTransactions, useCategories, useAccounts } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
+import { useDate } from '@/context/DateContext';
 import Link from 'next/link';
 import { Trash2, Edit2, Filter } from 'lucide-react';
 import styles from './page.module.css';
 import { Select } from '@/components/ui/Select';
 
 export default function TransactionsPage() {
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const currentMonthStr = currentDate.toISOString().slice(0, 7); // YYYY-MM
+  const { currentDate, setCurrentDate, currentMonthStr } = useDate();
   const { transactions, loading: mvmtLoading } = useTransactions(0, currentMonthStr);
   const { categories } = useCategories();
   const { accounts } = useAccounts();

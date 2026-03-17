@@ -1,116 +1,125 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
 
-:root {
-  --background: #0a0a0c;
-  --foreground: #f8fafc;
-  
-  --card: rgba(23, 23, 26, 0.7);
-  --card-foreground: #f8fafc;
-  --card-border: rgba(255, 255, 255, 0.08);
-  
-  --popover: #17171a;
-  --popover-foreground: #f8fafc;
-  
-  --primary: #6366f1;
-  --primary-foreground: #ffffff;
-  
-  --secondary: #1e1e24;
-  --secondary-foreground: #f8fafc;
-  
-  --muted: #1e1e24;
-  --muted-foreground: #94a3b8;
-  
-  --accent: #2e2e38;
-  --accent-foreground: #f8fafc;
-  
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-  --success: #10b981;
-  --warning: #f59e0b;
-  
-  --border: rgba(255, 255, 255, 0.08);
-  --input: #1e1e24;
-  --ring: #6366f1;
-  
-  --radius: 1rem;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
+@layer base {
+  :root {
+    color-scheme: dark; /* Signals browser to use dark system UI (scrollbars, context menus, selects) */
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+    /* === Core Palette === */
+    --background: #050714;
+    --foreground: #e8eaf6;
+
+    --card: rgba(13, 17, 38, 0.75);
+    --card-solid: #0d1126;
+
+    --surface: rgba(22, 28, 60, 0.5);
+    --surface-raised: rgba(30, 38, 80, 0.7);
+
+    /* === Brand Blue === */
+    --primary: #3b6fff;
+    --primary-hover: #2a5ce6;
+    --primary-glow: rgba(59, 111, 255, 0.35);
+
+    /* === Semantic Colors === */
+    --success: #22c55e;           /* Green — income */
+    --success-muted: rgba(34, 197, 94, 0.12);
+    --destructive: #f43f5e;       /* Red — expenses */
+    --destructive-muted: rgba(244, 63, 94, 0.12);
+
+    /* Also kept as aliases */
+    --accent-income: #22c55e;
+    --accent-expense: #f43f5e;
+
+    /* === Text === */
+    --muted: #8892b0;
+    --muted-foreground: #6272a4;
+    --label: #4a5568;
+
+    /* === Borders & Radius === */
+    --border: rgba(59, 111, 255, 0.12);
+    --border-subtle: rgba(255, 255, 255, 0.06);
+    --radius: 1rem;
+
+    /* === Misc === */
+    --accent: rgba(59, 111, 255, 0.08);
+    --secondary: #131729;
+    --transition: all 0.2s ease;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply antialiased min-h-screen;
+    background: var(--background);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 111, 255, 0.18) 0%, transparent 70%),
+      linear-gradient(180deg, #070b1d 0%, #050714 60%, #030510 100%);
+    color: var(--foreground);
+    font-family: 'Inter', sans-serif;
   }
 }
 
-.animate-in {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-* {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-html,
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--background); /* Very dark background for border shadow */
-  color: var(--foreground);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-
+/* ===== MOBILE WRAPPER ===== */
 .mobile-wrapper {
-  max-width: 500px;
+  max-width: 430px;
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
-  padding-bottom: 80px; /* Space for BottomNav */
-  background: var(--background); /* App background */
-  box-shadow: 0 0 20px rgba(0,0,0,0.5); /* Helps visually bound the app on desktop */
+  background: transparent;
   overflow-x: hidden;
+  box-shadow:
+    0 0 80px rgba(59, 111, 255, 0.06),
+    0 0 0 1px rgba(59, 111, 255, 0.05);
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: 'Outfit', sans-serif;
+/* ===== GLASS PANELS ===== */
+@layer utilities {
+  .glass-panel {
+    background: var(--card);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .glass-panel-raised {
+    background: var(--surface-raised);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(59, 111, 255, 0.18);
+    border-radius: var(--radius);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #ffffff 0%, #8aa4ff 60%, #3b6fff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .income-text { color: var(--success) !important; }
+  .expense-text { color: var(--destructive) !important; }
+
+  .shadow-glow {
+    box-shadow: 0 0 20px rgba(59, 111, 255, 0.4);
+  }
 }
 
-.glass {
-  background: var(--card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius);
-}
-
-.gradient-text {
-  background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: var(--accent);
+  background: var(--border);
   border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--muted-foreground);
 }
