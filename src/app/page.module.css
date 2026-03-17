@@ -21,7 +21,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   gap: 0.875rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.25rem;
 }
 
 .kpiCard {
@@ -29,7 +29,7 @@
   backdrop-filter: blur(20px);
   border: 1px solid var(--border);
   border-radius: 1.25rem;
-  padding: 1.25rem 1rem;
+  padding: 1.25rem 0.5rem; /* Reduced padding for 3 columns on small screens */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -40,6 +40,27 @@
   position: relative;
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.savingsSash {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  margin-bottom: 1.75rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kpiGrid.fullWidth {
+  grid-template-columns: 1fr;
 }
 
 .kpiCard:hover {
@@ -109,6 +130,21 @@
 
 .negativeText {
   color: var(--destructive);
+}
+
+.savingsSash {
+  background: rgba(59, 111, 255, 0.08);
+  border: 1px solid rgba(59, 111, 255, 0.18);
+  border-radius: 1rem;
+  padding: 0.875rem 1.25rem;
+  text-align: center;
+  margin-bottom: 1.75rem;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--muted);
 }
 
 /* ===== ADD BUTTON ===== */

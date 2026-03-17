@@ -109,55 +109,61 @@ export const CategoryPieChart = ({ data }: { data: CategoryData[] }) => (
     </PieChart>
   </ResponsiveContainer>
 );
-export const BalanceTrendChart = ({ data }: { data: TrendData[] }) => (
-  <ResponsiveContainer width="100%" height="100%">
-    <AreaChart data={data}>
-      <defs>
-        <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-          <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-        </linearGradient>
-      </defs>
-      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-      <XAxis
-        dataKey="name"
-        stroke="#6272a4"
-        fontSize={10}
-        tickLine={false}
-        axisLine={false}
-        dy={10}
-      />
-      <YAxis
-        stroke="#6272a4"
-        fontSize={10}
-        tickLine={false}
-        axisLine={false}
-        tickFormatter={(value) => `€${value}`}
-        width={40}
-      />
-      <Tooltip
-        contentStyle={{
-          backgroundColor: '#131729',
-          border: '1px solid rgba(34, 197, 94, 0.2)',
-          borderRadius: '12px',
-          boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
-          fontSize: '12px',
-          fontFamily: 'Outfit'
-        }}
-        itemStyle={{ color: '#ffffff', fontWeight: 400 }}
-        labelStyle={{ color: '#97989cff', marginBottom: '4px' }}
-        formatter={(value: any) => [`€ ${Number(value).toFixed(2)}`, 'Balance']}
-      />
-      <Area
-        type="monotone"
-        dataKey="amount"
-        stroke="#22c55e"
-        strokeWidth={2}
-        fillOpacity={1}
-        fill="url(#colorBalance)"
-        dot={{ fill: '#22c55e', strokeWidth: 0, r: 2 }}
-        activeDot={{ r: 4, strokeWidth: 0, fill: '#ffffff' }}
-      />
-    </AreaChart>
-  </ResponsiveContainer>
-);
+export const BalanceTrendChart = ({ data }: { data: TrendData[] }) => {
+  const minVal = data.length > 0 ? Math.min(...data.map(d => d.amount)) : 0;
+  const yDomainMin = minVal * 0.8;
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data}>
+        <defs>
+          <linearGradient id="colorBalance" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+        <XAxis
+          dataKey="name"
+          stroke="#6272a4"
+          fontSize={10}
+          tickLine={false}
+          axisLine={false}
+          dy={10}
+        />
+        <YAxis
+          stroke="#6272a4"
+          fontSize={10}
+          tickLine={false}
+          axisLine={false}
+          domain={[yDomainMin, 'auto']}
+          tickFormatter={(v) => v >= 1000 ? (v / 1000).toFixed(0) + 'K' : v}
+          width={25}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#131729',
+            border: '1px solid rgba(34, 197, 94, 0.2)',
+            borderRadius: '12px',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
+            fontSize: '12px',
+            fontFamily: 'Outfit'
+          }}
+          itemStyle={{ color: '#ffffff', fontWeight: 400 }}
+          labelStyle={{ color: '#97989cff', marginBottom: '4px' }}
+          formatter={(value: any) => [`€ ${Number(value).toFixed(2)}`, 'Balance']}
+        />
+        <Area
+          type="monotone"
+          dataKey="amount"
+          stroke="#22c55e"
+          strokeWidth={2}
+          fillOpacity={1}
+          fill="url(#colorBalance)"
+          dot={{ fill: '#22c55e', strokeWidth: 0, r: 2 }}
+          activeDot={{ r: 4, strokeWidth: 0, fill: '#ffffff' }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+};

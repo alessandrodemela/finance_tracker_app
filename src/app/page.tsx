@@ -7,7 +7,7 @@ import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { SpendingTrendChart, CategoryPieChart, BalanceTrendChart } from '@/components/DashboardCharts';
 import { useDate } from '@/context/DateContext';
-import { useTransactions, useBudgetCategories, useBudgets, useAccountBalances } from '@/hooks/useData';
+import { useTransactions, useBudgetCategories, useBudgets, useAccountBalances, useAnnualSummary } from '@/hooks/useData';
 import { Transaction, BudgetCategory } from '@/types/database';
 import styles from './page.module.css';
 
@@ -17,6 +17,7 @@ export default function Dashboard() {
   const { budgetCategories, loading: catLoading } = useBudgetCategories();
   const { budgets, loading: bgtLoading } = useBudgets(currentMonthStr);
   const { history: balanceData } = useAccountBalances('2025-12-31');
+  const { data: annualData } = useAnnualSummary(currentDate.getFullYear());
 
   // KPIs
   const totalIncome = transactions
@@ -26,6 +27,17 @@ export default function Dashboard() {
   const totalExpenses = transactions
     .filter((m: Transaction) => m.type === 'expense')
     .reduce((sum: number, m: Transaction) => sum + Number(m.amount), 0);
+
+  const totalBudget = Object.values(budgets).reduce((sum, b) => sum + Number(b), 0);
+
+  // Calculate annual savings rate from annualData
+  const annualTotalIncome = annualData.reduce((sum: number, m: any) => sum + m.income, 0);
+  const annualTotalExpense = annualData.reduce((sum: number, m: any) => sum + m.expense, 0);
+  const annualNet = annualTotalIncome - annualTotalExpense;
+  const annualSavingsRate = annualTotalIncome > 0 ? (annualNet / annualTotalIncome) * 100 : 0;
+
+  const monthlyNet = totalIncome - totalExpenses;
+  const monthlySavingsRate = totalIncome > 0 ? (monthlyNet / totalIncome) * 100 : 0;
 
   // Data for Charts
   const categorySpendingMap = transactions
@@ -92,6 +104,16 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <div className={styles.savingsSash}>
+        <span>Savings Rate: </span>
+        <span className={monthlySavingsRate >= 0 ? styles.positiveText : styles.negativeText}>
+          {monthlySavingsRate.toFixed(1)}%
+        </span>
+        <span style={{ fontSize: '0.75rem', marginLeft: '1rem', opacity: 0.6 }}>
+          (Annual: {annualSavingsRate.toFixed(1)}%)
+        </span>
+      </div>
+
       <Link href="/add" className={styles.addButtonWrapper}>
         <Button className={styles.addButton}>
           <PlusCircle size={20} />
@@ -124,7 +146,7 @@ export default function Dashboard() {
         ) : budgetItems.length > 0 ? (
           <div className={styles.budgetList}>
             {budgetItems.map(item => {
-              const percent = Math.min((item.spent / item.budget) * 100, 100);
+              const percent = item.budget > 0 ? Math.min((item.spent / item.budget) * 100, 100) : 0;
               return (
                 <div key={item.id} className={styles.budgetItem}>
                   <div className={styles.budgetHeader}>
@@ -138,7 +160,7 @@ export default function Dashboard() {
                       className={styles.progressBar}
                       style={{
                         width: `${percent}%`,
-                        backgroundColor: percent > 90 ? 'var(--destructive)' : 'var(--primary)'
+                        backgroundColor: percent > 90 ? '#ef4444' : '#4f46e5'
                       }}
                     />
                   </div>

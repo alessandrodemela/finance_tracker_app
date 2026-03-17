@@ -139,10 +139,32 @@ export const financeService = {
       .single();
 
     if (txError) throw txError;
+
+    // Update active_balance
+    if (tx.type === 'income' && tx.account_id) {
+      await this.adjustAccountBalance(tx.account_id, Number(tx.amount));
+    } else if (tx.type === 'expense' && tx.account_id) {
+      await this.adjustAccountBalance(tx.account_id, -Number(tx.amount));
+    } else if (tx.type === 'transfer' && tx.from_account_id && tx.to_account_id) {
+      await this.adjustAccountBalance(tx.from_account_id, -Number(tx.amount));
+      await this.adjustAccountBalance(tx.to_account_id, Number(tx.amount));
+    }
+
     return newTx;
   },
 
   async updateTransaction(oldTx: Transaction, newTxData: Omit<Transaction, 'id' | 'created_at'>) {
+    // 1. Revert old balance
+    if (oldTx.type === 'income' && oldTx.account_id) {
+      await this.adjustAccountBalance(oldTx.account_id, -Number(oldTx.amount));
+    } else if (oldTx.type === 'expense' && oldTx.account_id) {
+      await this.adjustAccountBalance(oldTx.account_id, Number(oldTx.amount));
+    } else if (oldTx.type === 'transfer' && oldTx.from_account_id && oldTx.to_account_id) {
+      await this.adjustAccountBalance(oldTx.from_account_id, Number(oldTx.amount));
+      await this.adjustAccountBalance(oldTx.to_account_id, -Number(oldTx.amount));
+    }
+
+    // 2. Update transaction
     const { data: updated, error: updateTxError } = await supabase
       .from('transactions')
       .update(newTxData)
@@ -151,16 +173,53 @@ export const financeService = {
       .single();
 
     if (updateTxError) throw updateTxError;
+
+    // 3. Apply new balance
+    if (newTxData.type === 'income' && newTxData.account_id) {
+      await this.adjustAccountBalance(newTxData.account_id, Number(newTxData.amount));
+    } else if (newTxData.type === 'expense' && newTxData.account_id) {
+      await this.adjustAccountBalance(newTxData.account_id, -Number(newTxData.amount));
+    } else if (newTxData.type === 'transfer' && newTxData.from_account_id && newTxData.to_account_id) {
+      await this.adjustAccountBalance(newTxData.from_account_id, -Number(newTxData.amount));
+      await this.adjustAccountBalance(newTxData.to_account_id, Number(newTxData.amount));
+    }
+
     return updated;
   },
 
   async deleteTransaction(tx: Transaction) {
+    // 1. Revert balance
+    if (tx.type === 'income' && tx.account_id) {
+      await this.adjustAccountBalance(tx.account_id, -Number(tx.amount));
+    } else if (tx.type === 'expense' && tx.account_id) {
+      await this.adjustAccountBalance(tx.account_id, Number(tx.amount));
+    } else if (tx.type === 'transfer' && tx.from_account_id && tx.to_account_id) {
+      await this.adjustAccountBalance(tx.from_account_id, Number(tx.amount));
+      await this.adjustAccountBalance(tx.to_account_id, -Number(tx.amount));
+    }
+
+    // 2. Delete
     const { error: delError } = await supabase
       .from('transactions')
       .delete()
       .eq('id', tx.id);
     
     if (delError) throw delError;
+  },
+
+  async adjustAccountBalance(accountId: string, amount: number) {
+    const { data: acc } = await supabase
+      .from('accounts')
+      .select('active_balance')
+      .eq('id', accountId)
+      .single();
+    
+    if (acc) {
+      await supabase
+        .from('accounts')
+        .update({ active_balance: Number(acc.active_balance) + amount })
+        .eq('id', accountId);
+    }
   },
 
   nextMonth(month: string): string {

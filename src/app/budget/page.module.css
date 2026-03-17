@@ -21,6 +21,53 @@
   gap: 1.25rem;
 }
 
+/* ===== KPI CARDS ===== */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.kpiCard {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1rem 0.75rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.kpiLabel {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpiValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+}
+
+.positiveValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--success);
+  font-family: 'Outfit', sans-serif;
+}
+
+.negativeValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--destructive);
+  font-family: 'Outfit', sans-serif;
+}
+
 .row {
   background: var(--card);
   backdrop-filter: blur(20px);
@@ -69,7 +116,7 @@
 
 .budgetAmt {
   font-weight: 600;
-  color: var(--primary);
+  /* color: var(--primary); */
   font-family: 'Outfit', sans-serif;
 }
 

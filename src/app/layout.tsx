@@ -7,13 +7,19 @@ export const metadata: Metadata = {
   title: "Finance Tracker",
   description: "Personal finance dashboard",
   manifest: "/manifest.json",
-  themeColor: "#050714",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Finance Tracker",
   },
+};
+
+export const viewport = {
+  themeColor: "#050714",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

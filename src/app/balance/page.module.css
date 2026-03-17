@@ -18,8 +18,9 @@
   height: 40px;
   padding: 0 !important;
   border-radius: 50%;
-  color: var(--primary);
-  background: rgba(59, 111, 255, 0.1);
+  color: #ffffff !important;
+  background: #2a5ce6 !important;
+  box-shadow: 0 4px 12px rgba(42, 92, 230, 0.3);
 }
 
 .header h1 {
@@ -222,6 +223,56 @@
 
 .negative {
   color: var(--destructive);
+}
+
+.inlineFormCard {
+  background: rgba(59, 111, 255, 0.05);
+  border: 1px dashed var(--primary);
+  padding: 1rem;
+  border-radius: 1.25rem;
+}
+
+.inlineForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.inlineInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.inlineActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.saveBtn, .cancelBtn {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.saveBtn:hover {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+.cancelBtn:hover {
+  background: var(--destructive);
+  color: white;
+  border-color: var(--destructive);
 }
 
 .loading {

@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Trash2, Edit2, Filter } from 'lucide-react';
 import styles from './page.module.css';
 import { Select } from '@/components/ui/Select';
+import { financeService } from '@/lib/financeService';
 
 export default function TransactionsPage() {
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
@@ -71,8 +72,11 @@ export default function TransactionsPage() {
 
   const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this transaction?')) {
-      await supabase.from('transactions').delete().eq('id', id);
-      window.location.reload(); 
+      const tx = transactions.find(t => t.id === id);
+      if (tx) {
+        await financeService.deleteTransaction(tx);
+        window.location.reload(); 
+      }
     }
   };
 
