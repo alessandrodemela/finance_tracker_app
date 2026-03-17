@@ -30,10 +30,12 @@ export function useAccounts() {
       .insert([{
         name,
         initial_balance: initialBalance,
+        active_balance: initialBalance,
         currency
       }])
       .select();
     
+    if (error) console.error('Error adding account:', error);
     if (!error) fetchAccounts();
     return { data, error };
   };
@@ -179,16 +181,33 @@ export function useBudgets(month: string) {
   }, [month]);
 
   const saveBudget = async (budgetCategoryId: string, amount: number) => {
-    // Upsert budget
-    const { error } = await supabase
+    // 1. Check if budget already exists for this month/category
+    const { data: existing } = await supabase
       .from('budgets')
-      .upsert({ 
-        month, 
-        budget_category_id: budgetCategoryId, 
-        amount: amount 
-      }, { 
-        onConflict: 'month,budget_category_id' 
-      });
+      .select('id')
+      .eq('month', month)
+      .eq('budget_category_id', budgetCategoryId)
+      .single();
+    
+    let result;
+    if (existing) {
+      // 2a. Update
+      result = await supabase
+        .from('budgets')
+        .update({ amount })
+        .eq('id', existing.id);
+    } else {
+      // 2b. Insert
+      result = await supabase
+        .from('budgets')
+        .insert({ 
+          month, 
+          budget_category_id: budgetCategoryId, 
+          amount 
+        });
+    }
+    
+    const { error } = result;
     
     if (error) {
       console.error('Error saving budget:', error);
@@ -208,6 +227,22 @@ export function useAnnualSummary(year: number) {
   useEffect(() => {
     async function fetchAnnualData() {
       setLoading(true);
+      
+      // 1. Fetch categories to check names
+      const { data: cats } = await supabase.from('categories').select('id, name');
+      const { data: bgtCats } = await supabase.from('budget_categories').select('id, name');
+      
+      const excludeIds = new Set<string>();
+      const tagKeywords = ['valutazione', 'investment', 'titoli', 'gain', 'loss', 'scalable'];
+      
+      cats?.forEach(c => {
+        if (tagKeywords.some(k => c.name.toLowerCase().includes(k))) excludeIds.add(c.id);
+      });
+      bgtCats?.forEach(c => {
+        if (tagKeywords.some(k => c.name.toLowerCase().includes(k))) excludeIds.add(c.id);
+      });
+
+      // 2. Fetch transactions
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select('*')
@@ -225,6 +260,10 @@ export function useAnnualSummary(year: number) {
         }));
 
         transactions.forEach((tx: Transaction) => {
+          // Skip excluded categories (gains/losses etc)
+          if (tx.category_id && excludeIds.has(tx.category_id)) return;
+          if (tx.budget_category_id && excludeIds.has(tx.budget_category_id)) return;
+
           const m = new Date(tx.date).getMonth();
           if (tx.type === 'income') {
             monthlyData[m].income += Number(tx.amount);
@@ -270,32 +309,35 @@ export function useAccountBalances(startDate: string = '2025-12-31') {
 
       if (!error && transactions && accountsData) {
         const initialBalances: Record<string, number> = {};
+        const currentBalances: Record<string, number> = {};
+        
         accountsData.forEach(acc => {
           initialBalances[acc.id] = Number(acc.initial_balance);
+          currentBalances[acc.id] = Number(acc.active_balance);
         });
 
-        const currentBalances = { ...initialBalances };
+        const activeBalancesForHistory = { ...initialBalances };
         const balanceByDate: Record<string, Record<string, number>> = {};
 
         // Initial state at startDate
-        let total = Object.values(currentBalances).reduce((sum, b) => sum + b, 0);
-        balanceByDate[startDate] = { ...currentBalances, total };
+        let total = Object.values(activeBalancesForHistory).reduce((sum, b) => sum + b, 0);
+        balanceByDate[startDate] = { ...activeBalancesForHistory, total };
 
         transactions.forEach((tx: Transaction) => {
           const date = tx.date;
           const amt = Number(tx.amount);
           
           if (tx.type === 'income' && tx.account_id) {
-            currentBalances[tx.account_id] = (currentBalances[tx.account_id] || 0) + amt;
+            activeBalancesForHistory[tx.account_id] = (activeBalancesForHistory[tx.account_id] || 0) + amt;
           } else if (tx.type === 'expense' && tx.account_id) {
-            currentBalances[tx.account_id] = (currentBalances[tx.account_id] || 0) - amt;
+            activeBalancesForHistory[tx.account_id] = (activeBalancesForHistory[tx.account_id] || 0) - amt;
           } else if (tx.type === 'transfer' && tx.from_account_id && tx.to_account_id) {
-            currentBalances[tx.from_account_id] = (currentBalances[tx.from_account_id] || 0) - amt;
-            currentBalances[tx.to_account_id] = (currentBalances[tx.to_account_id] || 0) + amt;
+            activeBalancesForHistory[tx.from_account_id] = (activeBalancesForHistory[tx.from_account_id] || 0) - amt;
+            activeBalancesForHistory[tx.to_account_id] = (activeBalancesForHistory[tx.to_account_id] || 0) + amt;
           }
           
-          total = Object.values(currentBalances).reduce((sum, b) => sum + b, 0);
-          balanceByDate[date] = { ...currentBalances, total };
+          total = Object.values(activeBalancesForHistory).reduce((sum, b) => sum + b, 0);
+          balanceByDate[date] = { ...activeBalancesForHistory, total };
         });
 
         const sortedDates = Object.keys(balanceByDate).sort();

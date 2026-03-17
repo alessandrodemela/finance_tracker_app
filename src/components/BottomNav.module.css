@@ -41,7 +41,7 @@
 }
 
 .active {
-  color: var(--primary);
+  color: #5579fb;
 }
 
 /* Glowing dot indicator for active tab */

@@ -15,36 +15,44 @@ export default function BalancePage() {
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', initial_balance: '', currency: 'EUR' });
+  const [formData, setFormData] = useState({ name: '', balance: '', currency: 'EUR' });
 
   const totalBalance = Object.values(current).reduce((sum, b) => sum + b, 0);
 
+  const formatK = (val: number) => {
+    if (Math.abs(val) >= 1000) {
+      return (val / 1000).toFixed(1) + 'K';
+    }
+    return val.toFixed(2);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const initial = parseFloat(formData.initial_balance) || 0;
+    const val = parseFloat(formData.balance) || 0;
 
     if (editingAccount) {
-      await updateAccount(editingAccount, {
+      const { error } = await updateAccount(editingAccount, {
         name: formData.name,
-        initial_balance: initial,
+        active_balance: val,
         currency: formData.currency
       });
-      setEditingAccount(null);
+      if (error) alert('Error updating account: ' + error.message);
+      else setEditingAccount(null);
     } else {
-      await addAccount(formData.name, initial, formData.currency);
-      setShowAddForm(false);
+      const { error } = await addAccount(formData.name, val, formData.currency);
+      if (error) alert('Error adding account: ' + error.message);
+      else setShowAddForm(false);
     }
-    setFormData({ name: '', initial_balance: '', currency: 'EUR' });
+    setFormData({ name: '', balance: '', currency: 'EUR' });
   };
 
   const handleEdit = (acc: any) => {
     setEditingAccount(acc.id);
     setFormData({
       name: acc.name,
-      initial_balance: acc.initial_balance.toString(),
+      balance: acc.active_balance.toString(),
       currency: acc.currency
     });
-    setShowAddForm(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -64,7 +72,7 @@ export default function BalancePage() {
         <Button
           variant="ghost"
           className={styles.addBtn}
-          onClick={() => { setShowAddForm(!showAddForm); setEditingAccount(null); setFormData({ name: '', initial_balance: '', currency: 'EUR' }); }}
+          onClick={() => { setShowAddForm(!showAddForm); setEditingAccount(null); setFormData({ name: '', balance: '', currency: 'EUR' }); }}
         >
           {showAddForm ? <X size={20} /> : <Plus size={24} />}
         </Button>
@@ -81,11 +89,11 @@ export default function BalancePage() {
               required
             />
             <Input
-              label="Initial Balance"
+              label={editingAccount ? "Current Balance" : "Initial Balance"}
               type="number"
               step="0.01"
-              value={formData.initial_balance}
-              onChange={e => setFormData({ ...formData, initial_balance: e.target.value })}
+              value={formData.balance}
+              onChange={e => setFormData({ ...formData, balance: e.target.value })}
               required
             />
             <Button type="submit" fullWidth className={styles.submitBtn}>
@@ -98,7 +106,7 @@ export default function BalancePage() {
 
       <div className={styles.totalCard}>
         <div className={styles.totalLabel}>Total Net Worth</div>
-        <div className={styles.totalValue}>€{totalBalance.toFixed(2)}</div>
+        <div className={styles.totalValue}>€{formatK(totalBalance)}</div>
       </div>
 
       <div className={styles.chartSection}>
@@ -113,23 +121,56 @@ export default function BalancePage() {
       <div className={styles.accountsSection}>
         <h3 className={styles.sectionTitle}>Bank Accounts</h3>
         <div className={styles.accountList}>
-          {accounts.map(acc => (
-            <div key={acc.id} className={styles.accountCard}>
-              <div className={styles.accountInfo}>
-                <span className={styles.accountName}>{acc.name}</span>
-                <span className={styles.accountCurrency}>{acc.currency}</span>
-              </div>
-              <div className={styles.accountActions}>
-                <div className={`${styles.accountBalance} ${(current[acc.id] || 0) >= 0 ? styles.positive : styles.negative}`}>
-                  €{(current[acc.id] || 0).toFixed(2)}
+          {accounts.map(acc => {
+            const isEditing = editingAccount === acc.id;
+
+            if (isEditing) {
+              return (
+                <Card key={acc.id} className={styles.inlineFormCard}>
+                  <form onSubmit={handleSubmit} className={styles.inlineForm}>
+                    <div className={styles.inlineInputs}>
+                      <Input
+                        value={formData.name}
+                        onChange={e => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        placeholder="Account Name"
+                      />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={formData.balance}
+                        onChange={e => setFormData({ ...formData, balance: e.target.value })}
+                        required
+                        placeholder="Balance"
+                      />
+                    </div>
+                    <div className={styles.inlineActions}>
+                      <button type="submit" className={styles.saveBtn}><Save size={18} /></button>
+                      <button type="button" onClick={() => setEditingAccount(null)} className={styles.cancelBtn}><X size={18} /></button>
+                    </div>
+                  </form>
+                </Card>
+              );
+            }
+
+            return (
+              <div key={acc.id} className={styles.accountCard}>
+                <div className={styles.accountInfo}>
+                  <span className={styles.accountName}>{acc.name}</span>
+                  <span className={styles.accountCurrency}>{acc.currency}</span>
                 </div>
-                <div className={styles.actionBtns}>
-                  <button onClick={() => handleEdit(acc)} className={styles.iconBtn}><Edit3 size={16} /></button>
-                  <button onClick={() => handleDelete(acc.id)} className={styles.iconBtn}><Trash2 size={16} /></button>
+                <div className={styles.accountActions}>
+                  <div className={`${styles.accountBalance} ${(current[acc.id] || 0) >= 0 ? styles.positive : styles.negative}`}>
+                    €{formatK(current[acc.id] || 0)}
+                  </div>
+                  <div className={styles.actionBtns}>
+                    <button onClick={() => handleEdit(acc)} className={styles.iconBtn}><Edit3 size={16} /></button>
+                    <button onClick={() => handleDelete(acc.id)} className={styles.iconBtn}><Trash2 size={16} /></button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </main>

@@ -20,9 +20,9 @@
     --surface-raised: rgba(30, 38, 80, 0.7);
 
     /* === Brand Blue === */
-    --primary: #1b2645;
+    --primary: #0c152c;
     --primary-hover: #2a5ce6;
-    --primary-glow: rgba(59, 111, 255, 0.35);
+    --primary-glow: rgba(133, 147, 186, 0.35);
 
     /* === Semantic Colors === */
     --success: #22c55e;

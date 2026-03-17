@@ -22,6 +22,12 @@ export default function BudgetPage() {
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isSavingCategory, setIsSavingCategory] = useState(false);
 
+  const totalSpent = transactions
+    .filter(m => m.type === 'expense')
+    .reduce((sum, m) => sum + Number(m.amount), 0);
+  
+  const totalBudget = Object.values(budgets).reduce((sum, b) => sum + Number(b), 0);
+
   const spentByCategory = transactions
     .filter(m => m.type === 'expense')
     .reduce((acc: Record<string, number>, m) => {
@@ -79,6 +85,23 @@ export default function BudgetPage() {
 
       <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
 
+      <div className={styles.kpiGrid}>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Total Budget</div>
+          <div className={styles.kpiValue}>€{totalBudget.toFixed(0)}</div>
+        </div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Current Spending</div>
+          <div className={styles.kpiValue}>€{totalSpent.toFixed(0)}</div>
+        </div>
+        <div className={styles.kpiCard}>
+          <div className={styles.kpiLabel}>Budget Left</div>
+          <div className={(totalBudget - totalSpent) >= 0 ? styles.positiveValue : styles.negativeValue}>
+            €{(totalBudget - totalSpent).toFixed(0)}
+          </div>
+        </div>
+      </div>
+
       {catLoading || txLoading || bgtLoading ? (
         <div className={styles.loading}>Loading...</div>
       ) : budgetCategories.length === 0 && !isAddingCategory ? (
@@ -135,7 +158,7 @@ export default function BudgetPage() {
                       className={styles.progressBar} 
                       style={{ 
                         width: `${percent}%`,
-                        backgroundColor: percent > 90 ? 'var(--destructive)' : 'var(--primary)'
+                        backgroundColor: percent > 90 ? '#ff4d4d' : '#00d1ff'
                       }} 
                     />
                   </div>
