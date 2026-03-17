@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,61 +6,62 @@
 
 @layer base {
   :root {
-    color-scheme: dark; /* Signals browser to use dark system UI (scrollbars, context menus, selects) */
+    color-scheme: dark;
 
-    /* === Core Palette === */
-    --background: #050714;
-    --foreground: #e8eaf6;
+    /* === Tron Legacy Palette === */
+    --background: #020617;
+    --foreground: #f8fafc;
 
-    --card: rgba(13, 17, 38, 0.75);
-    --card-solid: #0d1126;
+    --card: rgba(15, 23, 42, 0.8);
+    --card-solid: #0f172a;
 
-    --surface: rgba(22, 28, 60, 0.5);
-    --surface-raised: rgba(30, 38, 80, 0.7);
+    --surface: rgba(30, 41, 59, 0.5);
+    --surface-raised: rgba(51, 65, 85, 0.7);
 
-    /* === Brand Blue === */
-    --primary: #3b6fff;
-    --primary-hover: #2a5ce6;
-    --primary-glow: rgba(59, 111, 255, 0.35);
+    /* === Cyber Blue / Cyan === */
+    --primary: #00d2ff;
+    --primary-hover: #00b4db;
+    --primary-glow: rgba(0, 210, 255, 0.4);
 
-    /* === Semantic Colors === */
-    --success: #22c55e;           /* Green — income */
-    --success-muted: rgba(34, 197, 94, 0.12);
-    --destructive: #f43f5e;       /* Red — expenses */
-    --destructive-muted: rgba(244, 63, 94, 0.12);
+    /* === Semantic Neon Colors === */
+    --success: #00ffa3;           /* Neon Green — income */
+    --success-muted: rgba(0, 255, 163, 0.1);
+    --destructive: #ff0055;       /* Neon Pink/Red — expenses */
+    --destructive-muted: rgba(255, 0, 85, 0.1);
 
-    /* Also kept as aliases */
-    --accent-income: #22c55e;
-    --accent-expense: #f43f5e;
+    --accent-income: #00ffa3;
+    --accent-expense: #ff0055;
 
     /* === Text === */
-    --muted: #8892b0;
-    --muted-foreground: #6272a4;
-    --label: #4a5568;
+    --muted: #94a3b8;
+    --muted-foreground: #64748b;
+    --label: #475569;
 
     /* === Borders & Radius === */
-    --border: rgba(59, 111, 255, 0.12);
-    --border-subtle: rgba(255, 255, 255, 0.06);
-    --radius: 1rem;
+    --border: rgba(0, 210, 255, 0.15);
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --radius: 1.25rem;
 
     /* === Misc === */
-    --accent: rgba(59, 111, 255, 0.08);
-    --secondary: #131729;
-    --transition: all 0.2s ease;
+    --accent: rgba(0, 210, 255, 0.1);
+    --secondary: #1e293b;
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   * {
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
-    @apply antialiased min-h-screen;
+    @apply antialiased min-h-screenSelection;
     background: var(--background);
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(59, 111, 255, 0.18) 0%, transparent 70%),
-      linear-gradient(180deg, #070b1d 0%, #050714 60%, #030510 100%);
+    background-image: 
+      radial-gradient(circle at 50% -20%, rgba(0, 210, 255, 0.15) 0%, transparent 80%),
+      radial-gradient(circle at 0% 100%, rgba(0, 255, 163, 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 100% 100%, rgba(255, 0, 85, 0.05) 0%, transparent 50%);
     color: var(--foreground);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Space Grotesk', sans-serif;
   }
 }
 
