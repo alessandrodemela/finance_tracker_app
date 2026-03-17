@@ -9,11 +9,11 @@
 }
 
 .header h1 {
-  font-size: 1.6rem;
-  font-weight: 800;
+  font-size: 1.8rem;
+  font-weight: 300;
   margin: 0;
   font-family: 'Outfit', sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
 }
 
 /* ===== YEAR SELECTOR ===== */
@@ -48,10 +48,10 @@
 
 .yearDisplay {
   font-size: 1.75rem;
-  font-weight: 800;
+  font-weight: 500;
   margin: 0;
   font-family: 'Outfit', sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
 }
 
 /* ===== KPI GRID ===== */
@@ -62,10 +62,10 @@
   margin-bottom: 1.25rem;
 }
 
-/* Makes net savings span full width */
-.kpiGrid > :last-child {
+/* Makes net savings span full width
+.kpiGrid> :last-child {
   grid-column: 1 / -1;
-}
+} */
 
 .kpiCard {
   background: var(--card);
@@ -123,9 +123,20 @@
   letter-spacing: -0.02em;
 }
 
-.incomeIcon { color: var(--success); flex-shrink: 0; }
-.expenseIcon { color: var(--destructive); flex-shrink: 0; }
-.netIcon { color: var(--primary); flex-shrink: 0; }
+.incomeIcon {
+  color: var(--success);
+  flex-shrink: 0;
+}
+
+.expenseIcon {
+  color: var(--destructive);
+  flex-shrink: 0;
+}
+
+.netIcon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
 
 /* ===== SAVINGS RATE BANNER ===== */
 .savingsSash {
@@ -135,14 +146,15 @@
   padding: 0.875rem 1.25rem;
   text-align: center;
   margin-bottom: 1.75rem;
-  font-weight: 700;
+  font-weight: 400;
   font-size: 0.9375rem;
+  text-transform: uppercase;
   font-family: 'Outfit', sans-serif;
   letter-spacing: 0.01em;
   color: var(--muted);
 }
 
-.savingsSash span + span {
+.savingsSash span+span {
   margin-left: 0.25rem;
 }
 
@@ -159,7 +171,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
 }
 
 .table th {
@@ -187,34 +199,37 @@
 }
 
 .monthName {
-  font-weight: 600;
+  font-weight: 400;
+  font-size: 8pt;
+  letter-spacing: 0.01em;
   color: var(--foreground);
+  text-transform: uppercase;
 }
 
 .incomeCol {
   color: var(--success);
-  font-weight: 600;
+  font-weight: 500;
   font-family: 'Outfit', sans-serif;
 }
 
 .expenseCol {
   color: var(--destructive);
-  font-weight: 600;
+  font-weight: 500;
   font-family: 'Outfit', sans-serif;
 }
 
 .netCol {
-  font-weight: 700;
+  font-weight: 550;
   font-family: 'Outfit', sans-serif;
 }
 
-.rateCol { }
+.rateCol {}
 
 .rateTag {
   font-size: 0.7rem;
   padding: 0.2rem 0.5rem;
   border-radius: 99px;
-  font-weight: 700;
+  font-weight: 600;
   font-family: 'Outfit', sans-serif;
 }
 
@@ -228,8 +243,13 @@
   color: var(--destructive);
 }
 
-.positiveText { color: var(--success); }
-.negativeText { color: var(--destructive); }
+.positiveText {
+  color: var(--success);
+}
+
+.negativeText {
+  color: var(--destructive);
+}
 
 /* ===== LOADING ===== */
 .loading {

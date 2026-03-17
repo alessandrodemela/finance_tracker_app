@@ -11,6 +11,7 @@ import styles from './page.module.css';
 import { MovementType } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
+import { financeService } from '@/lib/financeService';
 
 export default function AddTransaction() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function AddTransaction() {
     if (!formData.amount) return;
 
     setLoading(true);
-    
+
     // Ensure amount is ALWAYS positive in DB as per requirement
     const amountNum = Math.abs(parseFloat(formData.amount));
 
@@ -58,13 +59,13 @@ export default function AddTransaction() {
     if (type !== 'transfer' && isAddingCategory && newCategoryName.trim()) {
       const { data: newCat, error: catError } = await supabase
         .from('categories')
-        .insert([{ 
-          name: newCategoryName.trim().toLowerCase(), 
-          type: type as 'income' | 'expense' 
+        .insert([{
+          name: newCategoryName.trim().toLowerCase(),
+          type: type as 'income' | 'expense'
         }])
         .select()
         .single();
-      
+
       if (catError) {
         alert('Error creating category: ' + catError.message);
         setLoading(false);
@@ -77,12 +78,12 @@ export default function AddTransaction() {
     if (type !== 'transfer' && isAddingBudgetCategory && newBudgetCategoryName.trim()) {
       const { data: newCat, error: catError } = await supabase
         .from('budget_categories')
-        .insert([{ 
+        .insert([{
           name: newBudgetCategoryName.trim().toLowerCase()
         }])
         .select()
         .single();
-      
+
       if (catError) {
         alert('Error creating budget category: ' + catError.message);
         setLoading(false);
@@ -110,7 +111,14 @@ export default function AddTransaction() {
       insertData.budget_category_id = budgetCategoryId || null;
     }
 
-    const { error } = await supabase.from('transactions').insert([insertData]);
+    const { error } = await (async () => {
+      try {
+        await financeService.recordTransaction(insertData);
+        return { error: null };
+      } catch (err: any) {
+        return { error: err };
+      }
+    })();
 
     if (error) {
       alert('Error saving transaction: ' + error.message);
@@ -154,8 +162,8 @@ export default function AddTransaction() {
                 New Transaction
               </Button>
               {lastAccountId && (
-                <Button onClick={() => handleAddAnother(true)} variant="ghost" fullWidth>
-                  New from Same Account
+                <Button onClick={() => handleAddAnother(true)} fullWidth>
+                  New From Same Account
                 </Button>
               )}
             </div>
@@ -169,8 +177,7 @@ export default function AddTransaction() {
     <main className={styles.main}>
       <header className={styles.header}>
         <Button variant="ghost" onClick={() => router.back()} className={styles.backBtn}>
-          <ArrowLeft size={20} />
-          <span>Back</span>
+          <ArrowLeft size={18} />
         </Button>
         <h1 className="gradient-text">New Transaction</h1>
       </header>
@@ -224,48 +231,6 @@ export default function AddTransaction() {
                     value={formData.account_id}
                     onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
                   />
-                  {!isAddingCategory ? (
-                    <div className={styles.categorySelectWrapper}>
-                      <Select
-                        label="Category"
-                        required
-                        options={[
-                          ...categories.map(c => ({ value: c.id, label: c.name })),
-                          { value: 'ADD_NEW', label: '+ New Category...' }
-                        ]}
-                        value={formData.category_id}
-                        onChange={(e) => {
-                          if (e.target.value === 'ADD_NEW') {
-                            setIsAddingCategory(true);
-                          } else {
-                            setFormData({ ...formData, category_id: e.target.value });
-                          }
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className={styles.newCategoryWrapper}>
-                      <Input
-                        label="New Category"
-                        placeholder="Category name..."
-                        required
-                        value={newCategoryName}
-                        onChange={(e) => setNewCategoryName(e.target.value)}
-                        autoFocus
-                      />
-                      <button 
-                        type="button" 
-                        className={styles.cancelBtn}
-                        onClick={() => {
-                          setIsAddingCategory(false);
-                          setNewCategoryName('');
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-
                   {!isAddingBudgetCategory ? (
                     <div className={styles.categorySelectWrapper}>
                       <Select
@@ -296,8 +261,8 @@ export default function AddTransaction() {
                         onChange={(e) => setNewBudgetCategoryName(e.target.value)}
                         autoFocus
                       />
-                      <button 
-                        type="button" 
+                      <button
+                        type="button"
                         className={styles.cancelBtn}
                         onClick={() => {
                           setIsAddingBudgetCategory(false);
@@ -308,7 +273,47 @@ export default function AddTransaction() {
                       </button>
                     </div>
                   )}
-
+                  {!isAddingCategory ? (
+                    <div className={styles.categorySelectWrapper}>
+                      <Select
+                        label="Category"
+                        required
+                        options={[
+                          ...categories.map(c => ({ value: c.id, label: c.name })),
+                          { value: 'ADD_NEW', label: '+ New Category...' }
+                        ]}
+                        value={formData.category_id}
+                        onChange={(e) => {
+                          if (e.target.value === 'ADD_NEW') {
+                            setIsAddingCategory(true);
+                          } else {
+                            setFormData({ ...formData, category_id: e.target.value });
+                          }
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.newCategoryWrapper}>
+                      <Input
+                        label="New Category"
+                        placeholder="Category name..."
+                        required
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className={styles.cancelBtn}
+                        onClick={() => {
+                          setIsAddingCategory(false);
+                          setNewCategoryName('');
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  )}
                 </>
               ) : (
                 <>
@@ -367,7 +372,7 @@ export default function AddTransaction() {
             )}
 
             <Button type="submit" fullWidth disabled={loading} className={styles.submitBtn}>
-              <Save size={20} />
+              {/* <Save size={20} /> */}
               <span>{loading ? 'Saving...' : 'Save Transaction'}</span>
             </Button>
           </form>

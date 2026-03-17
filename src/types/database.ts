@@ -21,6 +21,7 @@ export interface Account {
   name: string;
   initial_balance: number;
   currency: string;
+  deleted_at?: string | null;
   created_at: string;
 }
 

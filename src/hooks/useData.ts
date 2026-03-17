@@ -8,20 +8,58 @@ export function useAccounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchAccounts = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('accounts')
+      .select('*')
+      .is('deleted_at', null)
+      .order('name');
+    
+    if (!error && data) setAccounts(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function fetchAccounts() {
-      const { data, error } = await supabase
-        .from('accounts')
-        .select('*')
-        .order('name');
-      
-      if (!error && data) setAccounts(data);
-      setLoading(false);
-    }
     fetchAccounts();
   }, []);
 
-  return { accounts, loading };
+  const addAccount = async (name: string, initialBalance: number, currency: string = 'EUR') => {
+    const { data, error } = await supabase
+      .from('accounts')
+      .insert([{
+        name,
+        initial_balance: initialBalance,
+        currency
+      }])
+      .select();
+    
+    if (!error) fetchAccounts();
+    return { data, error };
+  };
+
+  const updateAccount = async (id: string, updates: Partial<Account>) => {
+    const { data, error } = await supabase
+      .from('accounts')
+      .update(updates)
+      .eq('id', id)
+      .select();
+    
+    if (!error) fetchAccounts();
+    return { data, error };
+  };
+
+  const deleteAccount = async (id: string) => {
+    const { error } = await supabase
+      .from('accounts')
+      .update({ deleted_at: new Date().toISOString() })
+      .eq('id', id);
+    
+    if (!error) fetchAccounts();
+    return { error };
+  };
+
+  return { accounts, loading, addAccount, updateAccount, deleteAccount, refreshAccounts: fetchAccounts };
 }
 
 export function useCategories(type?: 'income' | 'expense') {
@@ -152,7 +190,9 @@ export function useBudgets(month: string) {
         onConflict: 'month,budget_category_id' 
       });
     
-    if (!error) {
+    if (error) {
+      console.error('Error saving budget:', error);
+    } else {
       setBudgets(prev => ({ ...prev, [budgetCategoryId]: amount }));
     }
     return { error };
@@ -206,6 +246,77 @@ export function useAnnualSummary(year: number) {
   }, [year]);
 
   return { data, loading };
+}
+
+export function useAccountBalances(startDate: string = '2025-12-31') {
+  const [data, setData] = useState<{
+    history: any[];
+    current: Record<string, number>;
+  }>({ history: [], current: {} });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function calculateBalances() {
+      setLoading(true);
+      
+      // Fetch accounts for initial balances
+      const { data: accountsData } = await supabase.from('accounts').select('*');
+      
+      const { data: transactions, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .gte('date', startDate)
+        .order('date', { ascending: true });
+
+      if (!error && transactions && accountsData) {
+        const initialBalances: Record<string, number> = {};
+        accountsData.forEach(acc => {
+          initialBalances[acc.id] = Number(acc.initial_balance);
+        });
+
+        const currentBalances = { ...initialBalances };
+        const balanceByDate: Record<string, Record<string, number>> = {};
+
+        // Initial state at startDate
+        let total = Object.values(currentBalances).reduce((sum, b) => sum + b, 0);
+        balanceByDate[startDate] = { ...currentBalances, total };
+
+        transactions.forEach((tx: Transaction) => {
+          const date = tx.date;
+          const amt = Number(tx.amount);
+          
+          if (tx.type === 'income' && tx.account_id) {
+            currentBalances[tx.account_id] = (currentBalances[tx.account_id] || 0) + amt;
+          } else if (tx.type === 'expense' && tx.account_id) {
+            currentBalances[tx.account_id] = (currentBalances[tx.account_id] || 0) - amt;
+          } else if (tx.type === 'transfer' && tx.from_account_id && tx.to_account_id) {
+            currentBalances[tx.from_account_id] = (currentBalances[tx.from_account_id] || 0) - amt;
+            currentBalances[tx.to_account_id] = (currentBalances[tx.to_account_id] || 0) + amt;
+          }
+          
+          total = Object.values(currentBalances).reduce((sum, b) => sum + b, 0);
+          balanceByDate[date] = { ...currentBalances, total };
+        });
+
+        const sortedDates = Object.keys(balanceByDate).sort();
+        const history = sortedDates.map(date => ({
+          name: date.slice(5),
+          amount: balanceByDate[date].total,
+          fullDate: date,
+          ...balanceByDate[date]
+        }));
+
+        setData({
+          history,
+          current: currentBalances
+        });
+      }
+      setLoading(false);
+    }
+    calculateBalances();
+  }, [startDate]);
+
+  return { ...data, loading };
 }
 
 function getNextMonth(month: string): string {

@@ -131,13 +131,19 @@ export default function TransactionsPage() {
 
       {/* KPI Section */}
       <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard} data-type="income">
           <span className={styles.kpiLabel}>Income</span>
           <span className={styles.kpiValuePositive}>€{totalIncome.toFixed(0)}</span>
         </div>
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard} data-type="expense">
           <span className={styles.kpiLabel}>Expenses</span>
           <span className={styles.kpiValueNegative}>€{totalExpenses.toFixed(0)}</span>
+        </div>
+        <div className={styles.kpiCard} data-type={(totalIncome - totalExpenses) >= 0 ? "income" : "expense"}>
+          <span className={styles.kpiLabel}>Net</span>
+          <span className={(totalIncome - totalExpenses) >= 0 ? styles.kpiValuePositive : styles.kpiValueNegative}>
+            {Math.sign(totalIncome - totalExpenses) === -1 ? "- " : ""}€{Math.abs(totalIncome - totalExpenses).toFixed(0)}
+          </span>
         </div>
       </div>
 
