@@ -131,6 +131,38 @@ export const financeService = {
     return summary;
   },
 
+  async recordTransaction(tx: Omit<Transaction, 'id' | 'created_at'>) {
+    const { data: newTx, error: txError } = await supabase
+      .from('transactions')
+      .insert([tx])
+      .select()
+      .single();
+
+    if (txError) throw txError;
+    return newTx;
+  },
+
+  async updateTransaction(oldTx: Transaction, newTxData: Omit<Transaction, 'id' | 'created_at'>) {
+    const { data: updated, error: updateTxError } = await supabase
+      .from('transactions')
+      .update(newTxData)
+      .eq('id', oldTx.id)
+      .select()
+      .single();
+
+    if (updateTxError) throw updateTxError;
+    return updated;
+  },
+
+  async deleteTransaction(tx: Transaction) {
+    const { error: delError } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', tx.id);
+    
+    if (delError) throw delError;
+  },
+
   nextMonth(month: string): string {
     const [year, m] = month.split('-').map(Number);
     const nextM = m === 12 ? 1 : m + 1;

@@ -9,17 +9,17 @@
 }
 
 .header h1 {
-  font-size: 1.6rem;
-  font-weight: 800;
+  font-size: 1.8rem;
+  font-weight: 300;
   margin: 0;
   font-family: 'Outfit', sans-serif;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
 }
 
 /* ===== KPI CARDS ===== */
 .kpiGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   gap: 0.875rem;
   margin-bottom: 1.75rem;
 }
@@ -47,21 +47,25 @@
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
 }
 
-/* Subtle top glow on income card */
-.kpiCard:first-child::before {
+/* Successful/Positive top glow */
+.kpiCard[data-type="income"]::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--success), transparent);
   opacity: 0.7;
 }
 
-/* Subtle top glow on expense card */
-.kpiCard:last-child::before {
+/* Destructive/Negative top glow */
+.kpiCard[data-type="expense"]::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--destructive), transparent);
   opacity: 0.7;
@@ -72,12 +76,12 @@
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-weight: 600;
+  font-weight: 300;
 }
 
 .kpiValuePositive {
   font-size: 1.4rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--success);
   font-family: 'Outfit', sans-serif;
   letter-spacing: -0.02em;
@@ -86,7 +90,7 @@
 
 .kpiValueNegative {
   font-size: 1.4rem;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--destructive);
   font-family: 'Outfit', sans-serif;
   letter-spacing: -0.02em;
@@ -95,12 +99,17 @@
 
 .kpiValue {
   font-size: 1.4rem;
-  font-weight: 800;
+  font-weight: 400;
   font-family: 'Outfit', sans-serif;
 }
 
-.positiveText { color: var(--success); }
-.negativeText { color: var(--destructive); }
+.positiveText {
+  color: var(--success);
+}
+
+.negativeText {
+  color: var(--destructive);
+}
 
 /* ===== ADD BUTTON ===== */
 .addButtonWrapper {
@@ -114,18 +123,18 @@
   padding: 1rem;
   border-radius: 1.25rem;
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 400;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #3b6fff 0%, #2a4fd4 100%);
+  background: linear-gradient(135deg, #030f2f 0%, #5579fb 100%);
   color: #ffffff;
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow:
-    0 4px 20px rgba(59, 111, 255, 0.4),
+    0 4px 20px rgba(2, 12, 37, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   font-family: 'Outfit', sans-serif;
   letter-spacing: 0.01em;
@@ -134,7 +143,7 @@
 .addButton:hover {
   transform: translateY(-1px);
   box-shadow:
-    0 8px 28px rgba(59, 111, 255, 0.5),
+    0 8px 28px rgba(2, 12, 37, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
@@ -161,11 +170,11 @@
 
 .chartTitle {
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 400;
   margin: 0 0 1.25rem;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
 }
 
 .chartContainer {
@@ -180,7 +189,7 @@
 
 .sectionTitle {
   font-size: 1rem;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 1rem;
   color: var(--foreground);
   text-transform: uppercase;

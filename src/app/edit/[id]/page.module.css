@@ -3,16 +3,27 @@
 }
 
 .header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
   margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
 }
 
 .backBtn {
-  width: 44px;
-  height: 44px;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
   border-radius: 50%;
   border: 1px solid var(--border);
   background: var(--card);
@@ -31,8 +42,13 @@
 }
 
 .deleteBtn {
-  width: 44px;
-  height: 44px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  padding: 0 !important;
   border-radius: 50%;
   border: 1px solid var(--destructive-muted);
   background: var(--destructive-muted);

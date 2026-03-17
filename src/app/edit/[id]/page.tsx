@@ -11,6 +11,7 @@ import styles from './page.module.css';
 import { MovementType, Transaction } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
+import { financeService } from '@/lib/financeService';
 
 export default function EditTransaction({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -97,34 +98,43 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
       updateData.to_account_id = null;
     }
 
-    const { error } = await supabase
-      .from('transactions')
-      .update(updateData)
-      .eq('id', id);
+    try {
+      // Need the original transaction for reversal
+      const { data: oldTx, error: fetchError } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('id', id)
+        .single();
+      
+      if (fetchError) throw fetchError;
 
-    if (error) {
-      alert('Errore nel salvataggio: ' + error.message);
-      setSaving(false);
-    } else {
+      await financeService.updateTransaction(oldTx, updateData);
       router.push('/transactions');
       router.refresh();
+    } catch (error: any) {
+      alert('Error saving: ' + error.message);
+      setSaving(false);
     }
   };
 
   const handleDelete = async () => {
     if (confirm('Are you sure you want to delete this transaction?')) {
       setSaving(true);
-      const { error } = await supabase
-        .from('transactions')
-        .delete()
-        .eq('id', id);
+      try {
+        const { data: tx, error: fetchError } = await supabase
+          .from('transactions')
+          .select('*')
+          .eq('id', id)
+          .single();
+        
+        if (fetchError) throw fetchError;
 
-      if (error) {
-        alert('Error deleting: ' + error.message);
-        setSaving(false);
-      } else {
+        await financeService.deleteTransaction(tx);
         router.push('/transactions');
         router.refresh();
+      } catch (error: any) {
+        alert('Error deleting: ' + error.message);
+        setSaving(false);
       }
     }
   };
@@ -135,12 +145,11 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
     <main className={styles.main}>
       <header className={styles.header}>
         <Button variant="ghost" onClick={() => router.back()} className={styles.backBtn}>
-          <ArrowLeft size={20} />
-          <span>Back</span>
+          <ArrowLeft size={18} />
         </Button>
         <h1 className="gradient-text">Edit</h1>
         <Button variant="danger" onClick={handleDelete} className={styles.deleteBtn}>
-          <Trash2 size={20} />
+          <Trash2 size={18} />
         </Button>
       </header>
 

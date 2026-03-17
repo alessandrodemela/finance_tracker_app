@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ListOrdered, PiggyBank, BarChart3 } from 'lucide-react';
+import { Home, ListOrdered, PiggyBank, BarChart3, TrendingUp } from 'lucide-react';
 import styles from './BottomNav.module.css';
 
 export function BottomNav() {
@@ -22,8 +22,12 @@ export function BottomNav() {
         <PiggyBank size={24} />
         <span>Budget</span>
       </Link>
-      <Link href="/summary" className={`${styles.link} ${pathname === '/summary' ? styles.active : ''}`}>
+      <Link href="/balance" className={`${styles.link} ${pathname === '/balance' ? styles.active : ''}`}>
         <BarChart3 size={24} />
+        <span>Balance</span>
+      </Link>
+      <Link href="/summary" className={`${styles.link} ${pathname === '/summary' ? styles.active : ''}`}>
+        <TrendingUp size={24} />
         <span>Summary</span>
       </Link>
     </nav>

@@ -5,10 +5,10 @@ import { MonthSelector } from '@/components/MonthSelector';
 import { Button } from '@/components/ui/Button';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useTransactions, useBudgetCategories, useBudgets } from '@/hooks/useData';
-import { Transaction, BudgetCategory } from '@/types/database';
-import { SpendingTrendChart, CategoryPieChart } from '@/components/DashboardCharts';
+import { SpendingTrendChart, CategoryPieChart, BalanceTrendChart } from '@/components/DashboardCharts';
 import { useDate } from '@/context/DateContext';
+import { useTransactions, useBudgetCategories, useBudgets, useAccountBalances } from '@/hooks/useData';
+import { Transaction, BudgetCategory } from '@/types/database';
 import styles from './page.module.css';
 
 export default function Dashboard() {
@@ -16,6 +16,7 @@ export default function Dashboard() {
   const { transactions, loading: mvmtLoading } = useTransactions(0, currentMonthStr);
   const { budgetCategories, loading: catLoading } = useBudgetCategories();
   const { budgets, loading: bgtLoading } = useBudgets(currentMonthStr);
+  const { history: balanceData } = useAccountBalances('2025-12-31');
 
   // KPIs
   const totalIncome = transactions
@@ -69,27 +70,24 @@ export default function Dashboard() {
   return (
     <main className={styles.container}>
       <header className={styles.header}>
-        <h1 className="gradient-text">Personal Finance</h1>
+        <h1 className="gradient-text">Personal Finance Tracker</h1>
       </header>
 
       <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
 
       <div className={styles.kpiGrid}>
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard} data-type="income">
           <div className={styles.kpiLabel}>Income</div>
           <div className={styles.kpiValuePositive}>€{totalIncome.toFixed(0)}</div>
         </div>
-        <div className={styles.kpiCard}>
+        <div className={styles.kpiCard} data-type="expense">
           <div className={styles.kpiLabel}>Expenses</div>
           <div className={styles.kpiValueNegative}>€{totalExpenses.toFixed(0)}</div>
         </div>
-      </div>
-
-      <div className={styles.chartsGrid}>
-        <div className={styles.chartCard}>
-          <h3 className={styles.chartTitle}>Daily Spending Trend</h3>
-          <div className={styles.chartContainer}>
-            <SpendingTrendChart data={trendData} />
+        <div className={styles.kpiCard} data-type={(totalIncome - totalExpenses) >= 0 ? "income" : "expense"}>
+          <div className={styles.kpiLabel}>Net</div>
+          <div className={(totalIncome - totalExpenses) >= 0 ? styles.kpiValuePositive : styles.kpiValueNegative}>
+            {Math.sign(totalIncome - totalExpenses) === -1 ? "- " : ""}€{Math.abs(totalIncome - totalExpenses).toFixed(0)}
           </div>
         </div>
       </div>
@@ -100,6 +98,24 @@ export default function Dashboard() {
           <span>Add Transaction</span>
         </Button>
       </Link>
+
+      <div className={styles.chartsGrid}>
+        {/* <div className={styles.chartCard}>
+          <h3 className={styles.chartTitle}>Account Balance Trend</h3>
+          <div className={styles.chartContainer}>
+            <BalanceTrendChart data={balanceData} />
+          </div>
+        </div> */}
+
+        <div className={styles.chartCard}>
+          <h3 className={styles.chartTitle}>Daily Spending Trend</h3>
+          <div className={styles.chartContainer}>
+            <SpendingTrendChart data={trendData} />
+          </div>
+        </div>
+      </div>
+
+
 
       <div className={styles.budgetSection}>
         <h3 className={styles.sectionTitle}>Budget vs Actual</h3>

@@ -38,7 +38,10 @@ export default function BudgetPage() {
   const handleSave = async (id: string) => {
     const val = parseFloat(editValue);
     if (!isNaN(val) && val >= 0) {
-      await saveBudget(id, val);
+      const { error } = await saveBudget(id, val);
+      if (error) {
+        alert('Error saving budget: ' + error.message);
+      }
     }
     setEditingId(null);
   };
