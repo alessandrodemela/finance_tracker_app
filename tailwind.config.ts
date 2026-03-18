@@ -12,6 +12,16 @@ const config: Config = {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
+        brand: {
+          navy: '#0A0E27',
+          card: '#141B35',
+          primary: '#E8EBF4',
+          secondary: '#5A6B8F',
+          success: '#10B981',
+          danger: '#F05A64',
+          accent: '#6366F1',
+        },
+        // Keeping old variables for fallback/gradual migration, but these are the new ones
         background: "var(--background)",
         foreground: "var(--foreground)",
         surface: "var(--surface)",
@@ -29,20 +39,10 @@ const config: Config = {
         label: "var(--label)",
         border: "var(--border)",
       },
-      backgroundImage: {
-        "gradient-dark": "linear-gradient(180deg, #0a0c10 0%, #030305 100%)",
-      },
       borderRadius: {
-        'xl': '1rem', // 16px
-        '2xl': '1.5rem', // 24px
+        'xl': '12px',
+        '2xl': '16px',
       },
-      boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        'glow': '0 0 20px rgba(59, 130, 246, 0.3)',
-      },
-      letterSpacing: {
-        number: '0.02em',
-      }
     },
   },
   plugins: [],

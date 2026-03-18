@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { BottomNav } from "@/components/BottomNav";
 import { DateProvider } from "@/context/DateContext";
 import "./globals.css";
 
@@ -15,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#050714",
+  themeColor: "#03050f",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -33,7 +32,6 @@ export default function RootLayout({
         <div className="mobile-wrapper">
           <DateProvider>
             {children}
-            <BottomNav />
           </DateProvider>
         </div>
         <script

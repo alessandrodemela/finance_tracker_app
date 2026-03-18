@@ -10,25 +10,25 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "default", fullWidth = false, ...props }, ref) => {
     const variants = {
-      primary: "bg-primary text-white hover:bg-primary-hover shadow-[0_8px_20px_-4px_rgba(59,111,255,0.4)] hover:shadow-[0_12px_28px_-4px_rgba(59,111,255,0.5)] border-t border-white/15",
-      secondary: "bg-white/5 text-white hover:bg-white/10 border border-white/10 hover:border-white/20",
-      ghost: "bg-transparent text-slate-400 hover:text-white hover:bg-white/5",
+      primary: "rounded-xl bg-gradient-to-r from-[#6366F1] to-[#4F46E5] text-white font-medium hover:from-[#818CF8] hover:to-[#6366F1] hover:shadow-lg active:scale-[0.98] transition-all",
+      secondary: "rounded-xl border border-[#6366F1] text-[#6366F1] font-medium hover:bg-[rgba(99,102,241,0.1)] transition-all",
+      ghost: "bg-transparent text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/5",
       icon: "rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white",
-      danger: "bg-destructive text-white hover:bg-destructive/90 shadow-[0_8px_20px_-4px_rgba(244,63,94,0.4)] border-t border-white/15",
+      danger: "bg-[var(--color-brand-danger)] text-white hover:opacity-90 shadow-lg",
     };
 
     const sizes = {
-      default: "h-12 px-6 py-3 rounded-2xl font-bold",
-      sm: "h-10 px-4 py-2 rounded-xl text-sm font-semibold",
-      lg: "h-14 px-8 py-4 rounded-[1.25rem] text-lg font-extrabold",
-      icon: "h-12 w-12 flex items-center justify-center rounded-full",
+      default: "py-4 px-6 text-base",
+      sm: "py-2 px-4 text-sm",
+      lg: "py-5 px-8 text-lg",
+      icon: "h-12 w-12 flex items-center justify-center rounded-full p-0",
     };
 
     return (
       <button
         ref={ref}
         className={cn(
-          "inline-flex items-center justify-center transition-all active:scale-[0.97] outline-none disabled:opacity-50 disabled:pointer-events-none font-outfit tracking-wide",
+          "inline-flex items-center justify-center transition-all outline-none disabled:opacity-50 disabled:pointer-events-none",
           fullWidth && "w-full",
           variants[variant],
           sizes[size],

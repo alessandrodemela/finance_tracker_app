@@ -1,6 +1,5 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
-import { Card } from "./Card"
 
 export interface TransactionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -20,33 +19,38 @@ export function TransactionCard({
   ...props 
 }: TransactionCardProps) {
   const isIncome = type === "income";
-  const formattedAmount = `${isIncome ? '+' : '-'}$${Math.abs(amount).toFixed(2)}`;
+  const formattedAmount = `${isIncome ? '+' : '-'}€${Math.abs(amount).toFixed(2)}`;
 
   return (
-    <Card 
+    <div 
       className={cn(
-        "flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--surface-raised)] transition-colors duration-200 group active:scale-[0.99]",
+        "rounded-2xl border border-[rgba(99,102,241,0.1)] bg-[#141B35] p-4 flex items-center justify-between gap-3 hover:border-[rgba(99,102,241,0.2)] hover:shadow-lg transition-all cursor-pointer",
         className
       )}
       {...props}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         {icon && (
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--surface-raised)] text-[var(--muted)] group-hover:text-white transition-colors">
-            {icon}
+          <div className={cn(
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-opacity-30",
+            isIncome ? "bg-[#10B981]/30 text-[#10B981]" : "bg-[#F05A64]/30 text-[#F05A64]"
+          )}>
+            <div className="w-5 h-5 flex items-center justify-center">
+              {icon}
+            </div>
           </div>
         )}
-        <div className="flex flex-col">
-          <span className="font-semibold text-white tracking-wide">{title}</span>
-          <span className="text-sm text-[var(--muted)]">{subtitle}</span>
+        <div className="flex flex-col gap-1">
+          <span className="text-body">{title}</span>
+          <span className="text-small">{subtitle}</span>
         </div>
       </div>
       <div className={cn(
-        "font-bold font-sans tracking-number text-lg",
-        isIncome ? "text-accent-income" : "text-white"
+        "text-body font-medium",
+        isIncome ? "text-[#10B981]" : "text-[#F05A64]"
       )}>
         {formattedAmount}
       </div>
-    </Card>
+    </div>
   )
 }
