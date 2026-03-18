@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Home, ListOrdered, PiggyBank, BarChart3 } from 'lucide-react';
+import { Home, ListOrdered, PiggyBank, BarChart3, TrendingUp } from 'lucide-react';
 import { HomeTab } from '@/components/tabs/HomeTab';
 import { TransactionsTab } from '@/components/tabs/TransactionsTab';
 import { BudgetTab } from '@/components/tabs/BudgetTab';
 import { BalanceTab } from '@/components/tabs/BalanceTab';
+import { SummaryTab } from '@/components/tabs/SummaryTab';
+import styles from './page.module.css';
 
-type Tab = 'home' | 'transactions' | 'budget' | 'balance';
+type Tab = 'home' | 'transactions' | 'budget' | 'balance' | 'summary';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -37,19 +39,28 @@ export default function Dashboard() {
       label: 'Balance',
       isActive: activeTab === 'balance',
       onClick: () => setActiveTab('balance')
+    },
+    {
+      icon: <TrendingUp size={24} />,
+      label: 'Summary',
+      isActive: activeTab === 'summary',
+      onClick: () => setActiveTab('summary')
     }
   ];
 
   return (
     <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)]">
-      {/* Tab content with proper padding */}
-      <div className="px-6 pt-6 pb-24">
-        {activeTab === 'home' && <HomeTab />}
-        {activeTab === 'transactions' && <TransactionsTab />}
-        {activeTab === 'budget' && <BudgetTab />}
-        {activeTab === 'balance' && <BalanceTab />}
-      </div>
-      
+      <main className={styles.container}>
+        {/* Tab content with proper padding */}
+        <div className="px-6 pt-6 pb-24">
+          {activeTab === 'home' && <HomeTab />}
+          {activeTab === 'transactions' && <TransactionsTab />}
+          {activeTab === 'budget' && <BudgetTab />}
+          {activeTab === 'balance' && <BalanceTab />}
+          {activeTab === 'summary' && <SummaryTab />}
+        </div>
+      </main>
+
       {/* Fixed bottom navigation */}
       <BottomNav items={navItems} />
     </div>

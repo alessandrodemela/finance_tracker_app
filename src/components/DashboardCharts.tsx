@@ -17,15 +17,15 @@ interface CategoryData {
 }
 
 // Updated premium color palette
-const COLORS = ['#3b6fff', '#22c55e', '#f43f5e', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
+const COLORS = ['#00D2FF', '#10B981', '#F05A64', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
 export const SpendingTrendChart = ({ data }: { data: TrendData[] }) => (
   <ResponsiveContainer width="100%" height="100%">
     <AreaChart data={data}>
       <defs>
         <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="5%" stopColor="#3b6fff" stopOpacity={0.3} />
-          <stop offset="95%" stopColor="#3b6fff" stopOpacity={0} />
+          <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.3} />
+          <stop offset="95%" stopColor="#00D2FF" stopOpacity={0} />
         </linearGradient>
       </defs>
       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
@@ -47,25 +47,25 @@ export const SpendingTrendChart = ({ data }: { data: TrendData[] }) => (
       />
       <Tooltip
         contentStyle={{
-          backgroundColor: '#131729',
-          border: '1px solid rgba(59, 111, 255, 0.2)',
+          backgroundColor: '#0d0d12',
+          border: '1px solid rgba(0, 210, 255, 0.2)',
           borderRadius: '12px',
           boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
           fontSize: '12px',
-          fontFamily: 'Outfit'
+          fontFamily: 'Inter'
         }}
         itemStyle={{ color: '#ffffff', fontWeight: 400 }}
         labelStyle={{ color: '#97989cff', marginBottom: '4px' }}
-        formatter={(value: any) => [`€ ${Math.abs(Number(value)).toFixed(2)}`, '']}
+        formatter={(value: any) => [`€ ${Math.abs(Number(value)).toFixed(0)}`, '']}
       />
       <Area
         type="monotone"
         dataKey="amount"
-        stroke="#3b6fff"
-        strokeWidth={1.5}
+        stroke="#00D2FF"
+        strokeWidth={2}
         fillOpacity={1}
         fill="url(#colorAmount)"
-        dot={{ fill: '#3b6fff', strokeWidth: 0, r: 3 }}
+        dot={{ fill: '#00D2FF', strokeWidth: 0, r: 3 }}
         activeDot={{ r: 5, strokeWidth: 0, fill: '#ffffff' }}
       />
     </AreaChart>
@@ -91,14 +91,14 @@ export const CategoryPieChart = ({ data }: { data: CategoryData[] }) => (
       </Pie>
       <Tooltip
         contentStyle={{
-          backgroundColor: '#131729',
-          border: '1px solid rgba(59, 111, 255, 0.2)',
+          backgroundColor: '#0d0d12',
+          border: '1px solid rgba(0, 210, 255, 0.2)',
           borderRadius: '12px',
           fontSize: '12px',
-          fontFamily: 'Outfit'
+          fontFamily: 'Inter'
         }}
         itemStyle={{ color: '#ffffff', fontWeight: 700 }}
-        formatter={(value: any) => [`€ ${Number(value).toFixed(2)}`, '']}
+        formatter={(value: any) => [`€ ${Number(value).toFixed(0)}`, '']}
       />
       <Legend
         verticalAlign="bottom"
@@ -162,6 +162,60 @@ export const BalanceTrendChart = ({ data }: { data: TrendData[] }) => {
           fill="url(#colorBalance)"
           dot={{ fill: '#22c55e', strokeWidth: 0, r: 2 }}
           activeDot={{ r: 4, strokeWidth: 0, fill: '#ffffff' }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+};
+
+export const NetWorthChart = ({ data }: { data: TrendData[] }) => {
+  const minVal = data.length > 0 ? Math.min(...data.map(d => d.amount)) : 0;
+  const maxVal = data.length > 0 ? Math.max(...data.map(d => d.amount)) : 0;
+  
+  // Add 10% buffer to min and max
+  const yDomainMin = minVal - (Math.abs(minVal) * 0.1);
+  const yDomainMax = maxVal + (Math.abs(maxVal) * 0.1);
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart data={data} margin={{ top: 10, right: 0, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="colorNetWorth" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#00D2FF" stopOpacity={0.3} />
+            <stop offset="95%" stopColor="#00D2FF" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+        <XAxis dataKey="fullDate" hide={true} />
+        <YAxis hide={true} domain={[yDomainMin, yDomainMax]} />
+        <Area
+          type="monotone"
+          dataKey="amount"
+          stroke="#00D2FF"
+          strokeWidth={2}
+          fillOpacity={1}
+          fill="url(#colorNetWorth)"
+          dot={false}
+          activeDot={{ r: 4, strokeWidth: 0, fill: '#00D2FF' }}
+        />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: '#0d0d12',
+            border: '1px solid rgba(0, 210, 255, 0.2)',
+            borderRadius: '12px',
+            fontSize: '11px',
+            fontFamily: 'Inter',
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
+          }}
+          itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+          labelStyle={{ color: 'rgba(255,255,255,0.4)', marginBottom: '4px', fontSize: '10px' }}
+          formatter={(value: any) => [`€ ${Number(value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}`, 'Balance']}
+          labelFormatter={(label) => {
+            if (!label || label === 'Today') return 'Today';
+            const d = new Date(label);
+            if (isNaN(d.getTime())) return label;
+            return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+          }}
         />
       </AreaChart>
     </ResponsiveContainer>

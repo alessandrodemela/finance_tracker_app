@@ -11,14 +11,14 @@ export function ProgressBar({ className, value, indicatorColor, ...props }: Prog
 
   return (
     <div
-      className={cn("h-2 w-full bg-[rgba(99,102,241,0.1)] rounded overflow-hidden", className)}
+      className={cn("h-2 w-full bg-[rgba(0,210,255,0.1)] rounded overflow-hidden", className)}
       {...props}
     >
       <div
         className="h-full rounded transition-all duration-500 ease-out"
         style={{
           width: `${clampedValue}%`,
-          background: indicatorColor || 'linear-gradient(to right, #6366F1, #818CF8)'
+          background: indicatorColor || 'linear-gradient(to right, #00D2FF, #00A3FF)'
         }}
       />
     </div>

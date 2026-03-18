@@ -111,7 +111,7 @@ export function TransactionsTab() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-display-40">Transactions</h1>
+        <h1 className="text-display-40">History</h1>
       </header>
 
       <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />

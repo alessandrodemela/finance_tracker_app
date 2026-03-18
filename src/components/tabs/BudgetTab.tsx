@@ -152,7 +152,7 @@ export function BudgetTab() {
                 <div className="flex flex-col gap-1">
                   <ProgressBar 
                     value={percent} 
-                    indicatorColor={percent > 90 ? 'var(--color-brand-danger)' : 'linear-gradient(to right, #6366F1, #818CF8)'}
+                    indicatorColor={percent > 90 ? 'var(--color-brand-danger)' : 'linear-gradient(to right, #00D2FF, #00A3FF)'}
                   />
                   <div className={`text-xs mt-1 text-right ${remaining < 0 ? 'text-[var(--color-brand-danger)]' : 'text-[var(--color-brand-success)]'}`}>
                     {remaining < 0 ? 'Over: ' : 'Remaining: '}
@@ -193,7 +193,7 @@ export function BudgetTab() {
             </div>
           ) : (
             <button 
-              className="flex items-center justify-center gap-2 w-full py-4 text-[var(--color-brand-accent)] hover:bg-[rgba(99,102,241,0.05)] rounded-2xl border border-dashed border-[rgba(99,102,241,0.3)] transition-colors mt-2"
+              className="flex items-center justify-center gap-2 w-full py-4 text-[var(--color-brand-accent)] hover:bg-[rgba(0,210,255,0.05)] rounded-2xl border border-dashed border-[rgba(0,210,255,0.3)] transition-colors mt-2"
               onClick={() => setIsAddingCategory(true)}
             >
               <Plus size={20} />

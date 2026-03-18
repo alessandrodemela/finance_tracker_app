@@ -19,7 +19,7 @@ const config: Config = {
           secondary: '#5A6B8F',
           success: '#10B981',
           danger: '#F05A64',
-          accent: '#6366F1',
+          accent: '#00D2FF',
         },
         // Keeping old variables for fallback/gradual migration, but these are the new ones
         background: "var(--background)",

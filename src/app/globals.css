@@ -9,13 +9,13 @@
     color-scheme: dark;
 
     /* === New Brand Palette === */
-    --color-brand-navy: #03050f;
-    --color-brand-card: #141B35;
+    --color-brand-navy: #04060c;
+    --color-brand-card: #090a10;
     --color-brand-primary: #E8EBF4;
     --color-brand-secondary: #5A6B8F;
     --color-brand-success: #10B981;
     --color-brand-danger: #F05A64;
-    --color-brand-accent: #6366F1;
+    --color-brand-accent: #00D2FF;
 
     /* Migration aliases (so we don't break everything immediately) */
     --background: var(--color-brand-navy);
@@ -27,7 +27,7 @@
     --destructive: var(--color-brand-danger);
     --muted: var(--color-brand-secondary);
     --label: var(--color-brand-secondary);
-    --border: rgba(99, 102, 241, 0.1);
+    --border: rgba(255, 255, 255, 0.05);
     /* accent @ 10% */
   }
 
@@ -100,11 +100,14 @@
   }
 
   .glass-panel {
-    @apply rounded-2xl border border-[rgba(99,102,241,0.1)] bg-[#141B35] p-5 transition-all;
+    @apply rounded-2xl border p-5 transition-all;
+    background-color: var(--color-brand-card);
+    border-color: rgba(255, 255, 255, 0.05);
   }
 
   .glass-panel:hover {
-    @apply border-[rgba(99,102,241,0.2)] shadow-lg;
+    @apply shadow-lg;
+    border-color: rgba(255, 255, 255, 0.1);
   }
 
   .income-text {
@@ -136,6 +139,6 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(0, 210, 255, 0.2);
   border-radius: 10px;
 }

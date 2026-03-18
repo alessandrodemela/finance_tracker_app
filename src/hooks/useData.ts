@@ -287,7 +287,7 @@ export function useAnnualSummary(year: number) {
   return { data, loading };
 }
 
-export function useAccountBalances(startDate: string = '2025-12-31') {
+export function useAccountBalances(startDate: string = '2024-01-01') {
   const [data, setData] = useState<{
     history: any[];
     current: Record<string, number>;
@@ -298,60 +298,67 @@ export function useAccountBalances(startDate: string = '2025-12-31') {
     async function calculateBalances() {
       setLoading(true);
       
-      // Fetch accounts for initial balances
       const { data: accountsData } = await supabase.from('accounts').select('*');
-      
-      const { data: transactions, error } = await supabase
+
+      // Fetch ALL transactions, newest first — walk backwards from today's known-correct active_balance
+      const { data: allTransactions, error } = await supabase
         .from('transactions')
         .select('*')
-        .gte('date', startDate)
-        .order('date', { ascending: true });
+        .order('date', { ascending: false });
 
-      if (!error && transactions && accountsData) {
-        const initialBalances: Record<string, number> = {};
+      if (!error && allTransactions && accountsData) {
         const currentBalances: Record<string, number> = {};
-        
+        let netWorthToday = 0;
+
         accountsData.forEach(acc => {
-          initialBalances[acc.id] = Number(acc.initial_balance);
           currentBalances[acc.id] = Number(acc.active_balance);
+          netWorthToday += Number(acc.active_balance);
         });
 
-        const activeBalancesForHistory = { ...initialBalances };
-        const balanceByDate: Record<string, Record<string, number>> = {};
+        // Walk backwards through all transactions.
+        // Record the net worth BEFORE undoing each transaction = state at start of that day.
+        // This correctly handles multiple transactions on the same date.
+        const balanceByDate: Record<string, number> = {};
+        let runningTotal = netWorthToday;
 
-        // Initial state at startDate
-        let total = Object.values(activeBalancesForHistory).reduce((sum, b) => sum + b, 0);
-        balanceByDate[startDate] = { ...activeBalancesForHistory, total };
-
-        transactions.forEach((tx: Transaction) => {
-          const date = tx.date;
+        allTransactions.forEach((tx: Transaction) => {
+          // Save state BEFORE undoing this transaction = balance at start of this day
+          balanceByDate[tx.date] = runningTotal;
+          
           const amt = Number(tx.amount);
-          
-          if (tx.type === 'income' && tx.account_id) {
-            activeBalancesForHistory[tx.account_id] = (activeBalancesForHistory[tx.account_id] || 0) + amt;
-          } else if (tx.type === 'expense' && tx.account_id) {
-            activeBalancesForHistory[tx.account_id] = (activeBalancesForHistory[tx.account_id] || 0) - amt;
-          } else if (tx.type === 'transfer' && tx.from_account_id && tx.to_account_id) {
-            activeBalancesForHistory[tx.from_account_id] = (activeBalancesForHistory[tx.from_account_id] || 0) - amt;
-            activeBalancesForHistory[tx.to_account_id] = (activeBalancesForHistory[tx.to_account_id] || 0) + amt;
+          if (tx.type === 'income') {
+            runningTotal -= amt;
+          } else if (tx.type === 'expense') {
+            runningTotal += amt;
           }
-          
-          total = Object.values(activeBalancesForHistory).reduce((sum, b) => sum + b, 0);
-          balanceByDate[date] = { ...activeBalancesForHistory, total };
+          // transfers: net worth conserved (from_account - to_account + = 0), skip
         });
 
-        const sortedDates = Object.keys(balanceByDate).sort();
-        const history = sortedDates.map(date => ({
-          name: date.slice(5),
-          amount: balanceByDate[date].total,
-          fullDate: date,
-          ...balanceByDate[date]
-        }));
+        const dates = Object.keys(balanceByDate).sort();
 
-        setData({
-          history,
-          current: currentBalances
-        });
+        // Build history filtered from startDate onwards
+        const history = dates
+          .filter(date => date >= startDate)
+          .map(date => ({
+            name: date.slice(5),
+            amount: balanceByDate[date],
+            fullDate: date,
+          }));
+
+        // Always add today as last point with the real value
+        const today = new Date().toISOString().split('T')[0];
+        if (today >= startDate && !balanceByDate[today]) {
+          history.push({ name: today.slice(5), amount: netWorthToday, fullDate: today });
+        }
+
+        // If no points in range, show the last known value before startDate
+        if (history.length === 0) {
+          const lastDateBefore = dates.filter(d => d < startDate).pop();
+          const startBalance = lastDateBefore ? balanceByDate[lastDateBefore] : netWorthToday;
+          history.push({ name: startDate.slice(5), amount: startBalance, fullDate: startDate });
+        }
+
+        setData({ history, current: currentBalances });
       }
       setLoading(false);
     }
