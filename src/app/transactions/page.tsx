@@ -83,7 +83,7 @@ export default function TransactionsPage() {
 
   return (
     <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)] pb-12">
-      <div className="max-w-2xl mx-auto px-6 pt-8 flex flex-col gap-6">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-8 flex flex-col gap-6">
         
         {/* Header */}
         <header className="flex items-center justify-between">

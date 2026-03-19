@@ -28,7 +28,7 @@ export function NetWorthTimeRange({ chartData, selectedRange, onRangeChange }: N
   }, [chartData]);
 
   return (
-    <div className="glass-panel flex flex-col gap-5 p-5">
+    <div className="glass-panel flex flex-col gap-5">
       <div className="flex justify-between items-center bg-[rgba(255,255,255,0.03)] p-1 rounded-full border border-[rgba(255,255,255,0.05)] shadow-inner">
         {RANGES.map((range) => (
           <button

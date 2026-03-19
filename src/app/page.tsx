@@ -8,6 +8,7 @@ import { MonthlyTab } from '@/components/tabs/MonthlyTab';
 import { YearlyTab } from '@/components/tabs/YearlyTab';
 import { BudgetTab } from '@/components/tabs/BudgetTab';
 import { InsightsTab } from '@/components/tabs/InsightsTab';
+import { cn } from '@/lib/utils';
 import styles from './page.module.css';
 
 type Tab = 'home' | 'monthly' | 'yearly' | 'budget' | 'insights';
@@ -44,9 +45,9 @@ export default function Dashboard() {
 
   return (
     <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)]">
-      <main className={styles.container}>
-        {/* Tab content with proper padding */}
-        <div className="px-6 pt-6 pb-32">
+      <main className={cn(styles.container, "pb-12")}>
+        {/* Tab content with responsive padding */}
+        <div className="px-4 sm:px-6 pt-6 pb-40">
           {activeTab === 'home' && <HomeTab />}
           {activeTab === 'monthly' && <MonthlyTab />}
           {activeTab === 'yearly' && <YearlyTab />}
