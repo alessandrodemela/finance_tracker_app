@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target } from 'luc
 
 export function SummaryTab() {
   const [year, setYear] = useState(new Date().getFullYear());
-  const { data, loading } = useAnnualSummary(year);
+  const { monthlyData: data, loading } = useAnnualSummary(year);
 
   const annualIncome = data.reduce((sum, m) => sum + m.income, 0);
   const annualExpense = data.reduce((sum, m) => sum + m.expense, 0);

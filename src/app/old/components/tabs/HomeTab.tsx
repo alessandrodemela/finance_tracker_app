@@ -14,7 +14,7 @@ export function HomeTab() {
   const { budgetCategories, loading: catLoading } = useBudgetCategories();
   const { budgets, loading: bgtLoading } = useBudgets(currentMonthStr);
   const { history: balanceData } = useAccountBalances('2025-12-31');
-  const { data: annualData } = useAnnualSummary(currentDate.getFullYear());
+  const { monthlyData: annualData } = useAnnualSummary(currentDate.getFullYear());
 
   const totalIncome = transactions
     .filter((m: Transaction) => m.type === 'income')
