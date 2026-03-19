@@ -76,6 +76,10 @@ export function BudgetTab() {
 
   return (
     <div className="flex flex-col gap-6">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-display-40">Budget</h1>
+      </header>
+
       <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
 
       <div className="grid grid-cols-3 gap-3">

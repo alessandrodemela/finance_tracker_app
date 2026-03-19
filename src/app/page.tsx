@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Home, ListOrdered, PiggyBank, BarChart3, TrendingUp } from 'lucide-react';
+import { Home, Calendar, BarChart3, PiggyBank, TrendingUp } from 'lucide-react';
 import { HomeTab } from '@/components/tabs/HomeTab';
-import { TransactionsTab } from '@/components/tabs/TransactionsTab';
+import { MonthlyTab } from '@/components/tabs/MonthlyTab';
+import { YearlyTab } from '@/components/tabs/YearlyTab';
 import { BudgetTab } from '@/components/tabs/BudgetTab';
-import { BalanceTab } from '@/components/tabs/BalanceTab';
-import { SummaryTab } from '@/components/tabs/SummaryTab';
+import { InsightsTab } from '@/components/tabs/InsightsTab';
 import styles from './page.module.css';
 
-type Tab = 'home' | 'transactions' | 'budget' | 'balance' | 'summary';
+type Tab = 'home' | 'monthly' | 'yearly' | 'budget' | 'insights';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('home');
@@ -23,28 +23,22 @@ export default function Dashboard() {
       onClick: () => setActiveTab('home')
     },
     {
-      icon: <ListOrdered size={24} />,
-      label: 'History',
-      isActive: activeTab === 'transactions',
-      onClick: () => setActiveTab('transactions')
-    },
-    {
-      icon: <PiggyBank size={24} />,
-      label: 'Budget',
-      isActive: activeTab === 'budget',
-      onClick: () => setActiveTab('budget')
+      icon: <Calendar size={24} />,
+      label: 'Monthly',
+      isActive: activeTab === 'monthly',
+      onClick: () => setActiveTab('monthly')
     },
     {
       icon: <BarChart3 size={24} />,
-      label: 'Balance',
-      isActive: activeTab === 'balance',
-      onClick: () => setActiveTab('balance')
+      label: 'Yearly',
+      isActive: activeTab === 'yearly',
+      onClick: () => setActiveTab('yearly')
     },
     {
       icon: <TrendingUp size={24} />,
-      label: 'Summary',
-      isActive: activeTab === 'summary',
-      onClick: () => setActiveTab('summary')
+      label: 'Insights',
+      isActive: activeTab === 'insights',
+      onClick: () => setActiveTab('insights')
     }
   ];
 
@@ -54,10 +48,9 @@ export default function Dashboard() {
         {/* Tab content with proper padding */}
         <div className="px-6 pt-6 pb-32">
           {activeTab === 'home' && <HomeTab />}
-          {activeTab === 'transactions' && <TransactionsTab />}
-          {activeTab === 'budget' && <BudgetTab />}
-          {activeTab === 'balance' && <BalanceTab />}
-          {activeTab === 'summary' && <SummaryTab />}
+          {activeTab === 'monthly' && <MonthlyTab />}
+          {activeTab === 'yearly' && <YearlyTab />}
+          {activeTab === 'insights' && <InsightsTab />}
         </div>
       </main>
 

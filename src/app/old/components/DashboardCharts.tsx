@@ -3,7 +3,7 @@
 import React from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, PieChart, Pie, Cell, Legend, AreaChart, Area, Treemap
+  BarChart, Bar, PieChart, Pie, Cell, Legend, AreaChart, Area
 } from 'recharts';
 
 interface TrendData {
@@ -14,7 +14,6 @@ interface TrendData {
 interface CategoryData {
   name: string;
   value: number;
-  [key: string]: any;
 }
 
 // Updated premium color palette
@@ -72,94 +71,6 @@ export const SpendingTrendChart = ({ data }: { data: TrendData[] }) => (
     </AreaChart>
   </ResponsiveContainer>
 );
-
-const BRAND_COLORS = [
-  '#6366F1', // Indigo
-  '#0EA5E9', // Sky
-  '#10B981', // Emerald
-  '#F43F5E', // Rose
-  '#8B5CF6', // Violet
-  '#F59E0B', // Amber
-  '#06B6D4', // Cyan
-];
-
-export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
-  const CustomizedContent = (props: any) => {
-    const { x, y, width, height, index, name, value } = props;
-    if (width < 32 || height < 20) return null;
-    
-    return (
-      <g>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          rx={6}
-          ry={6}
-          style={{
-            fill: BRAND_COLORS[index % BRAND_COLORS.length],
-            stroke: 'rgba(13, 13, 18, 0.4)',
-            strokeWidth: 1.5,
-          }}
-        />
-        <text
-          x={x + width / 2}
-          y={y + height / 2 - 4}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="#fff"
-          fontSize={Math.min(width / 7, 11)}
-          fontWeight="500"
-          style={{ pointerEvents: 'none', opacity: 0.9 }}
-        >
-          {name}
-        </text>
-        <text
-          x={x + width / 2}
-          y={y + height / 2 + 10}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="rgba(255,255,255,0.7)"
-          fontSize={Math.min(width / 8, 9)}
-          fontWeight="400"
-          style={{ pointerEvents: 'none' }}
-        >
-          €{value.toFixed(0)}
-        </text>
-      </g>
-    );
-  };
-
-  return (
-    <ResponsiveContainer width="100%" height="100%">
-      <Treemap
-        data={data}
-        dataKey="value"
-        stroke="#fff"
-        fill="#6366F1"
-        isAnimationActive={true}
-        content={<CustomizedContent />}
-      >
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#0d0d12',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '12px',
-            fontSize: '12px',
-            fontFamily: 'Inter',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.4)',
-          }}
-          itemStyle={{ color: '#fff' }}
-          labelStyle={{ display: 'none' }}
-          formatter={(value: any, name: any, props: any) => {
-            return [`€ ${Number(value).toLocaleString('it-IT')}`, props.payload.name];
-          }}
-        />
-      </Treemap>
-    </ResponsiveContainer>
-  );
-};
 
 export const CategoryPieChart = ({ data }: { data: CategoryData[] }) => (
   <ResponsiveContainer width="100%" height="100%">

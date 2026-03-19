@@ -1,0 +1,84 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.item:hover {
+  background: rgba(59, 111, 255, 0.05);
+  border-color: rgba(59, 111, 255, 0.15);
+  transform: translateX(2px);
+}
+
+/* Icon bubble */
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.note {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  font-size: 0.725rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.amount {
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
+
+/* === Color States === */
+.income {
+  color: var(--success);
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.expense {
+  color: var(--destructive);
+  background: rgba(244, 63, 94, 0.12);
+}
+
+.transfer {
+  color: var(--primary);
+  background: rgba(59, 111, 255, 0.12);
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 2rem;
+  font-size: 0.875rem;
+  font-style: italic;
+}

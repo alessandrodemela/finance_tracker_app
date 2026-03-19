@@ -6,7 +6,6 @@ export interface TransactionCardProps extends React.HTMLAttributes<HTMLDivElemen
   subtitle: string;
   amount: number;
   type: "income" | "expense";
-  date?: string;
   icon?: React.ReactNode;
 }
 
@@ -16,23 +15,16 @@ export function TransactionCard({
   subtitle, 
   amount, 
   type, 
-  date,
   icon,
   ...props 
 }: TransactionCardProps) {
   const isIncome = type === "income";
   const formattedAmount = `${isIncome ? '+' : '-'}€${Math.abs(amount).toFixed(2)}`;
 
-  // Formattazione data se presente
-  const formattedDate = date ? new Date(date).toLocaleDateString('it-IT', {
-    day: '2-digit',
-    month: 'short'
-  }) : null;
-
   return (
     <div 
       className={cn(
-        "rounded-2xl border border-[rgba(99,102,241,0.1)] bg-[#141B35] p-4 flex items-center justify-between gap-3 hover:border-[rgba(99,102,241,0.2)] hover:shadow-lg transition-all cursor-pointer relative overflow-hidden group",
+        "rounded-2xl border border-[rgba(99,102,241,0.1)] bg-[#141B35] p-4 flex items-center justify-between gap-3 hover:border-[rgba(99,102,241,0.2)] hover:shadow-lg transition-all cursor-pointer",
         className
       )}
       {...props}
@@ -48,21 +40,13 @@ export function TransactionCard({
             </div>
           </div>
         )}
-        <div className="flex flex-col gap-0.5">
-          <span className="text-body font-medium text-white group-hover:text-[var(--color-brand-accent)] transition-colors">{title}</span>
-          <div className="flex items-center gap-1.5 opacity-60">
-             <span className="text-[10px] font-bold uppercase tracking-wider">{subtitle}</span>
-             {formattedDate && (
-               <>
-                 <span className="text-[8px] opacity-40">•</span>
-                 <span className="text-[10px] uppercase">{formattedDate}</span>
-               </>
-             )}
-          </div>
+        <div className="flex flex-col gap-1">
+          <span className="text-body">{title}</span>
+          <span className="text-small">{subtitle}</span>
         </div>
       </div>
       <div className={cn(
-        "text-body font-bold",
+        "text-body font-medium",
         isIncome ? "text-[#10B981]" : "text-[#F05A64]"
       )}>
         {formattedAmount}
