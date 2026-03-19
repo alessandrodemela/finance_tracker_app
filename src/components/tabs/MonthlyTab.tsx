@@ -5,6 +5,8 @@ import { useDate } from '@/context/DateContext';
 import { useTransactions, useBudgetCategories, useBudgets } from '@/hooks/useData';
 import { Transaction, BudgetCategory } from '@/types/database';
 
+import { useRouter } from 'next/navigation';
+import { financeService } from '@/lib/financeService';
 import { MonthSelector } from '@/components/MonthSelector';
 import { MonthlyKPICards } from '@/components/ui/MonthlyKPICards';
 import { CategoryBreakdown, CategoryBudgetItem } from '@/components/ui/CategoryBreakdown';
@@ -12,6 +14,19 @@ import { DailySpendingChart, DailySpendingData } from '@/components/ui/DailySpen
 import { TransactionCard } from '@/components/ui/TransactionCard';
 
 export function MonthlyTab() {
+  const router = useRouter();
+
+  const handleDelete = async (tx: Transaction) => {
+    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+      try {
+        await financeService.deleteTransaction(tx);
+        window.location.reload();
+      } catch (error) {
+        console.error('Error deleting transaction:', error);
+        alert('Errore eliminazione transazione');
+      }
+    }
+  };
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
   
   // Data Fetching
@@ -152,6 +167,8 @@ export function MonthlyTab() {
                         amount={tx.amount}
                         type={tx.type as "income" | "expense"}
                         date={tx.date}
+                        onEdit={() => router.push(`/edit/${tx.id}`)}
+                        onDelete={() => handleDelete(tx)}
                     />
                 );
             })

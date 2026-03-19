@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { ArrowRight, FileText } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { financeService } from '@/lib/financeService';
 import { Transaction, BudgetCategory } from '@/types/database';
 import { TransactionCard } from './TransactionCard';
 
@@ -9,13 +11,29 @@ interface RecentTransactionsProps {
   transactions: Transaction[];
   categories: BudgetCategory[];
   onOpenAll: () => void;
+  onRefresh?: () => void;
 }
 
 export function RecentTransactions({ 
   transactions, 
   categories, 
-  onOpenAll 
+  onOpenAll,
+  onRefresh
 }: RecentTransactionsProps) {
+  const router = useRouter();
+
+  const handleDelete = async (tx: Transaction) => {
+    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+      try {
+        await financeService.deleteTransaction(tx);
+        if (onRefresh) onRefresh();
+        else window.location.reload();
+      } catch (error) {
+        console.error('Error deleting transaction:', error);
+        alert('Errore eliminazione transazione');
+      }
+    }
+  };
   return (
     <div className="glass-panel p-5 flex flex-col gap-5 relative overflow-hidden">
       {/* Background decoration */}
@@ -40,6 +58,8 @@ export function RecentTransactions({
                 amount={tx.amount}
                 type={tx.type as "income" | "expense"}
                 date={tx.date}
+                onEdit={() => router.push(`/edit/${tx.id}`)}
+                onDelete={() => handleDelete(tx)}
               />
             );
           })

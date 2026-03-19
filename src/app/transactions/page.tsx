@@ -2,13 +2,29 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { financeService } from '@/lib/financeService';
 import { useTransactions, useBudgetCategories } from '@/hooks/useData';
 import { useDate } from '@/context/DateContext';
 import { ChevronLeft, Search, Download, Calendar, Check } from 'lucide-react';
 import { TransactionCard } from '@/components/ui/TransactionCard';
 import { Button } from '@/components/ui/Button';
+import { Transaction } from '@/types/database';
 
 export default function TransactionsPage() {
+  const router = useRouter();
+
+  const handleDelete = async (tx: Transaction) => {
+    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+      try {
+        await financeService.deleteTransaction(tx);
+        window.location.reload();
+      } catch (error) {
+        console.error('Error deleting transaction:', error);
+        alert('Errore eliminazione transazione');
+      }
+    }
+  };
   const { currentMonthStr } = useDate();
   
   // 1. Input state for the range (what user is typing/picking)
@@ -170,6 +186,8 @@ export default function TransactionsPage() {
                      amount={tx.amount}
                      type={tx.type as "income" | "expense"}
                      date={tx.date}
+                     onEdit={() => router.push(`/edit/${tx.id}`)}
+                     onDelete={() => handleDelete(tx)}
                    />
                  );
                })}

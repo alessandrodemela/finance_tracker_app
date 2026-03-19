@@ -16,14 +16,20 @@
   cursor: not-allowed;
 }
 
+.button:active {
+  transform: scale(0.98);
+}
+
 .primary {
   background: var(--primary);
   color: var(--primary-foreground);
 }
 
-.primary:hover:not(:disabled) {
-  filter: brightness(1.1);
-  transform: scale(1.02);
+@media (hover: hover) {
+  .primary:hover:not(:disabled) {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+  }
 }
 
 .secondary {
@@ -32,8 +38,10 @@
   border: 1px solid var(--border);
 }
 
-.secondary:hover {
-  background: var(--accent);
+@media (hover: hover) {
+  .secondary:hover:not(:disabled) {
+    background: var(--accent);
+  }
 }
 
 .ghost {
@@ -41,8 +49,10 @@
   color: var(--foreground);
 }
 
-.ghost:hover {
-  background: var(--accent);
+@media (hover: hover) {
+  .ghost:hover:not(:disabled) {
+    background: var(--accent);
+  }
 }
 
 .danger {

@@ -108,9 +108,9 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
           y={y + height / 2 - 4}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#fff"
+          fill="#000"
           fontSize={Math.min(width / 7, 11)}
-          fontWeight="500"
+          fontWeight="400"
           style={{ pointerEvents: 'none', opacity: 0.9 }}
         >
           {name}
@@ -120,7 +120,7 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
           y={y + height / 2 + 10}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="rgba(255,255,255,0.7)"
+          fill="rgba(0,0,0,0.7)"
           fontSize={Math.min(width / 8, 9)}
           fontWeight="400"
           style={{ pointerEvents: 'none' }}

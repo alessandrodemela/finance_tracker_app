@@ -70,18 +70,18 @@ export function AccountsAccordion({ accounts, onAddClick, onEditClick, onDeleteC
                 </div>
               </div>
               
-              {/* Actions slide in gracefully */}
-              <div className="flex items-center justify-end gap-2 mt-0 max-h-0 opacity-0 group-hover:max-h-[40px] group-hover:opacity-100 group-hover:mt-3 transition-all duration-300">
+              {/* Actions always visible as requested */}
+              <div className="flex items-center justify-end gap-2 mt-3 transition-all duration-300">
                 <button 
                   onClick={(e) => { e.stopPropagation(); onEditClick(account); }}
-                  className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] hover:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-[rgba(255,255,255,0.05)] active:bg-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] active:text-white transition-colors flex items-center gap-1.5 text-xs font-semibold"
                 >
                   <Edit2 size={12} />
                   <span>Edit</span>
                 </button>
                 <button 
                   onClick={(e) => { e.stopPropagation(); onDeleteClick(account); }}
-                  className="px-3 py-1.5 rounded-lg bg-[rgba(240,90,100,0.05)] hover:bg-[rgba(240,90,100,0.15)] text-[var(--color-brand-secondary)] hover:text-[#F05A64] transition-colors flex items-center gap-1.5 text-xs font-semibold"
+                  className="px-3 py-1.5 rounded-lg bg-[rgba(240,90,100,0.05)] active:bg-[rgba(240,90,100,0.15)] text-[var(--color-brand-secondary)] active:text-[#F05A64] transition-colors flex items-center gap-1.5 text-xs font-semibold"
                 >
                   <Trash2 size={12} />
                   <span>Delete</span>
