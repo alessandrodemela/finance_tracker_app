@@ -1,0 +1,297 @@
+.container {
+  padding: 1.5rem 1rem 6rem;
+}
+
+/* ===== HEADER ===== */
+.header {
+  margin-bottom: 1.75rem;
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 1.8rem;
+  font-weight: 300;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* ===== KPI CARDS ===== */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.kpiCard {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem 0.5rem; /* Reduced padding for 3 columns on small screens */
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.savingsSash {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 0.75rem 1.25rem;
+  text-align: center;
+  margin-bottom: 1.75rem;
+  font-family: 'Outfit', sans-serif;
+  font-size: 0.9rem;
+  color: var(--muted);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kpiGrid.fullWidth {
+  grid-template-columns: 1fr;
+}
+
+.kpiCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+}
+
+/* Successful/Positive top glow */
+.kpiCard[data-type="income"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--success), transparent);
+  opacity: 0.7;
+}
+
+/* Destructive/Negative top glow */
+.kpiCard[data-type="expense"]::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--destructive), transparent);
+  opacity: 0.7;
+}
+
+.kpiLabel {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 300;
+}
+
+.kpiValuePositive {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--success);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.5);
+}
+
+.kpiValueNegative {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--destructive);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 20px rgba(244, 63, 94, 0.5);
+}
+
+.kpiValue {
+  font-size: 1.4rem;
+  font-weight: 400;
+  font-family: 'Outfit', sans-serif;
+}
+
+.positiveText {
+  color: var(--success);
+}
+
+.negativeText {
+  color: var(--destructive);
+}
+
+.savingsSash {
+  background: rgba(59, 111, 255, 0.08);
+  border: 1px solid rgba(59, 111, 255, 0.18);
+  border-radius: 1rem;
+  padding: 0.875rem 1.25rem;
+  text-align: center;
+  margin-bottom: 1.75rem;
+  font-weight: 400;
+  font-size: 0.9375rem;
+  text-transform: uppercase;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.01em;
+  color: var(--muted);
+}
+
+/* ===== ADD BUTTON ===== */
+.addButtonWrapper {
+  display: block;
+  text-decoration: none;
+  margin-bottom: 1.75rem;
+}
+
+.addButton {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  font-size: 1rem;
+  font-weight: 400;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #030f2f 0%, #5579fb 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow:
+    0 4px 20px rgba(2, 12, 37, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.addButton:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 28px rgba(2, 12, 37, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.addButton:active {
+  transform: translateY(0);
+}
+
+/* ===== CHARTS ===== */
+.chartsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+.chartCard {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.chartTitle {
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.chartContainer {
+  height: 200px;
+  width: 100%;
+}
+
+/* ===== BUDGET SECTION ===== */
+.budgetSection {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 400;
+  margin: 0 0 1rem;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Outfit', sans-serif;
+}
+
+.budgetList {
+  background: var(--card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.budgetItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.budgetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.budgetCategory {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.budgetAmounts {
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.progressContainer {
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 99px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ===== EMPTY / LOADING ===== */
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.875rem;
+}
+
+.loading {
+  color: var(--muted);
+  text-align: center;
+  padding: 2rem 0;
+  font-size: 0.875rem;
+}

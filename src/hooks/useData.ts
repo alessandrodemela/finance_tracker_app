@@ -122,24 +122,26 @@ export function useBudgetCategories() {
   return { budgetCategories, loading, setBudgetCategories };
 }
 
-export function useTransactions(limit = 10, month?: string) {
+export function useTransactions(limit = 10, startDate?: string, endDate?: string) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchTransactions() {
+      setLoading(true);
       let query = supabase
         .from('transactions')
         .select('*')
         .order('date', { ascending: false });
       
-      if (month) {
-        query = query
-          .gte('date', `${month}-01`)
-          .lt('date', getNextMonth(month));
+      if (startDate) {
+        query = query.gte('date', startDate);
+      }
+      if (endDate) {
+        query = query.lte('date', endDate);
       }
 
-      if (limit > 0 && !month) {
+      if (limit > 0 && !startDate && !endDate) {
         query = query.limit(limit);
       }
 
@@ -149,7 +151,7 @@ export function useTransactions(limit = 10, month?: string) {
       setLoading(false);
     }
     fetchTransactions();
-  }, [limit, month]);
+  }, [limit, startDate, endDate]);
 
   return { transactions, loading };
 }
@@ -221,28 +223,33 @@ export function useBudgets(month: string) {
 }
 
 export function useAnnualSummary(year: number) {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<{
+    monthlyData: any[];
+    categoryData: { name: string; value: number }[];
+  }>({ monthlyData: [], categoryData: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchAnnualData() {
       setLoading(true);
       
-      // 1. Fetch categories to check names
       const { data: cats } = await supabase.from('categories').select('id, name');
       const { data: bgtCats } = await supabase.from('budget_categories').select('id, name');
       
       const excludeIds = new Set<string>();
       const tagKeywords = ['valutazione', 'investment', 'titoli', 'gain', 'loss', 'scalable'];
       
+      const catMap: Record<string, string> = {};
+      
       cats?.forEach(c => {
         if (tagKeywords.some(k => c.name.toLowerCase().includes(k))) excludeIds.add(c.id);
+        catMap[c.id] = c.name;
       });
       bgtCats?.forEach(c => {
         if (tagKeywords.some(k => c.name.toLowerCase().includes(k))) excludeIds.add(c.id);
+        catMap[c.id] = c.name;
       });
 
-      // 2. Fetch transactions
       const { data: transactions, error } = await supabase
         .from('transactions')
         .select('*')
@@ -259,16 +266,24 @@ export function useAnnualSummary(year: number) {
           savingsRate: 0
         }));
 
+        const spendingMap: Record<string, number> = {};
+
         transactions.forEach((tx: Transaction) => {
-          // Skip excluded categories (gains/losses etc)
           if (tx.category_id && excludeIds.has(tx.category_id)) return;
           if (tx.budget_category_id && excludeIds.has(tx.budget_category_id)) return;
 
           const m = new Date(tx.date).getMonth();
+          const amount = Number(tx.amount);
+
           if (tx.type === 'income') {
-            monthlyData[m].income += Number(tx.amount);
+            monthlyData[m].income += amount;
           } else if (tx.type === 'expense') {
-            monthlyData[m].expense += Number(tx.amount);
+            monthlyData[m].expense += amount;
+            
+            // Track category distribution
+            const catId = tx.budget_category_id || tx.category_id || 'unassigned';
+            const catName = catMap[catId] || 'Misc';
+            spendingMap[catName] = (spendingMap[catName] || 0) + amount;
           }
         });
 
@@ -277,14 +292,18 @@ export function useAnnualSummary(year: number) {
           m.savingsRate = m.income > 0 ? (m.net / m.income) * 100 : 0;
         });
 
-        setData(monthlyData);
+        const categoryData = Object.entries(spendingMap)
+          .map(([name, value]) => ({ name: name.charAt(0).toUpperCase() + name.slice(1), value }))
+          .sort((a, b) => b.value - a.value);
+
+        setData({ monthlyData, categoryData });
       }
       setLoading(false);
     }
     fetchAnnualData();
   }, [year]);
 
-  return { data, loading };
+  return { ...data, loading };
 }
 
 export function useAccountBalances(startDate: string = '2024-01-01') {
