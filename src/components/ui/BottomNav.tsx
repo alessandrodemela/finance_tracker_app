@@ -13,16 +13,25 @@ export function BottomNavItem({ icon, label, isActive, onClick }: BottomNavItemP
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center transition-all duration-200",
-        isActive ? "bg-[rgba(0,210,255,0.2)] rounded-xl text-[#E8EBF4] py-2 px-3" : "text-[#5A6B8F] hover:text-[#A8AEC5]"
+        "flex flex-col items-center justify-center transition-all duration-300 relative py-1 px-4",
+        isActive ? "text-[var(--color-brand-accent)]" : "text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-primary)]"
       )}
     >
-      <div className="flex h-6 w-6 items-center justify-center">
+      <div className={cn(
+        "flex h-7 w-7 items-center justify-center transition-transform",
+        isActive && "scale-110"
+      )}>
         {icon}
       </div>
-      <span className="text-label mt-1">
+      <span className={cn(
+        "text-[10px] font-semibold mt-1 uppercase tracking-wider transition-all",
+        isActive ? "opacity-100" : "opacity-60"
+      )}>
         {label}
       </span>
+      {isActive && (
+        <div className="absolute -bottom-1 w-1 h-1 bg-[var(--color-brand-accent)] rounded-full shadow-[0_0_8px_var(--color-brand-accent)]" />
+      )}
     </button>
   )
 }
@@ -35,7 +44,8 @@ export function BottomNav({ className, items, ...props }: BottomNavProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-16 bg-[rgba(10,14,39,0.95)] backdrop-blur-md border-t border-[rgba(0,210,255,0.1)] z-50 flex items-center justify-around px-6 py-3 pb-safe",
+        "fixed bottom-0 left-0 right-0 h-[calc(4.5rem+env(safe-area-inset-bottom))] bg-[var(--color-brand-card)]/95 backdrop-blur-xl border-t border-white/5 z-50 flex items-center justify-around px-6 pb-[env(safe-area-inset-bottom)]",
+        "mx-auto w-full max-w-[480px] shadow-[0_-8px_30px_rgb(0,0,0,0.5)]",
         className
       )}
       {...props}

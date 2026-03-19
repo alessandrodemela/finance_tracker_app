@@ -142,7 +142,7 @@ export function BalanceTab() {
       {/* Main Net Worth Card */}
       <div className="glass-panel p-0 overflow-hidden relative flex flex-col h-[340px]">
         <div className="p-2 pb-4">
-          <div className="text-label text-[rgba(255,255,255,0.4)] mb-2 font-semibold">TOTAL NET WORTH</div>
+          <div className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase mb-2">TOTAL NET WORTH</div>
           <div className="text-display-40 text-white font-bold tracking-tight">
             €{totalBalance.toLocaleString('it-IT', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </div>
@@ -166,7 +166,7 @@ export function BalanceTab() {
       </div>
 
       <div className="flex flex-col gap-4 mt-2 mb-10">
-        <h3 className="text-label text-[rgba(255,255,255,0.4)] font-semibold px-4 tracking-widest">BANK ACCOUNTS</h3>
+        <h3 className="text-[10px] font-bold tracking-widest text-[var(--color-brand-secondary)] px-4 uppercase">BANK ACCOUNTS</h3>
         <div className="flex flex-col gap-3 px-1">
           {accounts.map(acc => {
             const isEditing = editingAccount === acc.id;
@@ -214,7 +214,7 @@ export function BalanceTab() {
                 </div>
 
                 <div className="flex justify-between items-end mt-1">
-                  <span className="text-xs text-[rgba(255,255,255,0.4)] font-semibold uppercase tracking-wider">{acc.currency}</span>
+                  <span className="text-xs text-[var(--color-brand-secondary)] font-semibold uppercase tracking-wider">{acc.currency}</span>
                   <div className="flex items-center gap-3 opacity-40 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => handleEdit(acc)} className="text-white/60 hover:text-white transition-colors">
                       <Edit3 size={20} />

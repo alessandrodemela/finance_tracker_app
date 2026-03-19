@@ -74,7 +74,7 @@ export function HomeTab() {
         {/* Savings Rate Badge */}
         <div className="self-center bg-[rgba(20,27,53,0.6)] backdrop-blur-sm rounded-full px-6 py-2 border border-[rgba(99,102,241,0.1)]">
           <div className="text-small font-medium tracking-wide flex items-center gap-2">
-            <span className="text-[var(--color-brand-secondary)]">Savings Rate</span>
+            <span className="font-bold text-[var(--color-brand-secondary)] uppercase text-[10px] tracking-wider">Savings Rate</span>
             <span className={monthlySavingsRate >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]"}>
               {monthlySavingsRate >= 0 ? "+" : ""}{monthlySavingsRate.toFixed(1)}%
             </span>
@@ -83,29 +83,26 @@ export function HomeTab() {
 
         {/* KPI Grid */}
         <div className="grid grid-cols-3 gap-3">
-          {/* Income Card */}
-          <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2">
-            <ArrowUpRight className="text-[var(--color-brand-success)] opacity-80" size={24} />
-            <span className="text-label opacity-60">INCOME</span>
-            <span className="text-heading-3 text-[var(--color-brand-success)] font-semibold">
+          <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 border-b-[var(--color-brand-success)]/30">
+            <ArrowUpRight className="text-[var(--color-brand-success)]" size={24} />
+            <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">INCOME</span>
+            <span className="text-xl text-[var(--color-brand-success)] font-bold">
               €{totalIncome.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
             </span>
           </div>
 
-          {/* Expenses Card */}
-          <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2">
-            <ArrowDownRight className="text-[var(--color-brand-danger)] opacity-80" size={24} />
-            <span className="text-label opacity-60">EXPENSES</span>
-            <span className="text-heading-3 text-white font-semibold">
+          <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 border-b-[var(--color-brand-danger)]/30">
+            <ArrowDownRight className="text-[var(--color-brand-danger)]" size={24} />
+            <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">EXPENSES</span>
+            <span className="text-xl text-[var(--color-brand-danger)] font-bold">
               €{totalExpenses.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
             </span>
           </div>
 
-          {/* Net Card */}
-          <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2">
-            <Equal className="text-[var(--color-brand-secondary)] opacity-80" size={24} />
-            <span className="text-label opacity-60">NET</span>
-            <span className="text-heading-3 text-white font-semibold">
+          <div className={`glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 ${monthlyNet >= 0 ? 'border-b-[var(--color-brand-success)]/30' : 'border-b-[var(--color-brand-danger)]/30'}`}>
+            <Equal className="text-[var(--color-brand-accent)]" size={24} />
+            <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">NET</span>
+            <span className={`text-xl font-bold ${monthlyNet >= 0 ? 'text-[var(--color-brand-success)]' : 'text-[var(--color-brand-danger)]'}`}>
               €{monthlyNet.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
             </span>
           </div>

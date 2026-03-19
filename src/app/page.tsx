@@ -52,7 +52,7 @@ export default function Dashboard() {
     <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)]">
       <main className={styles.container}>
         {/* Tab content with proper padding */}
-        <div className="px-6 pt-6 pb-24">
+        <div className="px-6 pt-6 pb-32">
           {activeTab === 'home' && <HomeTab />}
           {activeTab === 'transactions' && <TransactionsTab />}
           {activeTab === 'budget' && <BudgetTab />}
