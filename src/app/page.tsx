@@ -102,7 +102,7 @@ export default function Dashboard() {
               {/* Eye toggle */}
               <button 
                 onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
-                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg"
+                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg touch-manipulation"
                 aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
               >
                 {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
@@ -110,7 +110,7 @@ export default function Dashboard() {
               {/* Logout button */}
               <button
                 onClick={handleLogout}
-                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-danger)] hover:bg-[rgba(240,90,100,0.08)] hover:border-[rgba(240,90,100,0.2)] transition-all active:scale-95 shadow-lg"
+                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] active:text-[var(--color-brand-danger)] active:bg-[rgba(240,90,100,0.08)] active:border-[rgba(240,90,100,0.2)] transition-all active:scale-95 shadow-lg touch-manipulation"
                 aria-label="Logout"
                 title="Logout"
               >

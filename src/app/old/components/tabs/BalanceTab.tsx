@@ -41,11 +41,11 @@ export function BalanceTab() {
     if (processedData.length === 0) return [];
     const now = new Date();
     let filterDate: Date;
-
     switch (activeRange) {
       case '7D': filterDate = new Date(new Date().setDate(now.getDate() - 7)); break;
       case '1M': filterDate = new Date(new Date().setMonth(now.getMonth() - 1)); break;
-      case '1A': filterDate = new Date(new Date().setFullYear(now.getFullYear() - 1)); break;
+      case 'MTD': filterDate = new Date(now.getFullYear(), now.getMonth(), 1); break;
+      case '1Y': filterDate = new Date(new Date().setFullYear(now.getFullYear() - 1)); break;
       case 'YTD': filterDate = new Date(now.getFullYear(), 0, 1); break;
       case 'MAX': return processedData;
       default: return processedData;
@@ -100,7 +100,7 @@ export function BalanceTab() {
     return <div className="text-center py-10 text-[var(--color-brand-secondary)]">Loading balances...</div>;
   }
 
-  const ranges: TimeRange[] = ['7D', '1M', 'YTD', '1A', 'MAX'];
+  const ranges: TimeRange[] = ['7D', '1M', 'MTD', 'YTD', '1Y', 'MAX'];
 
   return (
     <div className="flex flex-col gap-6">

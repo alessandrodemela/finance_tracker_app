@@ -335,7 +335,7 @@ export default function AddTransaction() {
               type="submit" 
               fullWidth 
               disabled={loading} 
-              className="relative py-5 rounded-2xl font-bold text-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] shadow-2xl transition-all duration-300 backdrop-blur-sm group-active:scale-[0.98]"
+              className="relative py-5 rounded-2xl font-bold text-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] shadow-2xl transition-all duration-300 backdrop-blur-sm active:scale-[0.98] touch-manipulation"
             >
               {loading ? 'Processing...' : 'Record Transaction'}
             </Button>

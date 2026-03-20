@@ -13,12 +13,13 @@ export function BottomNavItem({ icon, label, isActive, onClick }: BottomNavItemP
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center transition-all duration-300 relative py-1 px-4",
-        isActive ? "text-[var(--color-brand-accent)]" : "text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-primary)]"
+        "flex flex-col items-center justify-center relative py-1 px-4 transition-colors duration-200",
+        "touch-manipulation select-none outline-none",
+        isActive ? "text-[var(--color-brand-accent)]" : "text-[var(--color-brand-secondary)] active:text-[var(--color-brand-primary)]"
       )}
     >
       <div className={cn(
-        "flex h-7 w-7 items-center justify-center transition-transform",
+        "flex h-7 w-7 items-center justify-center transition-transform duration-300",
         isActive && "scale-110"
       )}>
         {icon}

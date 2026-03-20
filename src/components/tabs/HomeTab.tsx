@@ -179,7 +179,7 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
       <div className="flex flex-col gap-3 mt-4">
         <Link href="/add" className="w-full relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-accent)] to-[#10B981] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-          <Button fullWidth className="relative bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] py-4 rounded-xl gap-2 font-bold text-[15px] shadow-xl group-hover:scale-[1.01] transition-all">
+          <Button fullWidth className="relative bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] py-4 rounded-xl gap-2 font-bold text-[15px] shadow-xl active:scale-[0.98] transition-all touch-manipulation">
             <span>Add Transaction</span>
           </Button>
         </Link>
