@@ -257,13 +257,31 @@ export const BalanceTrendChart = ({ data }: { data: TrendData[] }) => {
   );
 };
 
-export const NetWorthChart = ({ data }: { data: TrendData[] }) => {
+export const NetWorthChart = ({ data, isVisible = true }: { data: TrendData[], isVisible?: boolean }) => {
   const minVal = data.length > 0 ? Math.min(...data.map(d => d.amount)) : 0;
   const maxVal = data.length > 0 ? Math.max(...data.map(d => d.amount)) : 0;
   
   // Add 10% buffer to min and max
   const yDomainMin = minVal - (Math.abs(minVal) * 0.1);
   const yDomainMax = maxVal + (Math.abs(maxVal) * 0.1);
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className={`bg-[#0d0d12] border border-[rgba(0,210,255,0.2)] rounded-xl p-3 shadow-2xl transition-all duration-300 ${!isVisible ? 'blur-[6px] select-none opacity-50' : ''}`}>
+          <p className="text-[10px] text-[rgba(255,255,255,0.4)] mb-1 uppercase tracking-wider">
+            {(!label || label === 'Today') 
+              ? 'Today' 
+              : new Date(label).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+          </p>
+          <p className="text-white font-bold text-xs">
+            € {Number(payload[0].value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -287,25 +305,7 @@ export const NetWorthChart = ({ data }: { data: TrendData[] }) => {
           dot={false}
           activeDot={{ r: 4, strokeWidth: 0, fill: '#00D2FF' }}
         />
-        <Tooltip
-          contentStyle={{
-            backgroundColor: '#0d0d12',
-            border: '1px solid rgba(0, 210, 255, 0.2)',
-            borderRadius: '12px',
-            fontSize: '11px',
-            fontFamily: 'Inter',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)'
-          }}
-          itemStyle={{ color: '#ffffff', fontWeight: 600 }}
-          labelStyle={{ color: 'rgba(255,255,255,0.4)', marginBottom: '4px', fontSize: '10px' }}
-          formatter={(value: any) => [`€ ${Number(value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}`, 'Balance']}
-          labelFormatter={(label) => {
-            if (!label || label === 'Today') return 'Today';
-            const d = new Date(label);
-            if (isNaN(d.getTime())) return label;
-            return d.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-          }}
-        />
+        <Tooltip content={<CustomTooltip />} />
       </AreaChart>
     </ResponsiveContainer>
   );

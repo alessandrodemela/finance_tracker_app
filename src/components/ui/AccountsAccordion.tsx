@@ -9,9 +9,16 @@ interface AccountsAccordionProps {
   onAddClick: () => void;
   onEditClick: (account: Account) => void;
   onDeleteClick: (account: Account) => void;
+  isSensitiveVisible?: boolean;
 }
 
-export function AccountsAccordion({ accounts, onAddClick, onEditClick, onDeleteClick }: AccountsAccordionProps) {
+export function AccountsAccordion({ 
+  accounts, 
+  onAddClick, 
+  onEditClick, 
+  onDeleteClick,
+  isSensitiveVisible = true
+}: AccountsAccordionProps) {
   const [expanded, setExpanded] = useState(false);
   
   const totalBalance = accounts.reduce((sum, acc) => sum + (Number(acc.active_balance) || 0), 0);
@@ -31,7 +38,7 @@ export function AccountsAccordion({ accounts, onAddClick, onEditClick, onDeleteC
         </div>
         <div className="flex flex-col items-end">
           <span className="text-[10px] uppercase font-bold tracking-wider text-[var(--color-brand-secondary)]">Total</span>
-          <span className="font-bold text-white text-[15px]">
+          <span className={`font-bold text-white text-[15px] transition-all duration-500 ${!isSensitiveVisible ? 'blur-sm select-none opacity-50' : ''}`}>
             €{totalBalance.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
@@ -54,7 +61,7 @@ export function AccountsAccordion({ accounts, onAddClick, onEditClick, onDeleteC
               
               <div className="flex items-center justify-between">
                 <div className="flex flex-col gap-1">
-                  <span className="text-sm font-semibold text-white drop-shadow-sm flex items-center gap-1.5">
+                  <span className={`text-sm font-semibold text-white drop-shadow-sm flex items-center gap-1.5 transition-all duration-500 ${!isSensitiveVisible ? 'blur-sm select-none opacity-50' : ''}`}>
                     <Building2 size={14} className="text-[var(--color-brand-secondary)]" />
                     {account.name}
                   </span>
@@ -63,7 +70,7 @@ export function AccountsAccordion({ accounts, onAddClick, onEditClick, onDeleteC
                   </span>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  <span className="font-bold text-white text-[15px]">
+                  <span className={`font-bold text-white text-[15px] transition-all duration-500 ${!isSensitiveVisible ? 'blur-sm select-none opacity-50' : ''}`}>
                     {account.currency === 'USD' ? '$' : '€'}
                     {Number(account.active_balance || 0).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
