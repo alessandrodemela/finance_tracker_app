@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Plus, Trash2, Edit3, X, Save, Wallet } from 'lucide-react';
 
-type TimeRange = '7D' | '1M' | 'YTD' | '1A' | 'MAX';
+type TimeRange = '7D' | '1M' | 'MTD' | 'YTD' | '1Y' | 'MAX';
 
 export function BalanceTab() {
   const { accounts, loading: accLoading, addAccount, updateAccount, deleteAccount } = useAccounts();

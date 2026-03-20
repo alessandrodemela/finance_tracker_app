@@ -3,7 +3,7 @@
 import React from 'react';
 import { NetWorthChart } from '@/components/DashboardCharts';
 
-export type TimeRange = '7D' | '1M' | 'YTD' | '1A' | 'MAX';
+export type TimeRange = '7D' | '1M' | 'MTD' | 'YTD' | '1Y' | 'MAX';
 
 interface TrendData {
   name: string;
@@ -18,7 +18,7 @@ interface NetWorthTimeRangeProps {
   isSensitiveVisible?: boolean;
 }
 
-const RANGES: TimeRange[] = ['7D', '1M', 'YTD', '1A', 'MAX'];
+const RANGES: TimeRange[] = ['7D', '1M', 'MTD', 'YTD', '1Y', 'MAX'];
 
 export function NetWorthTimeRange({ chartData, selectedRange, onRangeChange, isSensitiveVisible = true }: NetWorthTimeRangeProps) {
   const delta = React.useMemo(() => {

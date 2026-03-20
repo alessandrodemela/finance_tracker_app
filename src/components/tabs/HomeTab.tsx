@@ -70,7 +70,8 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
     switch (activeRange) {
       case '7D': filterDate = new Date(now.setDate(now.getDate() - 7)); break;
       case '1M': filterDate = new Date(now.setMonth(now.getMonth() - 1)); break;
-      case '1A': filterDate = new Date(now.setFullYear(now.getFullYear() - 1)); break;
+      case '1Y': filterDate = new Date(now.setFullYear(now.getFullYear() - 1)); break;
+      case 'MTD': filterDate = new Date(now.getFullYear(), now.getMonth(), 1); break;
       case 'YTD': filterDate = new Date(now.getFullYear(), 0, 1); break;
       case 'MAX': return processedData;
       default: return processedData;

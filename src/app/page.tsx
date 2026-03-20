@@ -1,21 +1,64 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Home, Calendar, BarChart3, PiggyBank, TrendingUp, Eye, EyeOff } from 'lucide-react';
+import { Home, Calendar, BarChart3, TrendingUp, Eye, EyeOff, LogOut } from 'lucide-react';
 import { HomeTab } from '@/components/tabs/HomeTab';
 import { MonthlyTab } from '@/components/tabs/MonthlyTab';
 import { YearlyTab } from '@/components/tabs/YearlyTab';
-import { BudgetTab } from '@/components/tabs/BudgetTab';
 import { InsightsTab } from '@/components/tabs/InsightsTab';
 import { cn } from '@/lib/utils';
 import styles from './page.module.css';
 
-type Tab = 'home' | 'monthly' | 'yearly' | 'budget' | 'insights';
+type Tab = 'home' | 'monthly' | 'yearly' | 'insights';
 
 export default function Dashboard() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('home');
-  const [isSensitiveVisible, setIsSensitiveVisible] = useState(true);
+  const [isSensitiveVisible, setIsSensitiveVisible] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+
+  // Client-side auth guard: verify token on every mount
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      router.replace('/login');
+      return;
+    }
+    fetch('/api/auth/verify', {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) {
+          localStorage.removeItem('auth_token');
+          router.replace('/login');
+        } else {
+          setIsAuthChecked(true);
+        }
+      })
+      .catch(() => {
+        // Network error: let them through (middleware already covers the server-side check)
+        setIsAuthChecked(true);
+      });
+  }, [router]);
+
+  const handleLogout = async () => {
+    // Clear client-side token
+    localStorage.removeItem('auth_token');
+    // Clear server-side cookie
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.replace('/login');
+  };
+
+  // Show spinner while checking auth
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)]">
+        <div className="w-6 h-6 border-2 border-[var(--color-brand-success)] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const navItems = [
     {
@@ -55,13 +98,25 @@ export default function Dashboard() {
                 WELCOME BACK
               </h1>
             </div>
-            <button 
-              onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
-              className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg"
-              aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
-            >
-              {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Eye toggle */}
+              <button 
+                onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
+                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg"
+                aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
+              >
+                {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+              </button>
+              {/* Logout button */}
+              <button
+                onClick={handleLogout}
+                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-danger)] hover:bg-[rgba(240,90,100,0.08)] hover:border-[rgba(240,90,100,0.2)] transition-all active:scale-95 shadow-lg"
+                aria-label="Logout"
+                title="Logout"
+              >
+                <LogOut size={15} />
+              </button>
+            </div>
           </header>
         )}
 
