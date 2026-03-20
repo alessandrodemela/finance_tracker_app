@@ -40,7 +40,7 @@ export function BudgetTab() {
   };
 
   const handleSave = async (id: string) => {
-    const val = parseFloat(editValue);
+    const val = parseFloat(editValue.replace(',', '.'));
     if (!isNaN(val) && val >= 0) {
       const { error } = await saveBudget(id, val);
       if (error) {
@@ -121,6 +121,8 @@ export function BudgetTab() {
                       <div className="flex items-center gap-2">
                         <input 
                           type="number" 
+                          inputMode="decimal"
+                          step="0.01"
                           value={editValue} 
                           onChange={(e) => setEditValue(e.target.value)}
                           className="w-20 bg-[var(--surface-raised)] border border-[var(--border)] rounded px-2 py-1 text-white text-sm outline-none focus:border-[var(--color-brand-accent)]"

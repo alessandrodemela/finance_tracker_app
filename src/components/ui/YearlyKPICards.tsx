@@ -28,7 +28,7 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
         <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">INCOME</span>
         <div>
           <span className="text-xl text-[#10B981] font-bold">
-            €{income.value.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            €{income.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(income.trend)}
         </div>
@@ -40,7 +40,7 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
         <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">EXPENSES</span>
         <div>
           <span className="text-xl text-[#F05A64] font-bold">
-            €{expenses.value.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            €{expenses.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(expenses.trend, true)}
         </div>
@@ -52,7 +52,7 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
         <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">NET SAVINGS</span>
         <div>
           <span className="text-xl text-white font-bold">
-            €{net.value.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            €{net.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(net.trend)}
         </div>

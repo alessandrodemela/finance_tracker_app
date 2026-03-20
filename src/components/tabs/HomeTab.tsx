@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useTransactions, useBudgetCategories, useAccountBalances, useAccounts } from '@/hooks/useData';
-import { useDate } from '@/context/DateContext';
+// import { useDate } from '@/context/DateContext'; // Removed as no longer needed for recent transactions filter
 import { Transaction, Account } from '@/types/database';
 
 import { BalanceHero } from '@/components/ui/BalanceHero';
@@ -19,18 +19,7 @@ interface HomeTabProps {
 }
 
 export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
-  const { currentMonthStr } = useDate();
-
-  // Data Fetching
-  const dateRange = useMemo(() => {
-    const [year, month] = currentMonthStr.split('-').map(Number);
-    return {
-      start: `${currentMonthStr}-01`,
-      end: new Date(year, month, 0).toISOString().split('T')[0]
-    };
-  }, [currentMonthStr]);
-
-  const { transactions, loading: txLoading } = useTransactions(0, dateRange.start, dateRange.end);
+  const { transactions: recentTransactions, loading: txLoading } = useTransactions(3);
   const { budgetCategories, loading: catLoading } = useBudgetCategories();
   const { accounts, addAccount, updateAccount, deleteAccount, loading: accLoading } = useAccounts();
   const { history, current: currentBalances } = useAccountBalances('2000-01-01');
@@ -79,8 +68,6 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
     return processedData.filter(d => new Date(d.fullDate || d.name) >= filterDate);
   }, [processedData, activeRange]);
 
-  // Derived state
-  const recentTransactions = transactions.slice(0, 3);
 
   // Handlers
   const handleAddAccount = () => {
@@ -103,7 +90,7 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
 
   const handleSaveAccount = async (e: React.FormEvent) => {
     e.preventDefault();
-    const val = parseFloat(accountForm.balance) || 0;
+    const val = parseFloat(accountForm.balance.replace(',', '.')) || 0;
 
     if (editingAccount) {
       const { error } = await updateAccount(editingAccount, {
@@ -161,6 +148,7 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
               <Input
                 label="Balance"
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 placeholder="0.00"
                 value={accountForm.balance}
@@ -192,7 +180,6 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
         <Link href="/add" className="w-full relative group">
           <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-accent)] to-[#10B981] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
           <Button fullWidth className="relative bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] py-4 rounded-xl gap-2 font-bold text-[15px] shadow-xl group-hover:scale-[1.01] transition-all">
-            <PlusCircle size={20} className="text-[var(--color-brand-accent)]" />
             <span>Add Transaction</span>
           </Button>
         </Link>

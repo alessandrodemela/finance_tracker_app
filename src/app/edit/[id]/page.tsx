@@ -73,7 +73,7 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
 
     setSaving(true);
     
-    const amountNum = Math.abs(parseFloat(formData.amount));
+    const amountNum = Math.round(Math.abs(parseFloat(formData.amount.replace(',', '.'))) * 100) / 100;
 
     const updateData: any = {
       date: formData.date,
@@ -173,6 +173,7 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
               <Input
                 label="Amount"
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 required
                 value={formData.amount}

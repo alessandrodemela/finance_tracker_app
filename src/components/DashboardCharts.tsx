@@ -57,7 +57,7 @@ export const SpendingTrendChart = ({ data }: { data: TrendData[] }) => (
         }}
         itemStyle={{ color: '#ffffff', fontWeight: 400 }}
         labelStyle={{ color: '#97989cff', marginBottom: '4px' }}
-        formatter={(value: any) => [`€ ${Math.abs(Number(value)).toFixed(0)}`, '']}
+        formatter={(value: any) => [`€ ${Math.abs(Number(value)).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, '']}
       />
       <Area
         type="monotone"
@@ -74,12 +74,12 @@ export const SpendingTrendChart = ({ data }: { data: TrendData[] }) => (
 );
 
 const BRAND_COLORS = [
-  '#6366F1', // Indigo
-  '#0EA5E9', // Sky
+  '#1d1d2cff', // Indigo
+  '#0e445dff', // Sky
   '#10B981', // Emerald
-  '#F43F5E', // Rose
+  '#2b234eff', // Rose
   '#8B5CF6', // Violet
-  '#F59E0B', // Amber
+  '#03282eff', // Amber
   '#06B6D4', // Cyan
 ];
 
@@ -87,7 +87,7 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
   const CustomizedContent = (props: any) => {
     const { x, y, width, height, index, name, value } = props;
     if (width < 32 || height < 20) return null;
-    
+
     return (
       <g>
         <rect
@@ -108,9 +108,9 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
           y={y + height / 2 - 4}
           textAnchor="middle"
           dominantBaseline="middle"
-          fill="#000"
-          fontSize={Math.min(width / 7, 11)}
-          fontWeight="400"
+          fill="#000000"
+          fontSize={Math.min(width / 8, 11)}
+          fontWeight="50"
           style={{ pointerEvents: 'none', opacity: 0.9 }}
         >
           {name}
@@ -122,7 +122,7 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
           dominantBaseline="middle"
           fill="rgba(0,0,0,0.7)"
           fontSize={Math.min(width / 8, 9)}
-          fontWeight="400"
+          fontWeight="150"
           style={{ pointerEvents: 'none' }}
         >
           €{value.toFixed(0)}
@@ -153,7 +153,7 @@ export const CategoryTreemap = ({ data }: { data: CategoryData[] }) => {
           itemStyle={{ color: '#fff' }}
           labelStyle={{ display: 'none' }}
           formatter={(value: any, name: any, props: any) => {
-            return [`€ ${Number(value).toLocaleString('it-IT')}`, props.payload.name];
+            return [`€ ${Number(value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, props.payload.name];
           }}
         />
       </Treemap>
@@ -187,7 +187,7 @@ export const CategoryPieChart = ({ data }: { data: CategoryData[] }) => (
           fontFamily: 'Inter'
         }}
         itemStyle={{ color: '#ffffff', fontWeight: 700 }}
-        formatter={(value: any) => [`€ ${Number(value).toFixed(0)}`, '']}
+        formatter={(value: any) => [`€ ${Number(value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, '']}
       />
       <Legend
         verticalAlign="bottom"
@@ -260,22 +260,22 @@ export const BalanceTrendChart = ({ data }: { data: TrendData[] }) => {
 export const NetWorthChart = ({ data, isVisible = true }: { data: TrendData[], isVisible?: boolean }) => {
   const minVal = data.length > 0 ? Math.min(...data.map(d => d.amount)) : 0;
   const maxVal = data.length > 0 ? Math.max(...data.map(d => d.amount)) : 0;
-  
-  // Add 10% buffer to min and max
-  const yDomainMin = minVal - (Math.abs(minVal) * 0.1);
-  const yDomainMax = maxVal + (Math.abs(maxVal) * 0.1);
+
+  // Dynamic Y-axis: 90% of min and 110% of max
+  const yDomainMin = minVal * 0.9;
+  const yDomainMax = maxVal * 1.1;
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className={`bg-[#0d0d12] border border-[rgba(0,210,255,0.2)] rounded-xl p-3 shadow-2xl transition-all duration-300 ${!isVisible ? 'blur-[6px] select-none opacity-50' : ''}`}>
           <p className="text-[10px] text-[rgba(255,255,255,0.4)] mb-1 uppercase tracking-wider">
-            {(!label || label === 'Today') 
-              ? 'Today' 
+            {(!label || label === 'Today')
+              ? 'Today'
               : new Date(label).toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })}
           </p>
           <p className="text-white font-bold text-xs">
-            € {Number(payload[0].value).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            € {Number(payload[0].value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       );

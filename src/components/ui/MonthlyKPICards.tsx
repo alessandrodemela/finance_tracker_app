@@ -15,7 +15,7 @@ export function MonthlyKPICards({ income, expenses, net }: MonthlyKPICardsProps)
           <ArrowUpRight className="text-[#10B981] mb-1" size={24} />
           <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">INCOME</span>
           <span className="text-xl text-[#10B981] font-bold">
-            €{income.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
 
@@ -24,7 +24,7 @@ export function MonthlyKPICards({ income, expenses, net }: MonthlyKPICardsProps)
           <ArrowDownRight className="text-[#F05A64] mb-1" size={24} />
           <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">EXPENSES</span>
           <span className="text-xl text-[#F05A64] font-bold">
-            €{expenses.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
 
@@ -33,7 +33,7 @@ export function MonthlyKPICards({ income, expenses, net }: MonthlyKPICardsProps)
           <Equal className={net >= 0 ? "text-[var(--color-brand-accent)] mb-1" : "text-[#F05A64] mb-1"} size={24} />
           <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">NET</span>
           <span className={`text-xl font-bold z-10 ${net >= 0 ? 'text-white' : 'text-[#F05A64]'}`}>
-            {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+            {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
         </div>
       </div>

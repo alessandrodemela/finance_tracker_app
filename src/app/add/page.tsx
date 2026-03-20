@@ -48,7 +48,7 @@ export default function AddTransaction() {
     if (!formData.amount) return;
 
     setLoading(true);
-    const amountNum = Math.abs(parseFloat(formData.amount));
+    const amountNum = Math.round(Math.abs(parseFloat(formData.amount.replace(',', '.'))) * 100) / 100;
 
     let categoryId = formData.category_id;
     let budgetCategoryId = formData.budget_category_id;
@@ -117,14 +117,17 @@ export default function AddTransaction() {
           <Save size={32} />
         </div>
         <div className="flex flex-col gap-2">
-           <h1 className="text-3xl font-bold text-white tracking-tight">Transaction Saved!</h1>
-           <p className="text-[var(--color-brand-secondary)]">Your balance has been updated successfully.</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Transaction Saved!</h1>
+          <p className="text-[var(--color-brand-secondary)]">Your balance has been updated successfully.</p>
         </div>
-        <div className="w-full max-w-sm flex flex-col gap-3">
-          <Button onClick={() => handleAddAnother(false)} fullWidth className="py-4 rounded-2xl font-bold text-base bg-gradient-to-r from-[var(--color-brand-accent)] to-[#4F46E5] border-none shadow-xl">
-            Add Another Transaction
-          </Button>
-          <Button onClick={() => router.push('/')} variant="ghost" fullWidth className="py-4 rounded-2xl font-bold text-base border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)] text-white hover:bg-[rgba(255,255,255,0.1)]">
+        <div className="w-full max-w-sm flex flex-col gap-5">
+          <div className="relative group w-full">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-accent)] to-[#10B981] rounded-2xl blur opacity-30 group-hover:opacity-60 transition-all duration-500" />
+            <Button onClick={() => handleAddAnother(false)} fullWidth className="relative py-4 rounded-2xl font-bold text-base bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] shadow-xl transition-all duration-300 backdrop-blur-sm">
+              Add Another Transaction
+            </Button>
+          </div>
+          <Button onClick={() => router.push('/')} variant="ghost" fullWidth className="py-4 rounded-2xl font-bold text-base border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.03)] text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.08)]">
             Back to Dashboard
           </Button>
         </div>
@@ -135,21 +138,21 @@ export default function AddTransaction() {
   return (
     <main className="min-h-screen bg-[var(--color-brand-navy)] pb-12 animate-in slide-in-from-bottom-[20px] fade-in duration-500">
       <div className="max-w-xl mx-auto px-6">
-        
+
         {/* Header */}
         <header className="flex items-center justify-between pt-8 mb-10">
-          <button 
+          <button
             onClick={() => router.back()}
             className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.05)] text-[var(--color-brand-secondary)] hover:text-white transition-all hover:scale-105 active:scale-95"
           >
             <ChevronLeft size={20} />
           </button>
-          <h1 className="text-xl font-bold text-white tracking-wide uppercase">New Transaction</h1>
+          <h1 className="text-xl font-light text-white tracking-wide uppercase">New Transaction</h1>
           <div className="w-10 h-10" /> {/* Spacer */}
         </header>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
-          
+
           {/* Type Segmented Picker */}
           <div className="bg-[rgba(255,255,255,0.04)] p-1.5 rounded-[22px] flex items-center border border-[rgba(255,255,255,0.05)] shadow-inner">
             {[
@@ -162,8 +165,8 @@ export default function AddTransaction() {
                 type="button"
                 className={cn(
                   "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[18px] text-xs font-bold tracking-widest uppercase transition-all duration-300",
-                  type === t.id 
-                    ? "bg-white text-[var(--color-brand-navy)] shadow-xl scale-[1.02]" 
+                  type === t.id
+                    ? "bg-white text-[var(--color-brand-navy)] shadow-xl scale-[1.02]"
                     : "text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.03)]"
                 )}
                 onClick={() => setType(t.id as MovementType)}
@@ -179,8 +182,9 @@ export default function AddTransaction() {
             <div className="text-xs font-bold text-[var(--color-brand-secondary)] uppercase tracking-[0.2em] mb-2 opacity-60 group-focus-within:opacity-100 transition-opacity">Amount</div>
             <div className="flex items-center gap-2 relative">
               <span className="text-4xl font-light text-[var(--color-brand-secondary)]">€</span>
-              <input 
+              <input
                 type="number"
+                inputMode="decimal"
                 step="0.01"
                 placeholder="0.00"
                 autoFocus
@@ -194,7 +198,7 @@ export default function AddTransaction() {
 
           {/* Form Fields Glass Card */}
           <div className="glass-panel p-6 flex flex-col gap-6 border-[rgba(255,255,255,0.05)] shadow-2xl">
-            
+
             <Input
               label="Date"
               type="date"
@@ -213,7 +217,7 @@ export default function AddTransaction() {
                   value={formData.account_id}
                   onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
                 />
-                
+
                 <div className="flex flex-col gap-2">
                   <Select
                     label="Category (Macro)"
@@ -231,10 +235,10 @@ export default function AddTransaction() {
                   />
                   {isAddingBudgetCategory && (
                     <div className="flex items-center gap-2 mt-1 animate-in slide-in-from-top-1 fade-in">
-                      <Input 
-                        placeholder="New Macro Name..." 
-                        value={newBudgetCategoryName} 
-                        onChange={(e) => setNewBudgetCategoryName(e.target.value)} 
+                      <Input
+                        placeholder="New Macro Name..."
+                        value={newBudgetCategoryName}
+                        onChange={(e) => setNewBudgetCategoryName(e.target.value)}
                         className="flex-1"
                       />
                       <button onClick={() => setIsAddingBudgetCategory(false)} className="p-3 text-[var(--color-brand-danger)]"><X size={20} /></button>
@@ -258,10 +262,10 @@ export default function AddTransaction() {
                   />
                   {isAddingCategory && (
                     <div className="flex items-center gap-2 mt-1 animate-in slide-in-from-top-1 fade-in">
-                      <Input 
-                        placeholder="New Sub-Category..." 
-                        value={newCategoryName} 
-                        onChange={(e) => setNewCategoryName(e.target.value)} 
+                      <Input
+                        placeholder="New Sub-Category..."
+                        value={newCategoryName}
+                        onChange={(e) => setNewCategoryName(e.target.value)}
                         className="flex-1"
                       />
                       <button onClick={() => setIsAddingCategory(false)} className="p-3 text-[var(--color-brand-danger)]"><X size={20} /></button>
@@ -306,16 +310,16 @@ export default function AddTransaction() {
                   <label key={opt.id} className="flex items-center gap-2 cursor-pointer group">
                     <div className={cn(
                       "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
-                      (formData as any)[opt.id] 
-                        ? "bg-[var(--color-brand-accent)] border-[var(--color-brand-accent)]" 
+                      (formData as any)[opt.id]
+                        ? "bg-[var(--color-brand-accent)] border-[var(--color-brand-accent)]"
                         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] group-hover:border-[rgba(255,255,255,0.3)]"
                     )}>
                       {(formData as any)[opt.id] && <Plus size={14} className="text-white" />}
-                      <input 
-                        type="checkbox" 
-                        className="hidden" 
-                        checked={(formData as any)[opt.id]} 
-                        onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })} 
+                      <input
+                        type="checkbox"
+                        className="hidden"
+                        checked={(formData as any)[opt.id]}
+                        onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })}
                       />
                     </div>
                     <span className="text-xs font-bold text-[var(--color-brand-secondary)] uppercase tracking-wider">{opt.label}</span>
@@ -325,14 +329,17 @@ export default function AddTransaction() {
             )}
           </div>
 
-          <Button 
-            type="submit" 
-            fullWidth 
-            disabled={loading} 
-            className="py-5 rounded-2xl font-bold text-lg bg-gradient-to-r from-[var(--color-brand-accent)] to-[#4F46E5] border-none shadow-[0_8px_30px_rgba(0,210,255,0.3)] hover:scale-[1.02] active:scale-95 transition-all"
-          >
-            {loading ? 'Processing...' : 'Record Transaction'}
-          </Button>
+          <div className="w-full relative group mt-4">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-brand-accent)] to-[#10B981] rounded-2xl blur-lg opacity-30 group-hover:opacity-60 transition-all duration-500"></div>
+            <Button 
+              type="submit" 
+              fullWidth 
+              disabled={loading} 
+              className="relative py-5 rounded-2xl font-bold text-lg bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white hover:bg-[rgba(255,255,255,0.1)] shadow-2xl transition-all duration-300 backdrop-blur-sm group-active:scale-[0.98]"
+            >
+              {loading ? 'Processing...' : 'Record Transaction'}
+            </Button>
+          </div>
         </form>
       </div>
     </main>
