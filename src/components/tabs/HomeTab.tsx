@@ -25,7 +25,7 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
   const { history, current: currentBalances } = useAccountBalances('2000-01-01');
 
   // Local State
-  const [activeRange, setActiveRange] = useState<TimeRange>('1A');
+  const [activeRange, setActiveRange] = useState<TimeRange>('MTD');
   const [showAccountForm, setShowAccountForm] = useState(false);
   const [editingAccount, setEditingAccount] = useState<string | null>(null);
   const [accountForm, setAccountForm] = useState({ name: '', balance: '', currency: 'EUR' });
