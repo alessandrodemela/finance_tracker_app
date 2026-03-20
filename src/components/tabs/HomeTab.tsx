@@ -14,9 +14,13 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PlusCircle } from 'lucide-react';
 
-export function HomeTab() {
+interface HomeTabProps {
+  isSensitiveVisible?: boolean;
+}
+
+export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
   const { currentMonthStr } = useDate();
-  
+
   // Data Fetching
   const dateRange = useMemo(() => {
     const [year, month] = currentMonthStr.split('-').map(Number);
@@ -117,23 +121,25 @@ export function HomeTab() {
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto pb-6 animate-in slide-in-from-bottom-[10px] fade-in duration-500">
-      
+
       {/* 1. Hero Section */}
-      <BalanceHero totalBalance={totalBalance} />
+      <BalanceHero totalBalance={totalBalance} isVisible={isSensitiveVisible} />
 
       {/* 2. Time Range Selector + Chart */}
-      <NetWorthTimeRange 
-        chartData={chartData} 
-        selectedRange={activeRange} 
-        onRangeChange={setActiveRange} 
+      <NetWorthTimeRange
+        chartData={chartData}
+        selectedRange={activeRange}
+        onRangeChange={setActiveRange}
+        isSensitiveVisible={isSensitiveVisible}
       />
 
       {/* 3. Bank Accounts Accordion (Restored) */}
-      <AccountsAccordion 
-        accounts={accounts} 
-        onAddClick={handleAddAccount} 
-        onEditClick={handleEditAccount} 
-        onDeleteClick={handleDeleteAccount} 
+      <AccountsAccordion
+        accounts={accounts}
+        onAddClick={handleAddAccount}
+        onEditClick={handleEditAccount}
+        onDeleteClick={handleDeleteAccount}
+        isSensitiveVisible={isSensitiveVisible}
       />
 
       {/* Account Form Modal (Restored) */}
@@ -197,12 +203,12 @@ export function HomeTab() {
           Loading transactions...
         </div>
       ) : (
-        <RecentTransactions 
-          transactions={recentTransactions} 
-          categories={budgetCategories} 
+        <RecentTransactions
+          transactions={recentTransactions}
+          categories={budgetCategories}
           onOpenAll={() => {
             window.location.href = '/transactions';
-          }} 
+          }}
         />
       )}
 

@@ -15,11 +15,12 @@ interface NetWorthTimeRangeProps {
   chartData: TrendData[];
   selectedRange: TimeRange;
   onRangeChange: (range: TimeRange) => void;
+  isSensitiveVisible?: boolean;
 }
 
 const RANGES: TimeRange[] = ['7D', '1M', 'YTD', '1A', 'MAX'];
 
-export function NetWorthTimeRange({ chartData, selectedRange, onRangeChange }: NetWorthTimeRangeProps) {
+export function NetWorthTimeRange({ chartData, selectedRange, onRangeChange, isSensitiveVisible = true }: NetWorthTimeRangeProps) {
   const delta = React.useMemo(() => {
     if (!chartData || chartData.length < 2) return null;
     const start = chartData[0].amount;
@@ -47,13 +48,13 @@ export function NetWorthTimeRange({ chartData, selectedRange, onRangeChange }: N
 
       <div className="h-[200px] w-full mt-2 relative">
         {delta !== null && (
-          <div className={`absolute top-0 right-0 z-10 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[rgba(13,13,18,0.6)] backdrop-blur-md border border-[rgba(255,255,255,0.08)] shadow-xl ${delta >= 0 ? 'text-[#10B981]' : 'text-[#F05A64]'}`}>
+          <div className={`absolute top-0 right-0 z-10 text-[11px] font-bold px-2.5 py-1 rounded-lg bg-[rgba(13,13,18,0.6)] backdrop-blur-md border border-[rgba(255,255,255,0.08)] shadow-xl transition-all duration-500 ${delta >= 0 ? 'text-[#10B981]' : 'text-[#F05A64]'} ${!isSensitiveVisible ? 'blur-sm select-none opacity-50' : ''}`}>
             <span className="opacity-70 mr-1.5 text-[9px] uppercase tracking-tighter"></span>
             {delta < 0 ? '-€' : '+€'}{Math.abs(delta).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
         )}
         {chartData && chartData.length > 0 ? (
-          <NetWorthChart data={chartData} />
+          <NetWorthChart data={chartData} isVisible={isSensitiveVisible} />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[var(--color-brand-secondary)] text-sm font-medium">
             No data available for this range

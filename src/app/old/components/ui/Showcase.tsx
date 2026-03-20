@@ -13,7 +13,7 @@ const PlaceholderIcon = () => <div className="w-5 h-5 bg-[var(--muted)] rounded-
 
 export function DesignSystemShowcase() {
   const [activeTab, setActiveTab] = useState('daily');
-  
+
   return (
     <div className="flex flex-col gap-8 p-6 pb-32">
       {/* 1. Base Card */}
@@ -30,19 +30,19 @@ export function DesignSystemShowcase() {
       {/* 2. Transaction Cards */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-[var(--muted)] font-sans">Transactions</h2>
-        <TransactionCard 
-          title="Amazon Prime" 
-          subtitle="Subscription" 
-          amount={14.99} 
-          type="expense" 
-          icon={<PlaceholderIcon />} 
+        <TransactionCard
+          title="Amazon Prime"
+          subtitle="Subscription"
+          amount={14.99}
+          type="expense"
+          icon={<PlaceholderIcon />}
         />
-        <TransactionCard 
-          title="Salary" 
-          subtitle="Direct Deposit" 
-          amount={4500.00} 
-          type="income" 
-          icon={<PlaceholderIcon />} 
+        <TransactionCard
+          title="Salary"
+          subtitle="Direct Deposit"
+          amount={4500.00}
+          type="income"
+          icon={<PlaceholderIcon />}
         />
       </section>
 
@@ -79,9 +79,9 @@ export function DesignSystemShowcase() {
       {/* 8. Tab Selector */}
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-[var(--muted)] font-sans">Tab Selector</h2>
-        <TabSelector 
+        <TabSelector
           tabs={[
-            { id: 'daily', label: 'Daily' },
+            { id: 'daily', label: 'Dailly' },
             { id: 'weekly', label: 'Weekly' },
             { id: 'monthly', label: 'Monthly' },
           ]}
@@ -94,7 +94,7 @@ export function DesignSystemShowcase() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-[var(--muted)] font-sans">List Items</h2>
         <Card className="p-0 overflow-hidden">
-          <ListItem 
+          <ListItem
             interactive
             left={<PlaceholderIcon />}
             content={
@@ -105,7 +105,7 @@ export function DesignSystemShowcase() {
             }
             right={<span className="text-white font-medium">$124.50</span>}
           />
-          <ListItem 
+          <ListItem
             interactive
             left={<PlaceholderIcon />}
             content={
@@ -123,14 +123,14 @@ export function DesignSystemShowcase() {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold text-[var(--muted)] font-sans">Stat Box</h2>
         <div className="grid grid-cols-2 gap-4">
-          <StatBox 
-            label="Total Balance" 
-            value="$12,450.00" 
+          <StatBox
+            label="Total Balance"
+            value="$12,450.00"
             icon={<PlaceholderIcon />}
           />
-          <StatBox 
-            label="Monthly Spend" 
-            value="$2,140.50" 
+          <StatBox
+            label="Monthly Spend"
+            value="$2,140.50"
             icon={<PlaceholderIcon />}
             trend={{ value: 12.5, label: 'vs last month', isPositive: false }}
           />

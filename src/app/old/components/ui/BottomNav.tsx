@@ -44,7 +44,7 @@ export function BottomNav({ className, items, ...props }: BottomNavProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-[calc(4.5rem+env(safe-area-inset-bottom))] bg-[var(--color-brand-card)]/95 backdrop-blur-xl border-t border-white/5 z-50 flex items-center justify-around px-6 pb-[env(safe-area-inset-bottom)]",
+        "fixed bottom-0 left-0 right-0 h-[calc(4rem+env(safe-area-inset-bottom))] bg-[var(--color-brand-card)]/95 backdrop-blur-xl border-t border-white/5 z-50 flex items-center justify-around px-6 pb-[env(safe-area-inset-bottom)]",
         "mx-auto w-full max-w-[480px] shadow-[0_-8px_30px_rgb(0,0,0,0.5)]",
         className
       )}
