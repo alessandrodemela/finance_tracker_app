@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid password' }, { status: 401 });
     }
 
-    const token = signToken();
+    const token = await signToken();
 
     // Set the token as an HttpOnly cookie for middleware protection (server-side)
     // AND return it in the response body for localStorage storage (client-side)

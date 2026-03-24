@@ -7,7 +7,7 @@ const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/auth/logout', '/api/aut
 // Static file extensions that should always pass through
 const STATIC_EXTENSIONS = /\.(ico|png|jpg|jpeg|svg|webp|woff|woff2|ttf|css|js|json|txt|xml|map)$/;
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Always allow static files and Next.js internals
@@ -29,7 +29,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Verify the token
-  const payload = verifyToken(token);
+  const payload = await verifyToken(token);
 
   if (!payload) {
     // Invalid or expired token → redirect to login and clear cookie
