@@ -10,11 +10,11 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "default", fullWidth = false, ...props }, ref) => {
     const variants = {
-      primary: "rounded-xl bg-gradient-to-r from-[#00D2FF] to-[#00A3FF] text-white font-medium hover:from-[#33DBFF] hover:to-[#00D2FF] hover:shadow-[0_0_20px_rgba(0,210,255,0.3)] active:scale-[0.98] transition-all",
-      secondary: "rounded-xl border border-[#00D2FF] text-[#00D2FF] font-medium hover:bg-[rgba(0,210,255,0.1)] transition-all",
-      ghost: "bg-transparent text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/5",
-      icon: "rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white",
-      danger: "bg-[var(--color-brand-danger)] text-white hover:opacity-90 shadow-lg",
+      primary: "rounded-2xl bg-white text-black font-bold hover:bg-white/90 active:scale-[0.98] transition-all shadow-xl",
+      secondary: "rounded-2xl border border-white/20 bg-white/5 text-white font-bold hover:bg-white/10 hover:border-white/30 transition-all",
+      ghost: "bg-transparent text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/5 font-bold uppercase tracking-widest text-[10px]",
+      icon: "rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white shadow-lg",
+      danger: "bg-[var(--color-brand-danger)] text-white hover:opacity-90 shadow-xl font-bold",
     };
 
     const sizes = {

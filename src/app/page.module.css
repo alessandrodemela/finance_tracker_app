@@ -164,7 +164,7 @@
   justify-content: center;
   align-items: center;
   gap: 0.5rem;
-  background: linear-gradient(135deg, #030f2f 0%, #5579fb 100%);
+  background: linear-gradient(135deg, var(--color-brand-navy) 0%, var(--color-brand-accent) 100%);
   color: #ffffff;
   border: none;
   cursor: pointer;

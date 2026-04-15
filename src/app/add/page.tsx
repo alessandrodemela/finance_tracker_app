@@ -154,28 +154,35 @@ export default function AddTransaction() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
           {/* Type Segmented Picker */}
-          <div className="bg-[rgba(255,255,255,0.04)] p-1.5 rounded-[22px] flex items-center border border-[rgba(255,255,255,0.05)] shadow-inner">
+          {/* Type Selector - New Separated Style */}
+          <div className="grid grid-cols-3 gap-3">
             {[
-              { id: 'expense', icon: <ArrowDown size={14} />, color: 'text-[#F05A64]' },
-              { id: 'income', icon: <ArrowUp size={14} />, color: 'text-[#10B981]' },
-              { id: 'transfer', icon: <Repeat size={14} />, color: 'text-[var(--color-brand-accent)]' }
+              { id: 'expense', icon: <ArrowDown size={14} />, color: 'text-[#F05A64]', activeBg: 'bg-[#F05A64]' },
+              { id: 'income', icon: <ArrowUp size={14} />, color: 'text-[#10B981]', activeBg: 'bg-[#10B981]' },
+              { id: 'transfer', icon: <Repeat size={14} />, color: 'text-[var(--color-brand-accent)]', activeBg: 'bg-[var(--color-brand-accent)]' }
             ].map((t) => (
               <button
                 key={t.id}
                 type="button"
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[18px] text-xs font-bold tracking-widest uppercase transition-all duration-300",
+                  "flex flex-col items-center justify-center gap-3 py-6 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all duration-300 border",
                   type === t.id
-                    ? "bg-white text-[var(--color-brand-navy)] shadow-xl scale-[1.02]"
-                    : "text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.03)]"
+                    ? "bg-white border-white text-black shadow-xl scale-[1.05] z-10"
+                    : "bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.05)] text-[var(--color-brand-secondary)] hover:text-white"
                 )}
                 onClick={() => setType(t.id as MovementType)}
               >
-                <span className={cn("transition-colors", type === t.id ? t.color : "text-current")}>{t.icon}</span>
+                <div className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-inner",
+                  type === t.id ? t.activeBg + "/10" : "bg-white/5"
+                )}>
+                  <span className={cn(type === t.id ? t.color : "text-white/40")}>{t.icon}</span>
+                </div>
                 {t.id}
               </button>
             ))}
           </div>
+
 
           {/* Large Amount Input */}
           <div className="flex flex-col items-center justify-center gap-2 py-8 group">
@@ -278,18 +285,25 @@ export default function AddTransaction() {
                 <Select
                   label="From Account"
                   required
-                  options={accounts.map(a => ({ value: a.id, label: a.name }))}
+                  options={[
+                    { value: '', label: 'Select...' },
+                    ...accounts.map(a => ({ value: a.id, label: a.name }))
+                  ]}
                   value={formData.from_account_id}
                   onChange={(e) => setFormData({ ...formData, from_account_id: e.target.value })}
                 />
                 <Select
                   label="To Account"
                   required
-                  options={accounts.map(a => ({ value: a.id, label: a.name }))}
+                  options={[
+                    { value: '', label: 'Select...' },
+                    ...accounts.map(a => ({ value: a.id, label: a.name }))
+                  ]}
                   value={formData.to_account_id}
                   onChange={(e) => setFormData({ ...formData, to_account_id: e.target.value })}
                 />
               </div>
+
             )}
 
             <Input

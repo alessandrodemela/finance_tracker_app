@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { Home, Calendar, BarChart3, TrendingUp, Eye, EyeOff, LogOut } from 'lucide-react';
@@ -9,9 +9,12 @@ import { MonthlyTab } from '@/components/tabs/MonthlyTab';
 import { YearlyTab } from '@/components/tabs/YearlyTab';
 import { InsightsTab } from '@/components/tabs/InsightsTab';
 import { cn } from '@/lib/utils';
-import styles from './page.module.css';
+
 
 type Tab = 'home' | 'monthly' | 'yearly' | 'insights';
+
+import { Sidebar } from '@/components/ui/Sidebar';
+import { DesktopDashboard } from '@/components/DesktopDashboard';
 
 export default function Dashboard() {
   const router = useRouter();
@@ -62,25 +65,25 @@ export default function Dashboard() {
 
   const navItems = [
     {
-      icon: <Home size={24} />,
+      icon: <Home size={20} />,
       label: 'Home',
       isActive: activeTab === 'home',
       onClick: () => setActiveTab('home')
     },
     {
-      icon: <Calendar size={24} />,
+      icon: <Calendar size={20} />,
       label: 'Monthly',
       isActive: activeTab === 'monthly',
       onClick: () => setActiveTab('monthly')
     },
     {
-      icon: <BarChart3 size={24} />,
+      icon: <BarChart3 size={20} />,
       label: 'Yearly',
       isActive: activeTab === 'yearly',
       onClick: () => setActiveTab('yearly')
     },
     {
-      icon: <TrendingUp size={24} />,
+      icon: <TrendingUp size={20} />,
       label: 'Insights',
       isActive: activeTab === 'insights',
       onClick: () => setActiveTab('insights')
@@ -88,40 +91,55 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)]">
-      <main className={cn(styles.container, "pb-12")}>
-        {/* Header Section - Only visible on Home tab */}
-        {activeTab === 'home' && (
-          <header className="flex items-center justify-between px-4 sm:px-6 pt-8 pb-2">
-            <div className="flex flex-col">
-              <h1 className="text-[20px] font-light text-[var(--color-brand-secondary)] tracking-[4px]">
-                WELCOME BACK
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Eye toggle */}
-              <button 
-                onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
-                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg touch-manipulation"
-                aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
-              >
-                {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
-              </button>
-              {/* Logout button */}
-              <button
-                onClick={handleLogout}
-                className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] active:text-[var(--color-brand-danger)] active:bg-[rgba(240,90,100,0.08)] active:border-[rgba(240,90,100,0.2)] transition-all active:scale-95 shadow-lg touch-manipulation"
-                aria-label="Logout"
-                title="Logout"
-              >
-                <LogOut size={15} />
-              </button>
-            </div>
-          </header>
-        )}
+    <div className="bg-[var(--color-brand-navy)] min-h-screen text-[var(--color-brand-primary)] flex w-full">
+      {/* Desktop Sidebar */}
+      <Sidebar items={navItems} onLogout={handleLogout} />
 
-        {/* Tab content with responsive padding */}
-        <div className="px-4 sm:px-6 pt-4 pb-40">
+      {/* Main Content Area */}
+      <main className={cn(
+        "flex-1 transition-all duration-300 min-w-0 w-full",
+        "lg:pl-72", // Offset for Sidebar (w-72) using padding so w-full is exact
+        "pb-12 lg:pb-0"
+      )}>
+        
+        {/* Mobile-only Header Section */}
+        <header className="flex lg:hidden items-center justify-between px-6 pt-10 pb-4">
+          <div className="flex flex-col">
+            <h1 className="text-sm font-black text-white tracking-[0.3em] uppercase">
+              {activeTab === 'home' ? 'Overview' : activeTab}
+            </h1>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Eye toggle */}
+            <button 
+              onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
+              className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg touch-manipulation"
+              aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
+            >
+              {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
+            </button>
+          </div>
+        </header>
+
+        {/* Desktop Dashboard — full width, no horizontal padding */}
+        <div className="hidden lg:block w-full">
+          {activeTab === 'home' && (
+            <DesktopDashboard 
+              isSensitiveVisible={isSensitiveVisible} 
+              setIsSensitiveVisible={setIsSensitiveVisible} 
+            />
+          )}
+          {activeTab !== 'home' && (
+            <div className="px-6 pt-4 pb-10">
+              {activeTab === 'monthly' && <MonthlyTab />}
+              {activeTab === 'yearly' && <YearlyTab />}
+              {activeTab === 'insights' && <InsightsTab />}
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Tabs */}
+        <div className="lg:hidden px-4 sm:px-6 pt-4 pb-40">
           {activeTab === 'home' && <HomeTab isSensitiveVisible={isSensitiveVisible} />}
           {activeTab === 'monthly' && <MonthlyTab />}
           {activeTab === 'yearly' && <YearlyTab />}
@@ -129,8 +147,10 @@ export default function Dashboard() {
         </div>
       </main>
 
-      {/* Fixed bottom navigation */}
-      <BottomNav items={navItems} />
+      {/* Fixed bottom navigation (Mobile only) */}
+      <div className="lg:hidden">
+        <BottomNav items={navItems.map(item => ({ ...item, icon: React.cloneElement(item.icon as React.ReactElement<any>, { size: 24 }) }))} />
+      </div>
     </div>
   );
 }

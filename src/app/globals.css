@@ -8,16 +8,18 @@
   :root {
     color-scheme: dark;
 
-    /* === New Brand Palette === */
-    --color-brand-navy: #04060c;
-    --color-brand-card: #090a10;
-    --color-brand-primary: #E8EBF4;
-    --color-brand-secondary: #5A6B8F;
+    /* === New Brand Palette (True Dark) === */
+    --color-brand-navy: #000000;
+    --color-brand-card: #0D0D0D;
+    --color-brand-primary: #FFFFFF;
+    --color-brand-secondary: #71717A;
+    /* zinc-400 */
     --color-brand-success: #10B981;
     --color-brand-danger: #F05A64;
-    --color-brand-accent: #00D2FF;
+    --color-brand-accent: #E2E8F0;
+    /* Slate-200 / Silver */
 
-    /* Migration aliases (so we don't break everything immediately) */
+    /* Migration aliases */
     --background: var(--color-brand-navy);
     --foreground: var(--color-brand-primary);
     --card: var(--color-brand-card);
@@ -102,13 +104,16 @@
   .glass-panel {
     @apply rounded-2xl border p-4 sm:p-5 transition-all;
     background-color: var(--color-brand-card);
-    border-color: rgba(255, 255, 255, 0.05);
+    border-color: var(--border);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
 
   @media (hover: hover) {
     .glass-panel:hover {
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
-      border-color: rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      /* shadow-lg */
+      border-color: rgba(99, 102, 241, 0.2);
     }
   }
 
@@ -125,11 +130,22 @@
 .mobile-wrapper {
   width: 100%;
   max-width: 600px;
+  /* Default for mobile */
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
   background: transparent;
   overflow-x: hidden;
+}
+
+@media (min-width: 1024px) {
+  .mobile-wrapper {
+    max-width: 2048px;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    /* Prepare for Sidebar + Content */
+  }
 }
 
 /* ===== SCROLLBAR ===== */
@@ -142,6 +158,6 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 210, 255, 0.2);
+  background: rgba(99, 102, 241, 0.2);
   border-radius: 10px;
 }

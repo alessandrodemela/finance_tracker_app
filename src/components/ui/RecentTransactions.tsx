@@ -12,13 +12,15 @@ interface RecentTransactionsProps {
   categories: BudgetCategory[];
   onOpenAll: () => void;
   onRefresh?: () => void;
+  showContainer?: boolean;
 }
 
 export function RecentTransactions({ 
   transactions, 
   categories, 
   onOpenAll,
-  onRefresh
+  onRefresh,
+  showContainer = true
 }: RecentTransactionsProps) {
   const router = useRouter();
 
@@ -34,18 +36,9 @@ export function RecentTransactions({
       }
     }
   };
-  return (
-    <div className="glass-panel p-5 flex flex-col gap-5 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[rgba(0,210,255,0.03)] rounded-full blur-2xl pointer-events-none" />
-      
-      <div className="flex items-center justify-between z-10">
-        <h3 className="text-heading-3 flex items-center gap-2 text-white font-bold">
-          <FileText size={20} className="text-[var(--color-brand-accent)]" />
-          Recent Activity
-        </h3>
-      </div>
-      
+
+  const content = (
+    <>
       <div className="flex flex-col gap-3 z-10 w-full mb-2">
         {transactions.length > 0 ? (
           transactions.map(tx => {
@@ -82,6 +75,24 @@ export function RecentTransactions({
           <ArrowRight size={16} className="transition-transform group-hover:translate-x-1" />
         </button>
       )}
+    </>
+  );
+
+  if (!showContainer) return content;
+
+  return (
+    <div className="glass-panel p-5 flex flex-col gap-5 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-[-50px] right-[-50px] w-32 h-32 bg-[rgba(0,210,255,0.03)] rounded-full blur-2xl pointer-events-none" />
+      
+      <div className="flex items-center justify-between z-10">
+        <h3 className="text-heading-3 flex items-center gap-2 text-white font-bold">
+          <FileText size={20} className="text-[var(--color-brand-accent)]" />
+          Recent Activity
+        </h3>
+      </div>
+      
+      {content}
     </div>
   );
 }

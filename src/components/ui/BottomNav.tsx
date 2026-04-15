@@ -13,9 +13,9 @@ export function BottomNavItem({ icon, label, isActive, onClick }: BottomNavItemP
     <button
       onClick={onClick}
       className={cn(
-        "flex flex-col items-center justify-center relative py-1 px-4 transition-colors duration-200",
+        "flex flex-col items-center justify-center relative py-1 px-4 transition-all duration-300",
         "touch-manipulation select-none outline-none",
-        isActive ? "text-[var(--color-brand-accent)]" : "text-[var(--color-brand-secondary)] active:text-[var(--color-brand-primary)]"
+        isActive ? "text-white" : "text-[var(--color-brand-secondary)]"
       )}
     >
       <div className={cn(
@@ -25,13 +25,13 @@ export function BottomNavItem({ icon, label, isActive, onClick }: BottomNavItemP
         {icon}
       </div>
       <span className={cn(
-        "text-[10px] font-semibold mt-1 uppercase tracking-wider transition-all",
-        isActive ? "opacity-100" : "opacity-60"
+        "text-[10px] font-black mt-1 uppercase tracking-[0.1em] transition-all",
+        isActive ? "opacity-100" : "opacity-40"
       )}>
         {label}
       </span>
       {isActive && (
-        <div className="absolute -bottom-1 w-1 h-1 bg-[var(--color-brand-accent)] rounded-full shadow-[0_0_8px_var(--color-brand-accent)]" />
+        <div className="absolute -bottom-1 w-12 h-1 bg-white rounded-full shadow-[0_0_12px_rgba(255,255,255,0.5)]" />
       )}
     </button>
   )
@@ -45,8 +45,8 @@ export function BottomNav({ className, items, ...props }: BottomNavProps) {
   return (
     <div
       className={cn(
-        "fixed bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom)+8px)] bg-[var(--color-brand-card)]/95 backdrop-blur-xl border-t border-white/5 z-50 flex items-center justify-around px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]",
-        "mx-auto w-full max-w-[600px] shadow-[0_-8px_30px_rgb(0,0,0,0.5)]",
+        "fixed bottom-0 left-0 right-0 h-[calc(5rem+env(safe-area-inset-bottom)+8px)] bg-black/80 backdrop-blur-2xl border-t border-white/5 z-50 flex items-center justify-around px-6 pb-[calc(env(safe-area-inset-bottom)+12px)]",
+        "mx-auto w-full max-w-[600px] shadow-[0_-8px_30px_rgb(0,0,0,0.8)]",
         className
       )}
       {...props}

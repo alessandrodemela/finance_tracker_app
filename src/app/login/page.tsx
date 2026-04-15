@@ -38,7 +38,7 @@ export default function LoginPage() {
   const handleKeyPress = (value: string) => {
     if (isLoading || isCheckingAuth) return;
     setError('');
-    
+
     if (pin.length < PIN_LENGTH) {
       setPin(pin + value);
     }
@@ -89,35 +89,35 @@ export default function LoginPage() {
 
   if (isCheckingAuth) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#04060c]">
-        <Loader2 className="w-8 h-8 text-[#00D2FF] animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)]">
+        <Loader2 className="w-8 h-8 text-[var(--color-brand-accent)] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center bg-[#04060c] px-6 font-['Inter',_sans-serif] transition-colors duration-300 ${shake ? 'bg-[#1a0606]' : ''}`}>
+    <div className={`min-h-screen flex flex-col items-center justify-center bg-[var(--color-brand-navy)] px-6 font-['Inter',_sans-serif] transition-colors duration-300 ${shake ? 'bg-[#1a0606]' : ''}`}>
       {/* Background radial glow */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none"
         style={{
-          background: shake 
-            ? 'radial-gradient(circle at 50% 50%, rgba(240, 90, 100, 0.15) 0%, transparent 60%)'
-            : 'radial-gradient(circle at 50% 50%, rgba(0, 210, 255, 0.05) 0%, transparent 60%)'
+          background: shake
+            ? 'radial-gradient(circle at 50% 50%, rgba(240, 90, 100, 0.1) 0%, transparent 60%)'
+            : 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 60%)'
         }}
       />
 
       <div className="w-full max-w-[320px] flex flex-col items-center z-10">
-        
+
         {/* Header */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-[#090a10] border border-[rgba(255,255,255,0.05)] flex items-center justify-center mb-6 shadow-2xl transition-colors duration-300">
-            <Lock size={28} className={shake ? 'text-[#F05A64]' : 'text-[#00D2FF]'} />
+          <div className="w-16 h-16 rounded-[2rem] bg-white flex items-center justify-center mb-8 shadow-2xl transition-all duration-300">
+            <Lock size={28} className={shake ? 'text-[var(--color-brand-danger)]' : 'text-black'} />
           </div>
-          <h1 className="text-[18px] font-['Outfit',_sans-serif] font-light text-[#5A6B8F] tracking-[5px] uppercase mb-2">
-            FINANCE TRACKER
+          <h1 className="text-xl font-black text-white tracking-widest uppercase mb-1">
+            XXXXXXX
           </h1>
-          <p className="text-xs text-[#5A6B8F] opacity-60 tracking-wider">SECURE ACCESS</p>
+          <p className="text-[10px] text-[var(--color-brand-secondary)] font-bold tracking-[0.3em] uppercase">Private Access</p>
         </div>
 
         {/* PIN Entry Area (Dots + Arrow Button) */}
@@ -127,13 +127,12 @@ export default function LoginPage() {
             {Array.from({ length: PIN_LENGTH }).map((_, i) => (
               <div
                 key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  i < pin.length 
-                    ? shake 
-                      ? 'bg-[#F05A64] shadow-[0_0_12px_rgba(240,90,100,0.5)] scale-110'
-                      : 'bg-[#00D2FF] shadow-[0_0_12px_rgba(0,210,255,0.5)] scale-110' 
-                    : 'bg-[rgba(255,255,255,0.1)]'
-                }`}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${i < pin.length
+                  ? shake
+                    ? 'bg-[var(--color-brand-danger)] shadow-[0_0_12px_rgba(240,90,100,0.5)] scale-110'
+                    : 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.5)] scale-110'
+                  : 'bg-white/10'
+                  }`}
               />
             ))}
           </div>
@@ -142,11 +141,10 @@ export default function LoginPage() {
           <button
             onClick={handleEnter}
             disabled={isLoading || pin.length !== PIN_LENGTH}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-all outline-none ${
-              pin.length === PIN_LENGTH 
-                ? 'bg-[#00D2FF] text-[#04060c] shadow-[0_0_20px_rgba(0,210,255,0.3)] hover:scale-105 active:scale-95' 
-                : 'bg-[#090a10] border border-[rgba(255,255,255,0.05)] text-[#5A6B8F] opacity-40'
-            }`}
+            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all outline-none ${pin.length === PIN_LENGTH
+              ? 'bg-white text-black shadow-2xl hover:scale-105 active:scale-95'
+              : 'bg-white/5 border border-white/10 text-white/20'
+              }`}
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -158,9 +156,9 @@ export default function LoginPage() {
 
         {/* Error Message */}
         <div className={`h-6 mb-6 transition-opacity duration-300 ${error ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="flex items-center gap-1.5 text-[#F05A64] text-xs">
+          <div className="flex items-center gap-1.5 text-[var(--color-brand-danger)] text-xs font-bold uppercase tracking-wider">
             <AlertCircle size={14} />
-            <span className="tracking-wide">{error}</span>
+            <span>{error}</span>
           </div>
         </div>
 
@@ -171,18 +169,18 @@ export default function LoginPage() {
               key={num}
               onClick={() => handleKeyPress(num.toString())}
               disabled={isLoading}
-              className="w-16 h-16 rounded-full bg-[#090a10] border border-[rgba(255,255,255,0.05)] text-[22px] font-['Outfit',_sans-serif] text-[#E8EBF4] hover:bg-[rgba(255,255,255,0.03)] active:scale-95 transition-all outline-none mx-auto flex items-center justify-center box-content"
+              className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 text-2xl font-bold text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto flex items-center justify-center"
             >
               {num}
             </button>
           ))}
-          
+
           <div className="w-16 h-16" /> {/* Spacer */}
-          
+
           <button
             onClick={() => handleKeyPress('0')}
             disabled={isLoading}
-            className="w-16 h-16 rounded-full bg-[#090a10] border border-[rgba(255,255,255,0.05)] text-[22px] font-['Outfit',_sans-serif] text-[#E8EBF4] hover:bg-[rgba(255,255,255,0.03)] active:scale-95 transition-all outline-none mx-auto flex items-center justify-center box-content"
+            className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 text-2xl font-bold text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto flex items-center justify-center"
           >
             0
           </button>
@@ -191,7 +189,7 @@ export default function LoginPage() {
           <button
             onClick={handleBackspace}
             disabled={isLoading || pin.length === 0}
-            className="w-16 h-16 rounded-full bg-[#090a10] border border-[rgba(0,0,0,0.4)] flex items-center justify-center text-[#5A6B8F] hover:text-[#E8EBF4] hover:bg-[rgba(255,255,255,0.03)] active:scale-95 transition-all outline-none mx-auto disabled:opacity-20 disabled:scale-100"
+            className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto disabled:opacity-20"
             aria-label="Delete"
           >
             <Delete size={20} />
