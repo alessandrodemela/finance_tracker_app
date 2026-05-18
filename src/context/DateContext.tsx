@@ -17,7 +17,7 @@ export function DateProvider({ children }: { children: React.ReactNode }) {
     setCurrentDateState(date);
   };
 
-  const currentMonthStr = currentDate.toISOString().slice(0, 7);
+  const currentMonthStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
 
   return (
     <DateContext.Provider value={{ currentDate, setCurrentDate, currentMonthStr }}>

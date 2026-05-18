@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Account, Category, Transaction, BudgetCategory } from '@/types/database';
+import { getLocalDateString } from '@/lib/utils';
 
 export function useAccounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -365,7 +366,7 @@ export function useAccountBalances(startDate: string = '2024-01-01') {
           }));
 
         // Always add today as last point with the real value
-        const today = new Date().toISOString().split('T')[0];
+        const today = getLocalDateString();
         if (today >= startDate && !balanceByDate[today]) {
           history.push({ name: today.slice(5), amount: netWorthToday, fullDate: today });
         }

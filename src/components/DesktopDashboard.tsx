@@ -8,6 +8,7 @@ import {
   useAccountBalances,
   useAccounts
 } from '@/hooks/useData';
+import { useRouter } from 'next/navigation';
 import { useDate } from '@/context/DateContext';
 import {
   Plus,
@@ -19,7 +20,8 @@ import {
   Wallet,
   MoreHorizontal,
   Eye,
-  EyeOff
+  EyeOff,
+  Repeat
 } from 'lucide-react';
 import { NetWorthChart } from '@/components/DashboardCharts';
 import { cn } from '@/lib/utils';
@@ -38,7 +40,7 @@ const KPI_RANGES: KpiRange[] = ['1M', 'MTD', '1Y', 'YTD', 'ALL'];
 /** Compute start/end date strings for a given KPI range */
 function getKpiDateRange(range: KpiRange): { start: string; end: string } {
   const now = new Date();
-  const today = now.toISOString().split('T')[0];
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   switch (range) {
     case '1M': {
@@ -66,6 +68,7 @@ function getKpiDateRange(range: KpiRange): { start: string; end: string } {
 }
 
 export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: DesktopDashboardProps) {
+  const router = useRouter();
   // Data Fetching
   const { accounts } = useAccounts();
   const { history, current: currentBalances } = useAccountBalances('2024-01-01');
@@ -117,8 +120,8 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
       <header className="h-24 border-b border-white/5 bg-black/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-10 sticky top-0 z-10 w-full">
         <div className="flex items-center gap-12">
           <div className="flex flex-col">
-            <h1 className="text-2xl font-bold tracking-tight">Full Overview</h1>
-            <p className="text-[var(--color-brand-secondary)] text-sm font-medium mt-1">Welcome back, Alessandro</p>
+            {/* <h1 className="text-2xl font-bold tracking-tight">Full Overview</h1> */}
+            <p className="text-2xl font-bold text-[var(--color-brand-primary)] tracking-tight">Welcome back, Alessandro</p>
           </div>
 
           {/* TOTAL NET WORTH HERO IN HEADER */}
@@ -164,7 +167,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
 
             <div className="w-px h-8 bg-white/10 mx-2"></div>
 
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 bg-white text-black hover:bg-white/90 px-5 py-2.5 rounded-xl font-bold transition-all active:scale-95 shadow-lg"
             >
@@ -259,7 +262,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                 <div>
                   <h3 className="text-white font-bold text-lg">Your Accounts</h3>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsAccountModalOpen(true)}
                   className="text-[var(--color-brand-secondary)] hover:text-white transition-colors"
                 >
@@ -294,8 +297,8 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
       </div>
 
       {/* NEW TRANSACTION MODAL */}
-      <NewTransactionModal 
-        isOpen={isModalOpen} 
+      <NewTransactionModal
+        isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
           // Re-fetch data if needed

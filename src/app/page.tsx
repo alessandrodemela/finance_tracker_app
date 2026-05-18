@@ -102,27 +102,8 @@ export default function Dashboard() {
         "pb-12 lg:pb-0"
       )}>
         
-        {/* Mobile-only Header Section */}
-        <header className="flex lg:hidden items-center justify-between px-6 pt-10 pb-4">
-          <div className="flex flex-col">
-            <h1 className="text-sm font-black text-white tracking-[0.3em] uppercase">
-              {activeTab === 'home' ? 'Overview' : activeTab}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            {/* Eye toggle */}
-            <button 
-              onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
-              className="p-3 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] text-white active:bg-[rgba(255,255,255,0.1)] transition-all active:scale-95 shadow-lg touch-manipulation"
-              aria-label={isSensitiveVisible ? "Hide sensitive information" : "Show sensitive information"}
-            >
-              {isSensitiveVisible ? <Eye size={15} /> : <EyeOff size={15} />}
-            </button>
-          </div>
-        </header>
-
-        {/* Desktop Dashboard — full width, no horizontal padding */}
-        <div className="hidden lg:block w-full">
+        {/* Unified Dashboard Content */}
+        <div className="w-full pb-24 lg:pb-0">
           {activeTab === 'home' && (
             <DesktopDashboard 
               isSensitiveVisible={isSensitiveVisible} 
@@ -130,20 +111,12 @@ export default function Dashboard() {
             />
           )}
           {activeTab !== 'home' && (
-            <div className="px-6 pt-4 pb-10">
+            <div className="px-4 lg:px-6 pt-4 pb-10">
               {activeTab === 'monthly' && <MonthlyTab />}
               {activeTab === 'yearly' && <YearlyTab />}
               {activeTab === 'insights' && <InsightsTab />}
             </div>
           )}
-        </div>
-
-        {/* Mobile Tabs */}
-        <div className="lg:hidden px-4 sm:px-6 pt-4 pb-40">
-          {activeTab === 'home' && <HomeTab isSensitiveVisible={isSensitiveVisible} />}
-          {activeTab === 'monthly' && <MonthlyTab />}
-          {activeTab === 'yearly' && <YearlyTab />}
-          {activeTab === 'insights' && <InsightsTab />}
         </div>
       </main>
 

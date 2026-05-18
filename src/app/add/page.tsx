@@ -139,7 +139,6 @@ export default function AddTransaction() {
     <main className="min-h-screen bg-[var(--color-brand-navy)] pb-12 animate-in slide-in-from-bottom-[20px] fade-in duration-500">
       <div className="max-w-xl mx-auto px-6">
 
-        {/* Header */}
         <header className="flex items-center justify-between pt-8 mb-10">
           <button
             onClick={() => router.back()}
@@ -148,7 +147,16 @@ export default function AddTransaction() {
             <ChevronLeft size={20} />
           </button>
           <h1 className="text-xl font-light text-white tracking-wide uppercase">New Transaction</h1>
-          <div className="w-10 h-10" /> {/* Spacer */}
+          <div className="hidden md:block">
+            <button
+              type="button"
+              onClick={() => router.push('/add/bulk')}
+              className="px-4 py-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.05)] text-[var(--color-brand-secondary)] hover:text-white text-sm font-semibold transition-all hover:bg-[rgba(255,255,255,0.1)]"
+            >
+              Bulk Entry
+            </button>
+          </div>
+          <div className="w-10 h-10 md:hidden" /> {/* Spacer for mobile */}
         </header>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">

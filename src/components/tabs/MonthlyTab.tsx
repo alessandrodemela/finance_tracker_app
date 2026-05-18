@@ -32,9 +32,10 @@ export function MonthlyTab() {
   // Data Fetching
   const dateRange = useMemo(() => {
     const [year, month] = currentMonthStr.split('-').map(Number);
+    const lastDay = new Date(year, month, 0);
     return {
       start: `${currentMonthStr}-01`,
-      end: new Date(year, month, 0).toISOString().split('T')[0]
+      end: `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`
     };
   }, [currentMonthStr]);
 
