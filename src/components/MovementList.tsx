@@ -1,5 +1,6 @@
 import { Transaction, Category } from '@/types/database';
 import { ArrowUpRight, ArrowDownLeft, Repeat } from 'lucide-react';
+import { formatDateDDMMYYYY } from '@/lib/utils';
 import styles from './MovementList.module.css';
 
 interface TransactionListProps {
@@ -28,7 +29,7 @@ export function TransactionList({ transactions, categories }: TransactionListPro
             </div>
             <div className={styles.info}>
               <div className={styles.note}>{m.notes || category?.name || 'Transaction'}</div>
-              <div className={styles.date}>{new Date(m.date).toLocaleDateString()}</div>
+              <div className={styles.date}>{formatDateDDMMYYYY(m.date)}</div>
             </div>
             <div className={`${styles.amount} ${colorClass}`}>
               {m.type === 'expense' ? '-' : ''}€ {Number(m.amount).toFixed(2)}

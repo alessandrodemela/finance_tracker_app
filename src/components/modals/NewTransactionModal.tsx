@@ -29,6 +29,7 @@ interface BulkRow {
   is_fixed: boolean;
   is_split: boolean;
   is_necessary: boolean;
+  _ui_checked?: boolean;
 }
 
 const generateId = () => Math.random().toString(36).substr(2, 9);
@@ -82,23 +83,25 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
       is_fixed: false,
       is_split: false,
       is_necessary: true,
-    }]);
+      _ui_checked: false,
+    }].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
   };
 
   const duplicateBulkRow = (id: string) => {
     const rowToDuplicate = bulkRows.find(r => r.id === id);
     if (!rowToDuplicate) return;
     
-    const index = bulkRows.findIndex(r => r.id === id);
-    const newRow = { ...rowToDuplicate, id: generateId() };
+    const newRow = { ...rowToDuplicate, id: generateId(), _ui_checked: false };
     
-    const newRows = [...bulkRows];
-    newRows.splice(index + 1, 0, newRow);
-    setBulkRows(newRows);
+    setBulkRows([...bulkRows, newRow].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
   };
 
   const updateBulkRow = (id: string, field: keyof BulkRow, value: any) => {
-    setBulkRows(bulkRows.map(r => r.id === id ? { ...r, [field]: value } : r));
+    let newRows = bulkRows.map(r => r.id === id ? { ...r, [field]: value } : r);
+    if (field === 'date') {
+      newRows = newRows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    }
+    setBulkRows(newRows);
   };
 
   const deleteBulkRow = (id: string) => {
@@ -119,9 +122,24 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
       is_split: false,
       is_necessary: true,
     });
-    setBulkRows([]);
+    setBulkRows([{
+      id: generateId(),
+      type: 'expense',
+      date: getLocalDateString(),
+      amount: '',
+      account_id: '',
+      from_account_id: '',
+      to_account_id: '',
+      category_id: '',
+      budget_category_id: '',
+      notes: '',
+      is_fixed: false,
+      is_split: false,
+      is_necessary: true,
+      _ui_checked: false,
+    }]);
     setSubmitted(false);
-    setMode('single');
+    setMode('bulk');
     setIsAddingCategory(false);
     setNewCategoryName('');
     setIsAddingBudgetCategory(false);
@@ -354,15 +372,17 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                               {accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}
                             </select>
                           </div>
-                          <div className="flex flex-col gap-4">
-                            <span className="text-[10px] font-black text-[var(--color-brand-secondary)] uppercase tracking-[0.3em] flex items-center gap-2"><Tag size={12} /> Macro Category</span>
-                            <select value={formData.budget_category_id} onChange={(e) => { if (e.target.value === 'ADD_NEW') setIsAddingBudgetCategory(true); else setFormData({ ...formData, budget_category_id: e.target.value }); }} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm font-bold text-white outline-none appearance-none cursor-pointer">
-                              <option value="" className="bg-[#0D0D0D]">None</option>
-                              {budgetCategories.map(c => <option key={c.id} value={c.id} className="bg-[#0D0D0D]">{c.name}</option>)}
-                              <option value="ADD_NEW" className="bg-[#0D0D0D] font-bold text-[var(--color-brand-success)]">+ Add New...</option>
-                            </select>
-                            {isAddingBudgetCategory && <div className="flex items-center gap-2"><input placeholder="New Macro" value={newBudgetCategoryName} onChange={(e) => setNewBudgetCategoryName(e.target.value)} className="flex-1 bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-xs font-bold text-white outline-none"/><button onClick={() => setIsAddingBudgetCategory(false)} className="text-red-400 p-1"><X size={16}/></button></div>}
-                          </div>
+                          {type === 'expense' && (
+                            <div className="flex flex-col gap-4">
+                              <span className="text-[10px] font-black text-[var(--color-brand-secondary)] uppercase tracking-[0.3em] flex items-center gap-2"><Tag size={12} /> Macro Category</span>
+                              <select value={formData.budget_category_id} onChange={(e) => { if (e.target.value === 'ADD_NEW') setIsAddingBudgetCategory(true); else setFormData({ ...formData, budget_category_id: e.target.value }); }} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm font-bold text-white outline-none appearance-none cursor-pointer">
+                                <option value="" className="bg-[#0D0D0D]">None</option>
+                                {budgetCategories.map(c => <option key={c.id} value={c.id} className="bg-[#0D0D0D]">{c.name}</option>)}
+                                <option value="ADD_NEW" className="bg-[#0D0D0D] font-bold text-[var(--color-brand-success)]">+ Add New...</option>
+                              </select>
+                              {isAddingBudgetCategory && <div className="flex items-center gap-2"><input placeholder="New Macro" value={newBudgetCategoryName} onChange={(e) => setNewBudgetCategoryName(e.target.value)} className="flex-1 bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-xs font-bold text-white outline-none"/><button onClick={() => setIsAddingBudgetCategory(false)} className="text-red-400 p-1"><X size={16}/></button></div>}
+                            </div>
+                          )}
                           <div className="flex flex-col gap-4 md:col-span-2">
                             <span className="text-[10px] font-black text-[var(--color-brand-secondary)] uppercase tracking-[0.3em] flex items-center gap-2"><ChevronRight size={12} /> Sub-Category</span>
                             <select required value={formData.category_id} onChange={(e) => { if (e.target.value === 'ADD_NEW') setIsAddingCategory(true); else setFormData({ ...formData, category_id: e.target.value }); }} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-sm font-bold text-white outline-none appearance-none cursor-pointer">
@@ -433,6 +453,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                   <table className="w-full text-left text-[11px] text-white border-collapse">
                     <thead className="sticky top-0 z-10 bg-[#0D0D0D]">
                       <tr className="border-b border-white/10">
+                        <th className="p-4 w-8 text-center text-white/40 font-black">✔</th>
                         <th className="p-4 font-black text-[var(--color-brand-secondary)] uppercase tracking-wider w-[120px]">Type</th>
                         <th className="p-4 font-black text-[var(--color-brand-secondary)] uppercase tracking-wider w-[130px]">Date</th>
                         <th className="p-4 font-black text-[var(--color-brand-secondary)] uppercase tracking-wider w-[120px]">Amount</th>
@@ -447,6 +468,9 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                     <tbody>
                       {bulkRows.map((row) => (
                         <tr key={row.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="p-2 text-center">
+                            <input type="checkbox" checked={!!row._ui_checked} onChange={e => updateBulkRow(row.id, '_ui_checked', e.target.checked)} className="w-4 h-4 rounded border-white/20 bg-white/5 accent-white cursor-pointer" />
+                          </td>
                           <td className="p-2">
                             <select value={row.type} onChange={e => updateBulkRow(row.id, 'type', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none cursor-pointer appearance-none font-bold uppercase tracking-widest text-[9px]">
                               <option value="expense" className="bg-[#0D0D0D]">Expense</option>
@@ -477,7 +501,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                             )}
                           </td>
                           <td className="p-2">
-                            {row.type !== 'transfer' && (
+                            {row.type === 'expense' && (
                               <select value={row.budget_category_id} onChange={e => updateBulkRow(row.id, 'budget_category_id', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none appearance-none font-bold text-[10px]"><option value="" className="bg-[#0D0D0D]">Macro...</option>{budgetCategories.map(c => <option key={c.id} value={c.id} className="bg-[#0D0D0D]">{c.name}</option>)}</select>
                             )}
                           </td>
@@ -517,8 +541,35 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                       <button onClick={addBulkRow} className="px-8 py-3 rounded-xl bg-white text-black font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all shadow-xl">Add First Row</button>
                     </div>
                   ) : (
-                    <div className="p-4 flex justify-start border-t border-white/5">
-                      <button onClick={addBulkRow} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all font-bold text-xs uppercase tracking-widest"><Plus size={16} /> Add Row</button>
+                    <div className="p-4 flex flex-col md:flex-row justify-between items-start md:items-center border-t border-white/5 bg-[#0a0a0a] gap-4">
+                      <button onClick={addBulkRow} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all font-bold text-xs uppercase tracking-widest shrink-0"><Plus size={16} /> Add Row</button>
+                      
+                      {(() => {
+                        const stats = bulkRows.reduce((acc, r) => {
+                          const amt = parseFloat(r.amount.replace(',', '.')) || 0;
+                          if (r.type === 'expense') { acc.expAmt += amt; acc.expCnt++; }
+                          if (r.type === 'income') { acc.incAmt += amt; acc.incCnt++; }
+                          if (r.type === 'transfer') { acc.traAmt += amt; acc.traCnt++; }
+                          return acc;
+                        }, { expAmt: 0, expCnt: 0, incAmt: 0, incCnt: 0, traAmt: 0, traCnt: 0 });
+
+                        return (
+                          <div className="flex items-center gap-6 md:gap-10">
+                            <div className="flex flex-col">
+                              <span className="text-[9px] uppercase tracking-widest text-[var(--color-brand-secondary)] font-bold mb-1">Expenses ({stats.expCnt})</span>
+                              <span className="text-sm font-mono font-bold text-[var(--color-brand-danger)]">€ {stats.expAmt.toFixed(2)}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[9px] uppercase tracking-widest text-[var(--color-brand-secondary)] font-bold mb-1">Incomes ({stats.incCnt})</span>
+                              <span className="text-sm font-mono font-bold text-[var(--color-brand-success)]">€ {stats.incAmt.toFixed(2)}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-[9px] uppercase tracking-widest text-[var(--color-brand-secondary)] font-bold mb-1">Transfers ({stats.traCnt})</span>
+                              <span className="text-sm font-mono font-bold text-white">€ {stats.traAmt.toFixed(2)}</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
