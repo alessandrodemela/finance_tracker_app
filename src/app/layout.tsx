@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DateProvider } from "@/context/DateContext";
+import AuthProvider from "@/components/AuthProvider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -31,9 +32,11 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <div className="mobile-wrapper">
-          <DateProvider>
-            {children}
-          </DateProvider>
+          <AuthProvider>
+            <DateProvider>
+              {children}
+            </DateProvider>
+          </AuthProvider>
         </div>
         <script
           dangerouslySetInnerHTML={{

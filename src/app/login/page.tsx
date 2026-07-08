@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import { Delete, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
 
 const PIN_LENGTH = 8;
@@ -16,23 +17,21 @@ export default function LoginPage() {
 
   // If already authenticated, redirect to dashboard
   useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      fetch('/api/auth/verify', {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => {
-          if (res.ok) {
-            router.replace('/');
-          } else {
-            localStorage.removeItem('auth_token');
-            setIsCheckingAuth(false);
-          }
-        })
-        .catch(() => setIsCheckingAuth(false));
-    } else {
-      setIsCheckingAuth(false);
-    }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace('/');
+      } else {
+        setIsCheckingAuth(false);
+      }
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        router.replace('/');
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   const handleKeyPress = (value: string) => {
@@ -59,23 +58,20 @@ export default function LoginPage() {
   const submitPin = async (finalPin: string) => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: finalPin }),
+      const email = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@example.com';
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password: finalPin,
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error || 'Invalid PIN');
+      if (error || !data.session) {
+        setError(error?.message || 'Invalid PIN');
         setShake(true);
         setTimeout(() => setShake(false), 600);
         setPin(''); // Reset on error
         return;
       }
 
-      localStorage.setItem('auth_token', data.token);
       router.replace('/');
     } catch {
       setError('Connection error');
