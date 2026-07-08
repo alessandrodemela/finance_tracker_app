@@ -3,13 +3,13 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { Delete, Lock, Loader2, AlertCircle, ArrowRight } from 'lucide-react';
-
-const PIN_LENGTH = 8;
+import { Lock, Loader2, AlertCircle, ArrowRight, Mail, KeyRound } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
-  const [pin, setPin] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
@@ -34,41 +34,23 @@ export default function LoginPage() {
     return () => subscription.unsubscribe();
   }, [router]);
 
-  const handleKeyPress = (value: string) => {
-    if (isLoading || isCheckingAuth) return;
-    setError('');
-
-    if (pin.length < PIN_LENGTH) {
-      setPin(pin + value);
-    }
-  };
-
-  const handleBackspace = () => {
-    if (isLoading || isCheckingAuth) return;
-    setPin(prev => prev.slice(0, -1));
-    setError('');
-  };
-
-  const handleEnter = () => {
-    if (pin.length === PIN_LENGTH) {
-      submitPin(pin);
-    }
-  };
-
-  const submitPin = async (finalPin: string) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) return;
+    
     setIsLoading(true);
+    setError('');
+
     try {
-      const email = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'admin@example.com';
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
-        password: finalPin,
+        password,
       });
 
       if (error || !data.session) {
-        setError(error?.message || 'Invalid PIN');
+        setError(error?.message || 'Invalid credentials');
         setShake(true);
         setTimeout(() => setShake(false), 600);
-        setPin(''); // Reset on error
         return;
       }
 
@@ -77,7 +59,6 @@ export default function LoginPage() {
       setError('Connection error');
       setShake(true);
       setTimeout(() => setShake(false), 600);
-      setPin('');
     } finally {
       setIsLoading(false);
     }
@@ -92,105 +73,94 @@ export default function LoginPage() {
   }
 
   return (
-    <div className={`min-h-screen flex flex-col items-center justify-center bg-[var(--color-brand-navy)] px-6 font-['Inter',_sans-serif] transition-colors duration-300 ${shake ? 'bg-[#1a0606]' : ''}`}>
+    <div className={cn(
+      "min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)] px-6 font-['Inter',_sans-serif] transition-colors duration-300 relative overflow-hidden",
+      shake ? 'bg-[#1a0606]' : ''
+    )}>
       {/* Background radial glow */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: shake
-            ? 'radial-gradient(circle at 50% 50%, rgba(240, 90, 100, 0.1) 0%, transparent 60%)'
-            : 'radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.03) 0%, transparent 60%)'
-        }}
-      />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none opacity-20 bg-gradient-to-br from-white/20 to-transparent transition-opacity" />
 
-      <div className="w-full max-w-[320px] flex flex-col items-center z-10">
-
+      <div className={cn(
+        "relative w-full max-w-[420px] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] p-12 flex flex-col z-10 transition-transform",
+        shake && "animate-shake border-[var(--color-brand-danger)]/50 shadow-[0_0_50px_rgba(240,90,100,0.1)]"
+      )}>
+        
         {/* Header */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 rounded-[2rem] bg-white flex items-center justify-center mb-8 shadow-2xl transition-all duration-300">
-            <Lock size={28} className={shake ? 'text-[var(--color-brand-danger)]' : 'text-black'} />
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-white to-white/80 flex items-center justify-center mb-6 shadow-2xl transition-all duration-300 group hover:scale-105">
+            <Lock size={28} className={cn("text-black transition-colors", shake && "text-[var(--color-brand-danger)]")} />
           </div>
-          <h1 className="text-xl font-black text-white tracking-widest uppercase mb-1">
-            XXXXXXX
+          <h1 className="text-2xl font-black text-white tracking-tight mb-2">
+            Welcome Back
           </h1>
-          <p className="text-[10px] text-[var(--color-brand-secondary)] font-bold tracking-[0.3em] uppercase">Private Access</p>
+          <p className="text-[10px] text-[var(--color-brand-secondary)] font-bold tracking-[0.2em] uppercase">
+            Sign in to your dashboard
+          </p>
         </div>
 
-        {/* PIN Entry Area (Dots + Arrow Button) */}
-        <div className={`flex items-center gap-6 mb-8 transition-transform ${shake ? 'animate-shake' : ''}`}>
-          {/* Dots Group */}
-          <div className="flex gap-2.5">
-            {Array.from({ length: PIN_LENGTH }).map((_, i) => (
-              <div
-                key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${i < pin.length
-                  ? shake
-                    ? 'bg-[var(--color-brand-danger)] shadow-[0_0_12px_rgba(240,90,100,0.5)] scale-110'
-                    : 'bg-white shadow-[0_0_12px_rgba(255,255,255,0.5)] scale-110'
-                  : 'bg-white/10'
-                  }`}
+        {/* Error Message */}
+        <div className={cn(
+          "h-10 mb-2 flex items-center justify-center transition-all duration-300",
+          error ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+        )}>
+          {error && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--color-brand-danger)]/10 border border-[var(--color-brand-danger)]/20 text-[var(--color-brand-danger)] text-[10px] font-black uppercase tracking-widest">
+              <AlertCircle size={14} />
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-[var(--color-brand-secondary)] uppercase tracking-widest ml-1">Email</label>
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-white transition-colors" />
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white outline-none focus:bg-white/10 focus:border-white/20 transition-all placeholder:text-white/20"
               />
-            ))}
+            </div>
           </div>
 
-          {/* Submit Button next to pins */}
+          <div className="flex flex-col gap-2">
+            <label className="text-[10px] font-black text-[var(--color-brand-secondary)] uppercase tracking-widest ml-1">Password</label>
+            <div className="relative group">
+              <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-white transition-colors" />
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-white outline-none focus:bg-white/10 focus:border-white/20 transition-all placeholder:text-white/20"
+              />
+            </div>
+          </div>
+
           <button
-            onClick={handleEnter}
-            disabled={isLoading || pin.length !== PIN_LENGTH}
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center transition-all outline-none ${pin.length === PIN_LENGTH
-              ? 'bg-white text-black shadow-2xl hover:scale-105 active:scale-95'
-              : 'bg-white/5 border border-white/10 text-white/20'
-              }`}
+            type="submit"
+            disabled={isLoading || !email || !password}
+            className="mt-4 w-full h-14 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-2 hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none shadow-xl"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <ArrowRight size={22} />
+              <>
+                Sign In <ArrowRight size={16} />
+              </>
             )}
           </button>
-        </div>
-
-        {/* Error Message */}
-        <div className={`h-6 mb-6 transition-opacity duration-300 ${error ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="flex items-center gap-1.5 text-[var(--color-brand-danger)] text-xs font-bold uppercase tracking-wider">
-            <AlertCircle size={14} />
-            <span>{error}</span>
-          </div>
-        </div>
-
-        {/* Numeric Keypad (Round Buttons) */}
-        <div className="grid grid-cols-3 gap-6 w-full max-w-[280px]">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-            <button
-              key={num}
-              onClick={() => handleKeyPress(num.toString())}
-              disabled={isLoading}
-              className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 text-2xl font-bold text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto flex items-center justify-center"
-            >
-              {num}
-            </button>
-          ))}
-
-          <div className="w-16 h-16" /> {/* Spacer */}
-
-          <button
-            onClick={() => handleKeyPress('0')}
-            disabled={isLoading}
-            className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 text-2xl font-bold text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto flex items-center justify-center"
-          >
-            0
-          </button>
-
-          {/* Backspace Button inside keypad */}
-          <button
-            onClick={handleBackspace}
-            disabled={isLoading || pin.length === 0}
-            className="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/10 active:scale-95 transition-all outline-none mx-auto disabled:opacity-20"
-            aria-label="Delete"
-          >
-            <Delete size={20} />
-          </button>
-        </div>
+        </form>
       </div>
 
       <style jsx global>{`
@@ -210,4 +180,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
