@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Loader2 } from 'lucide-react';
@@ -10,46 +10,33 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const pathname = usePathname();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Use a ref to track latest pathname without re-subscribing
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        
-        if (mounted) {
-          setIsAuthenticated(!!session);
-          setIsLoading(false);
-          
-          if (!session && pathname !== '/login') {
-            router.replace('/login');
-          }
-        }
-      } catch (error) {
-        console.error('Auth error:', error);
-        if (mounted) setIsLoading(false);
-      }
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (mounted) {
-        setIsAuthenticated(!!session);
-        if (!session && pathname !== '/login') {
-          router.replace('/login');
-        } else if (session && pathname === '/login') {
-          router.replace('/');
-        }
+    // 1. Check session once on mount
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+      if (!session && pathnameRef.current !== '/login') {
+        router.replace('/login');
       }
     });
 
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, [pathname, router]);
+    // 2. Subscribe to auth changes once — no dependency on pathname
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session);
+      if (session && pathnameRef.current === '/login') {
+        router.replace('/');
+      } else if (!session && pathnameRef.current !== '/login') {
+        router.replace('/login');
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Mount only — pathnameRef keeps current value without re-subscribing
 
   if (isLoading) {
     return (
@@ -59,8 +46,6 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     );
   }
 
-  // Se l'utente non è loggato e non si trova nella pagina di login, il redirect è già partito
-  // mostriamo null per evitare flickering.
   if (!isAuthenticated && pathname !== '/login') {
     return null;
   }
