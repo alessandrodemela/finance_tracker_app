@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/ui/BottomNav';
-import { Home, Calendar, BarChart3, TrendingUp, Eye, EyeOff, LogOut } from 'lucide-react';
+import { Home, Calendar, BarChart3, TrendingUp } from 'lucide-react';
 import { HomeTab } from '@/components/tabs/HomeTab';
 import { MonthlyTab } from '@/components/tabs/MonthlyTab';
 import { YearlyTab } from '@/components/tabs/YearlyTab';
 import { InsightsTab } from '@/components/tabs/InsightsTab';
 import { cn } from '@/lib/utils';
-
+import { supabase } from '@/lib/supabase';
 
 type Tab = 'home' | 'monthly' | 'yearly' | 'insights';
 
@@ -20,48 +20,11 @@ export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<Tab>('home');
   const [isSensitiveVisible, setIsSensitiveVisible] = useState(false);
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
-
-  // Client-side auth guard: verify token on every mount
-  useEffect(() => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) {
-      router.replace('/login');
-      return;
-    }
-    fetch('/api/auth/verify', {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) {
-          localStorage.removeItem('auth_token');
-          router.replace('/login');
-        } else {
-          setIsAuthChecked(true);
-        }
-      })
-      .catch(() => {
-        // Network error: let them through (middleware already covers the server-side check)
-        setIsAuthChecked(true);
-      });
-  }, [router]);
 
   const handleLogout = async () => {
-    // Clear client-side token
-    localStorage.removeItem('auth_token');
-    // Clear server-side cookie
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await supabase.auth.signOut();
     router.replace('/login');
   };
-
-  // Show spinner while checking auth
-  if (!isAuthChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)]">
-        <div className="w-6 h-6 border-2 border-[var(--color-brand-success)] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   const navItems = [
     {

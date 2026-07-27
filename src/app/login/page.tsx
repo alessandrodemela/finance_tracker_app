@@ -12,27 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const [shake, setShake] = useState(false);
-
-  // If already authenticated, redirect to dashboard
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        router.replace('/');
-      } else {
-        setIsCheckingAuth(false);
-      }
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        router.replace('/');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,24 +44,18 @@ export default function LoginPage() {
     }
   };
 
-  if (isCheckingAuth) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)]">
-        <Loader2 className="w-8 h-8 text-[var(--color-brand-accent)] animate-spin" />
-      </div>
-    );
-  }
+
 
   return (
     <div className={cn(
-      "min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)] px-6 font-['Inter',_sans-serif] transition-colors duration-300 relative overflow-hidden",
+      "min-h-screen flex items-center justify-center bg-[var(--color-brand-navy)] px-4 md:px-6 font-['Inter',_sans-serif] transition-colors duration-300 relative overflow-hidden",
       shake ? 'bg-[#1a0606]' : ''
     )}>
       {/* Background radial glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none opacity-20 bg-gradient-to-br from-white/20 to-transparent transition-opacity" />
 
       <div className={cn(
-        "relative w-full max-w-[420px] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] p-12 flex flex-col z-10 transition-transform",
+        "relative w-full max-w-[420px] bg-black/40 backdrop-blur-2xl border border-white/10 rounded-[2rem] md:rounded-[2.5rem] shadow-[0_0_100px_rgba(0,0,0,0.8)] p-8 md:p-12 flex flex-col z-10 transition-transform",
         shake && "animate-shake border-[var(--color-brand-danger)]/50 shadow-[0_0_50px_rgba(240,90,100,0.1)]"
       )}>
         

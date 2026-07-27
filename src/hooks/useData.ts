@@ -17,6 +17,7 @@ export function useAccounts() {
       .is('deleted_at', null)
       .order('name');
     
+    if (error) console.error('[useAccounts] Supabase error:', JSON.stringify(error, null, 2), error);
     if (!error && data) setAccounts(data);
     setLoading(false);
   };
@@ -82,6 +83,7 @@ export function useCategories(type?: 'income' | 'expense') {
       
       const { data, error } = await query;
       
+      if (error) console.error('[useCategories] Supabase error:', JSON.stringify(error, null, 2), error);
       if (!error && data) {
         const formatted = data.map((cat: Category) => ({
           ...cat,
@@ -108,6 +110,7 @@ export function useBudgetCategories() {
         .select('*')
         .order('name');
       
+      if (error) console.error('[useBudgetCategories] Supabase error:', JSON.stringify(error, null, 2), error);
       if (!error && data) {
         const formatted = data.map((cat: BudgetCategory) => ({
           ...cat,
@@ -148,6 +151,7 @@ export function useTransactions(limit = 10, startDate?: string, endDate?: string
 
       const { data, error } = await query;
       
+      if (error) console.error('[useTransactions] Supabase error:', JSON.stringify(error, null, 2), error);
       if (!error && data) setTransactions(data);
       setLoading(false);
     }
@@ -326,6 +330,8 @@ export function useAccountBalances(startDate: string = '2024-01-01') {
         .select('*')
         .order('date', { ascending: false });
 
+      if (error) console.error('[useAccountBalances] transactions error:', JSON.stringify(error, null, 2), error);
+      if (!accountsData) console.error('[useAccountBalances] accounts returned null — check schema/permissions');
       if (!error && allTransactions && accountsData) {
         const currentBalances: Record<string, number> = {};
         let netWorthToday = 0;
