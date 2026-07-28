@@ -5,6 +5,7 @@ import { X, Save, Wallet, Euro, Type, CircleDollarSign } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { showToast } from '@/components/ui/GlobalUI';
 
 interface NewAccountModalProps {
   isOpen: boolean;
@@ -58,7 +59,7 @@ export function NewAccountModal({ isOpen, onClose, onSuccess }: NewAccountModalP
       setSubmitted(true);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message, 'error');
     } finally {
       setLoading(false);
     }

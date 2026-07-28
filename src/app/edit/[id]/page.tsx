@@ -12,6 +12,8 @@ import { MovementType, Transaction } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
+import { triggerRefresh } from '@/hooks/useData';
 
 export default function EditTransaction({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -109,16 +111,17 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
       if (fetchError) throw fetchError;
 
       await financeService.updateTransaction(oldTx, updateData);
+      triggerRefresh();
       router.push('/transactions');
       router.refresh();
     } catch (error: any) {
-      alert('Error saving: ' + error.message);
+      showToast('Error saving: ' + error.message, 'error');
       setSaving(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (confirm('Are you sure you want to delete this transaction?')) {
+  const handleDelete = () => {
+    showConfirm('Are you sure you want to delete this transaction?', async () => {
       setSaving(true);
       try {
         const { data: tx, error: fetchError } = await supabase
@@ -130,13 +133,14 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
         if (fetchError) throw fetchError;
 
         await financeService.deleteTransaction(tx);
+        triggerRefresh();
         router.push('/transactions');
         router.refresh();
       } catch (error: any) {
-        alert('Error deleting: ' + error.message);
+        showToast('Error deleting: ' + error.message, 'error');
         setSaving(false);
       }
-    }
+    });
   };
 
   if (loading) return <div className={styles.loading}>Loading...</div>;

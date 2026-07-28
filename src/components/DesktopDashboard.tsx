@@ -5,9 +5,10 @@ import Link from 'next/link';
 
 import {
   useTransactions,
-  useAccountBalances,
-  useAccounts
+  useAccounts,
+  triggerRefresh
 } from '@/hooks/useData';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useDate } from '@/context/DateContext';
 import {
@@ -21,7 +22,8 @@ import {
   MoreHorizontal,
   Eye,
   EyeOff,
-  Repeat
+  Repeat,
+  LogOut
 } from 'lucide-react';
 import { NetWorthChart } from '@/components/DashboardCharts';
 import { cn } from '@/lib/utils';
@@ -165,6 +167,17 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
               <span className="absolute top-3 right-3 w-1.5 h-1.5 bg-[var(--color-brand-success)] rounded-full border border-black"></span>
             </button>
 
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.replace('/login');
+              }}
+              className="lg:hidden text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-danger)] transition-colors p-2.5 hover:bg-[var(--color-brand-danger)]/10 rounded-xl border border-transparent"
+              title="Log Out"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
+
             <div className="w-px h-8 bg-white/10 mx-2"></div>
 
             <button
@@ -295,8 +308,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => {
-          // Re-fetch data if needed
-          window.location.reload(); // Quick way to refresh all hooks
+          triggerRefresh();
         }}
       />
 
@@ -304,7 +316,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
         isOpen={isAccountModalOpen}
         onClose={() => setIsAccountModalOpen(false)}
         onSuccess={() => {
-          window.location.reload();
+          triggerRefresh();
         }}
       />
 

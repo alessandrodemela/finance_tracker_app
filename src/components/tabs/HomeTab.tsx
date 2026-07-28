@@ -13,6 +13,7 @@ import { RecentTransactions } from '@/components/ui/RecentTransactions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PlusCircle } from 'lucide-react';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 
 interface HomeTabProps {
   isSensitiveVisible?: boolean;
@@ -82,10 +83,10 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
     setShowAccountForm(true);
   };
 
-  const handleDeleteAccount = async (acc: Account) => {
-    if (window.confirm(`Are you sure you want to delete ${acc.name}?`)) {
+  const handleDeleteAccount = (acc: Account) => {
+    showConfirm(`Are you sure you want to delete ${acc.name}?`, async () => {
       await deleteAccount(acc.id);
-    }
+    });
   };
 
   const handleSaveAccount = async (e: React.FormEvent) => {
@@ -98,11 +99,11 @@ export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
         active_balance: val,
         currency: accountForm.currency
       });
-      if (error) alert('Error updating account: ' + error.message);
+      if (error) showToast('Error updating account: ' + error.message, 'error');
       else setShowAccountForm(false);
     } else {
       const { error } = await addAccount(accountForm.name, val, accountForm.currency);
-      if (error) alert('Error adding account: ' + error.message);
+      if (error) showToast('Error adding account: ' + error.message, 'error');
       else setShowAccountForm(false);
     }
   };

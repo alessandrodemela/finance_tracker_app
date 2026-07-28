@@ -5,6 +5,7 @@ import { Edit2, Check, X, Plus } from 'lucide-react';
 import { useDate } from '@/context/DateContext';
 import { supabase } from '@/lib/supabase';
 import { ProgressBar } from '@/components/ui/ProgressBar';
+import { showToast } from '@/components/ui/GlobalUI';
 
 export function BudgetTab() {
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
@@ -44,7 +45,7 @@ export function BudgetTab() {
     if (!isNaN(val) && val >= 0) {
       const { error } = await saveBudget(id, val);
       if (error) {
-        alert('Error saving budget: ' + error.message);
+        showToast('Error saving budget: ' + error.message, 'error');
       }
     }
     setEditingId(null);
@@ -61,7 +62,7 @@ export function BudgetTab() {
       .single();
 
     if (error) {
-      alert('Error creating category: ' + error.message);
+      showToast('Error creating category: ' + error.message, 'error');
     } else if (newCat) {
       newCat.name = newCat.name.charAt(0).toUpperCase() + newCat.name.slice(1);
       setBudgetCategories(prev => [...prev, newCat].sort((a, b) => a.name.localeCompare(b.name)));

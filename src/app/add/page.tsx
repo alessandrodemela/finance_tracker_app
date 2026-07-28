@@ -12,6 +12,7 @@ import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData
 import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
 import { cn } from '@/lib/utils';
+import { showToast } from '@/components/ui/GlobalUI';
 
 export default function AddTransaction() {
   const router = useRouter();
@@ -58,7 +59,7 @@ export default function AddTransaction() {
         .from('categories')
         .insert([{ name: newCategoryName.trim().toLowerCase(), type: type as 'income' | 'expense' }])
         .select().single();
-      if (catError) { alert('Error: ' + catError.message); setLoading(false); return; }
+      if (catError) { showToast('Error: ' + catError.message, 'error'); setLoading(false); return; }
       categoryId = newCat.id;
     }
 
@@ -67,7 +68,7 @@ export default function AddTransaction() {
         .from('budget_categories')
         .insert([{ name: newBudgetCategoryName.trim().toLowerCase() }])
         .select().single();
-      if (catError) { alert('Error: ' + catError.message); setLoading(false); return; }
+      if (catError) { showToast('Error: ' + catError.message, 'error'); setLoading(false); return; }
       budgetCategoryId = newCat.id;
     }
 
@@ -95,7 +96,7 @@ export default function AddTransaction() {
       setLastAccountId(formData.account_id);
       setSubmitted(true);
     } catch (err: any) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message, 'error');
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,12 @@ import { supabase } from '@/lib/supabase';
 import { Account, Category, Transaction, BudgetCategory } from '@/types/database';
 import { getLocalDateString } from '@/lib/utils';
 
+export const triggerRefresh = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('finance_tracker_refresh'));
+  }
+};
+
 export function useAccounts() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,6 +36,9 @@ export function useAccounts() {
 
   useEffect(() => {
     fetchAccounts();
+    const handleRefresh = () => fetchAccounts();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, []);
 
   const addAccount = async (name: string, initialBalance: number, currency: string = 'EUR') => {
@@ -100,6 +109,9 @@ export function useCategories(type?: 'income' | 'expense') {
       setLoading(false);
     }
     fetchCategories();
+    const handleRefresh = () => fetchCategories();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, [type]);
 
   return { categories, loading };
@@ -127,6 +139,9 @@ export function useBudgetCategories() {
       setLoading(false);
     }
     fetchBudgetCategories();
+    const handleRefresh = () => fetchBudgetCategories();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, []);
 
   return { budgetCategories, loading, setBudgetCategories };
@@ -162,6 +177,9 @@ export function useTransactions(limit = 10, startDate?: string, endDate?: string
       setLoading(false);
     }
     fetchTransactions();
+    const handleRefresh = () => fetchTransactions();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, [limit, startDate, endDate]);
 
   return { transactions, loading };
@@ -191,6 +209,9 @@ export function useBudgets(month: string) {
       setLoading(false);
     }
     fetchBudgets();
+    const handleRefresh = () => fetchBudgets();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, [month]);
 
   const saveBudget = async (budgetCategoryId: string, amount: number) => {
@@ -312,6 +333,9 @@ export function useAnnualSummary(year: number) {
       setLoading(false);
     }
     fetchAnnualData();
+    const handleRefresh = () => fetchAnnualData();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, [year]);
 
   return { ...data, loading };
@@ -395,6 +419,9 @@ export function useAccountBalances(startDate: string = '2024-01-01') {
       setLoading(false);
     }
     calculateBalances();
+    const handleRefresh = () => calculateBalances();
+    window.addEventListener('finance_tracker_refresh', handleRefresh);
+    return () => window.removeEventListener('finance_tracker_refresh', handleRefresh);
   }, [startDate]);
 
   return { ...data, loading };

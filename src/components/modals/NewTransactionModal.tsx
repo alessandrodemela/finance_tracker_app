@@ -8,6 +8,7 @@ import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
 import { cn, getLocalDateString } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
+import { showToast } from '@/components/ui/GlobalUI';
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -236,7 +237,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
       setSubmitted(true);
       if (onSuccess) onSuccess();
     } catch (err: any) {
-      alert('Error: ' + err.message);
+      showToast('Error: ' + err.message, 'error');
     } finally {
       setLoading(false);
     }

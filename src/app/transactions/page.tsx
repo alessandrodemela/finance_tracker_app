@@ -4,8 +4,9 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { financeService } from '@/lib/financeService';
-import { useTransactions, useBudgetCategories } from '@/hooks/useData';
+import { useTransactions, useBudgetCategories, triggerRefresh } from '@/hooks/useData';
 import { useDate } from '@/context/DateContext';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 import { ChevronLeft, Search, Download, Calendar, Check } from 'lucide-react';
 import { TransactionCard } from '@/components/ui/TransactionCard';
 import { Button } from '@/components/ui/Button';
@@ -14,16 +15,16 @@ import { Transaction } from '@/types/database';
 export default function TransactionsPage() {
   const router = useRouter();
 
-  const handleDelete = async (tx: Transaction) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+  const handleDelete = (tx: Transaction) => {
+    showConfirm('Sei sicuro di voler eliminare questa transazione?', async () => {
       try {
         await financeService.deleteTransaction(tx);
-        window.location.reload();
+        triggerRefresh();
       } catch (error) {
         console.error('Error deleting transaction:', error);
-        alert('Errore eliminazione transazione');
+        showToast('Errore eliminazione transazione', 'error');
       }
-    }
+    });
   };
   const { currentMonthStr } = useDate();
   

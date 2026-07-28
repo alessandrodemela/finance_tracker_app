@@ -2,8 +2,9 @@
 
 import React, { useMemo } from 'react';
 import { useDate } from '@/context/DateContext';
-import { useTransactions, useBudgetCategories, useBudgets } from '@/hooks/useData';
+import { useTransactions, useBudgetCategories, useBudgets, triggerRefresh } from '@/hooks/useData';
 import { Transaction, BudgetCategory } from '@/types/database';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 
 import { useRouter } from 'next/navigation';
 import { financeService } from '@/lib/financeService';
@@ -16,16 +17,16 @@ import { TransactionCard } from '@/components/ui/TransactionCard';
 export function MonthlyTab() {
   const router = useRouter();
 
-  const handleDelete = async (tx: Transaction) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+  const handleDelete = (tx: Transaction) => {
+    showConfirm('Sei sicuro di voler eliminare questa transazione?', async () => {
       try {
         await financeService.deleteTransaction(tx);
-        window.location.reload();
+        triggerRefresh();
       } catch (error) {
         console.error('Error deleting transaction:', error);
-        alert('Errore eliminazione transazione');
+        showToast('Errore eliminazione transazione', 'error');
       }
-    }
+    });
   };
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
   

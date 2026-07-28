@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { financeService } from '@/lib/financeService';
 import { Transaction, BudgetCategory } from '@/types/database';
 import { TransactionCard } from './TransactionCard';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
+import { triggerRefresh } from '@/hooks/useData';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
@@ -24,17 +26,17 @@ export function RecentTransactions({
 }: RecentTransactionsProps) {
   const router = useRouter();
 
-  const handleDelete = async (tx: Transaction) => {
-    if (window.confirm('Sei sicuro di voler eliminare questa transazione?')) {
+  const handleDelete = (tx: Transaction) => {
+    showConfirm('Sei sicuro di voler eliminare questa transazione?', async () => {
       try {
         await financeService.deleteTransaction(tx);
         if (onRefresh) onRefresh();
-        else window.location.reload();
+        else triggerRefresh();
       } catch (error) {
         console.error('Error deleting transaction:', error);
-        alert('Errore eliminazione transazione');
+        showToast('Errore eliminazione transazione', 'error');
       }
-    }
+    });
   };
 
   const content = (
