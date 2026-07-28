@@ -38,6 +38,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setIsAuthenticated(!!session);
+        setIsLoading(false); // Ensure loader is cleared when auth state is known
         if (session && pathname === '/login') {
           router.replace('/');
         } else if (!session && pathname !== '/login') {
@@ -50,7 +51,7 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [pathname, router]);
+  }, [pathname]); // Removed router from dependencies to avoid infinite re-renders
 
   if (isLoading) {
     return (
