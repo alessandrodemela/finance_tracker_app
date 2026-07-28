@@ -14,11 +14,17 @@ export function useAccounts() {
     const { data, error } = await supabase
       .from('accounts')
       .select('*')
-      .is('deleted_at', null)
       .order('name');
     
-    if (error) console.error('[useAccounts] Supabase error:', JSON.stringify(error, null, 2), error);
-    if (!error && data) setAccounts(data);
+    if (error) {
+      console.error('[useAccounts] Supabase error:', JSON.stringify(error, null, 2), error);
+    }
+    
+    if (!error && data) {
+      // Filter out deleted accounts on the client side to avoid schema errors if deleted_at is missing in DB
+      const validAccounts = data.filter(a => !a.deleted_at);
+      setAccounts(validAccounts);
+    }
     setLoading(false);
   };
 
