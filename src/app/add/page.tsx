@@ -147,15 +147,6 @@ export default function AddTransaction() {
             <ChevronLeft size={20} />
           </button>
           <h1 className="text-xl font-light text-white tracking-wide uppercase">New Transaction</h1>
-          <div className="hidden md:block">
-            <button
-              type="button"
-              onClick={() => router.push('/add/bulk')}
-              className="px-4 py-2 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.05)] text-[var(--color-brand-secondary)] hover:text-white text-sm font-semibold transition-all hover:bg-[rgba(255,255,255,0.1)]"
-            >
-              Bulk Entry
-            </button>
-          </div>
           <div className="w-10 h-10 md:hidden" /> {/* Spacer for mobile */}
         </header>
 
@@ -233,33 +224,35 @@ export default function AddTransaction() {
                   onChange={(e) => setFormData({ ...formData, account_id: e.target.value })}
                 />
 
-                <div className="flex flex-col gap-2">
-                  <Select
-                    label="Category (Macro)"
-                    required={false}
-                    options={[
-                      { value: '', label: '-- None --' },
-                      ...budgetCategories.map(c => ({ value: c.id, label: c.name })),
-                      { value: 'ADD_NEW', label: '+ New Macro Category...' }
-                    ]}
-                    value={formData.budget_category_id}
-                    onChange={(e) => {
-                      if (e.target.value === 'ADD_NEW') setIsAddingBudgetCategory(true);
-                      else setFormData({ ...formData, budget_category_id: e.target.value });
-                    }}
-                  />
-                  {isAddingBudgetCategory && (
-                    <div className="flex items-center gap-2 mt-1 animate-in slide-in-from-top-1 fade-in">
-                      <Input
-                        placeholder="New Macro Name..."
-                        value={newBudgetCategoryName}
-                        onChange={(e) => setNewBudgetCategoryName(e.target.value)}
-                        className="flex-1"
-                      />
-                      <button onClick={() => setIsAddingBudgetCategory(false)} className="p-3 text-[var(--color-brand-danger)]"><X size={20} /></button>
-                    </div>
-                  )}
-                </div>
+                {type === 'expense' && (
+                  <div className="flex flex-col gap-2">
+                    <Select
+                      label="Category (Macro)"
+                      required={false}
+                      options={[
+                        { value: '', label: '-- None --' },
+                        ...budgetCategories.map(c => ({ value: c.id, label: c.name })),
+                        { value: 'ADD_NEW', label: '+ New Macro Category...' }
+                      ]}
+                      value={formData.budget_category_id}
+                      onChange={(e) => {
+                        if (e.target.value === 'ADD_NEW') setIsAddingBudgetCategory(true);
+                        else setFormData({ ...formData, budget_category_id: e.target.value });
+                      }}
+                    />
+                    {isAddingBudgetCategory && (
+                      <div className="flex items-center gap-2 mt-1 animate-in slide-in-from-top-1 fade-in">
+                        <Input
+                          placeholder="New Macro Name..."
+                          value={newBudgetCategoryName}
+                          onChange={(e) => setNewBudgetCategoryName(e.target.value)}
+                          className="flex-1"
+                        />
+                        <button onClick={() => setIsAddingBudgetCategory(false)} className="p-3 text-[var(--color-brand-danger)]"><X size={20} /></button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="flex flex-col gap-2">
                   <Select

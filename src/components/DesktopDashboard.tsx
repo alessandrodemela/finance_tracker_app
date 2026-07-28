@@ -214,24 +214,18 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
             <KPICard
               label="Total Income"
               value={income}
-              trend="+12.4%"
-              trendUp={true}
               icon={<ArrowUpRight className="w-5 h-5 text-[var(--color-brand-success)]" />}
               isVisible={isSensitiveVisible}
             />
             <KPICard
               label="Total Expenses"
               value={expenses}
-              trend="-3.1%"
-              trendUp={false}
               icon={<ArrowDownRight className="w-5 h-5 text-[var(--color-brand-danger)]" />}
               isVisible={isSensitiveVisible}
             />
             <KPICard
               label="Total Savings"
               value={net}
-              trend="+15.2%"
-              trendUp={net >= 0}
               icon={<TrendingUp className="w-5 h-5 text-[var(--color-brand-success)]" />}
               isVisible={isSensitiveVisible}
             />
@@ -353,20 +347,6 @@ function KPICard({ label, value, trend, trendUp, icon, isVisible }: any) {
           )}>
             €{Math.abs(value).toLocaleString('it-IT')}
           </h2>
-        </div>
-        <div className="flex items-center gap-2 mt-4">
-          <span className={cn(
-            "flex items-center px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
-            trendUp
-              ? "bg-[var(--color-brand-success)]/10 text-[var(--color-brand-success)]"
-              : "bg-[var(--color-brand-danger)]/10 text-[var(--color-brand-danger)]"
-          )}>
-            {trendUp ? <ArrowUpRight className="w-3 h-3 mr-1" /> : <ArrowDownRight className="w-3 h-3 mr-1" />}
-            {trend}
-          </span>
-          <span className="text-[10px] font-bold uppercase tracking-widest opacity-40 text-white">
-            vs last period
-          </span>
         </div>
       </div>
     </DashboardCard>
