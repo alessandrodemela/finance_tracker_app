@@ -1,7 +1,6 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import styles from './MonthSelector.module.css';
 
 interface MonthSelectorProps {
   currentDate: Date;
@@ -24,10 +23,20 @@ export function MonthSelector({ currentDate, onChange }: MonthSelectorProps) {
   const monthName = currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
 
   return (
-    <div className={styles.container}>
-      <button onClick={handlePrev} className={styles.btn}><ChevronLeft size={24} /></button>
-      <h2 className={styles.month}>{monthName}</h2>
-      <button onClick={handleNext} className={styles.btn}><ChevronRight size={24} /></button>
+    <div className="flex items-center justify-between w-full max-w-sm mx-auto mb-6 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] rounded-2xl p-2 backdrop-blur-sm">
+      <button 
+        onClick={handlePrev} 
+        className="p-3 text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.05)] rounded-xl transition-all active:scale-95"
+      >
+        <ChevronLeft size={24} />
+      </button>
+      <h2 className="text-lg font-bold text-white tracking-wide uppercase">{monthName}</h2>
+      <button 
+        onClick={handleNext} 
+        className="p-3 text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.05)] rounded-xl transition-all active:scale-95"
+      >
+        <ChevronRight size={24} />
+      </button>
     </div>
   );
 }
