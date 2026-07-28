@@ -6,7 +6,8 @@ import Link from 'next/link';
 import {
   useTransactions,
   useAccounts,
-  triggerRefresh
+  triggerRefresh,
+  useAccountBalances
 } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
