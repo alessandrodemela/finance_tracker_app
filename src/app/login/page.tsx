@@ -31,16 +31,18 @@ export default function LoginPage() {
         setError(error?.message || 'Invalid credentials');
         setShake(true);
         setTimeout(() => setShake(false), 600);
+        setIsLoading(false); // Only stop loading on error
         return;
       }
 
-      router.replace('/');
+      // We do not call router.replace('/') here to prevent a race condition.
+      // AuthProvider will automatically redirect to '/' when it sees the session.
+      // We also leave isLoading as true, so the button keeps spinning during the redirect.
     } catch {
       setError('Connection error');
       setShake(true);
       setTimeout(() => setShake(false), 600);
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Only stop loading on error
     }
   };
 

@@ -14,31 +14,24 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     let mounted = true;
 
-    async function checkSession() {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (mounted) {
-          setIsAuthenticated(!!session);
-          setIsLoading(false);
-          
-          if (!session && pathname !== '/login') {
-            router.replace('/login');
-          } else if (session && pathname === '/login') {
-            router.replace('/');
-          }
+    // Fetch initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        setIsAuthenticated(!!session);
+        setIsLoading(false);
+        if (!session && pathname !== '/login') {
+          router.replace('/login');
+        } else if (session && pathname === '/login') {
+          router.replace('/');
         }
-      } catch (err) {
-        console.error('Session check error', err);
-        if (mounted) setIsLoading(false);
       }
-    }
+    });
 
-    checkSession();
-
+    // Listen for changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setIsAuthenticated(!!session);
-        setIsLoading(false); // Ensure loader is cleared when auth state is known
+        setIsLoading(false);
         if (session && pathname === '/login') {
           router.replace('/');
         } else if (!session && pathname !== '/login') {
@@ -51,7 +44,24 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
       mounted = false;
       subscription.unsubscribe();
     };
-  }, [pathname]); // Removed router from dependencies to avoid infinite re-renders
+  // We explicitly DO NOT include pathname in the dependency array
+  // so that we don't re-subscribe on every route change, which can cause race conditions.
+  // The router.replace calls inside the listener will use the closure's pathname, 
+  // which might be stale, but the onAuthStateChange only fires on actual auth events!
+  // Wait, if it's stale, it's bad. Let's handle routing in a separate effect that depends on pathname and isAuthenticated!
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Handle routing in a separate effect that reacts to pathname and auth state changes
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated && pathname !== '/login') {
+        router.replace('/login');
+      } else if (isAuthenticated && pathname === '/login') {
+        router.replace('/');
+      }
+    }
+  }, [pathname, isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -68,3 +78,4 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
 
   return <>{children}</>;
 }
+
