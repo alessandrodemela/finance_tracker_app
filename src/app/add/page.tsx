@@ -13,6 +13,7 @@ import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
 import { cn } from '@/lib/utils';
 import { showToast } from '@/components/ui/GlobalUI';
+import { useTransactionSubmit } from '@/hooks/useTransactionSubmit';
 
 export default function AddTransaction() {
   const router = useRouter();
@@ -20,7 +21,7 @@ export default function AddTransaction() {
   const [type, setType] = useState<MovementType>('expense');
   const { categories } = useCategories(type as 'income' | 'expense');
   const { budgetCategories, setBudgetCategories } = useBudgetCategories();
-  const [loading, setLoading] = useState(false);
+  const { submitTransaction, loading } = useTransactionSubmit();
   const [submitted, setSubmitted] = useState(false);
   const [lastAccountId, setLastAccountId] = useState<string>('');
 
@@ -48,57 +49,18 @@ export default function AddTransaction() {
     e.preventDefault();
     if (!formData.amount) return;
 
-    setLoading(true);
-    const amountNum = Math.round(Math.abs(parseFloat(formData.amount.replace(',', '.'))) * 100) / 100;
+    const result = await submitTransaction({
+      type,
+      formData,
+      isAddingCategory,
+      newCategoryName,
+      isAddingBudgetCategory,
+      newBudgetCategoryName
+    });
 
-    let categoryId = formData.category_id;
-    let budgetCategoryId = formData.budget_category_id;
-
-    if (type !== 'transfer' && isAddingCategory && newCategoryName.trim()) {
-      const { data: newCat, error: catError } = await supabase
-        .from('categories')
-        .insert([{ name: newCategoryName.trim().toLowerCase(), type: type as 'income' | 'expense' }])
-        .select().single();
-      if (catError) { showToast('Error: ' + catError.message, 'error'); setLoading(false); return; }
-      categoryId = newCat.id;
-    }
-
-    if (type !== 'transfer' && isAddingBudgetCategory && newBudgetCategoryName.trim()) {
-      const { data: newCat, error: catError } = await supabase
-        .from('budget_categories')
-        .insert([{ name: newBudgetCategoryName.trim().toLowerCase() }])
-        .select().single();
-      if (catError) { showToast('Error: ' + catError.message, 'error'); setLoading(false); return; }
-      budgetCategoryId = newCat.id;
-    }
-
-    const insertData: any = {
-      date: formData.date,
-      amount: amountNum,
-      type: type,
-      notes: formData.notes,
-      is_fixed: formData.is_fixed,
-      is_split: formData.is_split,
-      is_necessary: formData.is_necessary,
-    };
-
-    if (type === 'transfer') {
-      insertData.from_account_id = formData.from_account_id;
-      insertData.to_account_id = formData.to_account_id;
-    } else {
-      insertData.account_id = formData.account_id;
-      insertData.category_id = categoryId;
-      insertData.budget_category_id = budgetCategoryId || null;
-    }
-
-    try {
-      await financeService.recordTransaction(insertData);
+    if (result.success) {
       setLastAccountId(formData.account_id);
       setSubmitted(true);
-    } catch (err: any) {
-      showToast('Error: ' + err.message, 'error');
-    } finally {
-      setLoading(false);
     }
   };
 

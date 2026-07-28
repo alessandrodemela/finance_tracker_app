@@ -9,6 +9,7 @@ import { financeService } from '@/lib/financeService';
 import { cn, getLocalDateString } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { showToast } from '@/components/ui/GlobalUI';
+import { useTransactionSubmit } from '@/hooks/useTransactionSubmit';
 
 interface NewTransactionModalProps {
   isOpen: boolean;
@@ -42,7 +43,8 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
   const { categories: expenseCategories } = useCategories('expense');
   const { categories: incomeCategories } = useCategories('income');
   const { budgetCategories } = useBudgetCategories();
-  const [loading, setLoading] = useState(false);
+  const { submitTransaction, loading } = useTransactionSubmit();
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   // Form state (Single)
@@ -157,56 +159,26 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
 
-    try {
-      if (mode === 'single') {
-        if (!formData.amount) throw new Error("Amount is required");
-        const amountNum = Math.round(Math.abs(parseFloat(formData.amount.replace(',', '.'))) * 100) / 100;
+    if (mode === 'single') {
+      if (!formData.amount) return;
+      const result = await submitTransaction({
+        type,
+        formData,
+        isAddingCategory,
+        newCategoryName,
+        isAddingBudgetCategory,
+        newBudgetCategoryName
+      });
 
-        let categoryId = formData.category_id;
-        let budgetCategoryId = formData.budget_category_id;
-
-        if (type !== 'transfer' && isAddingCategory && newCategoryName.trim()) {
-          const { data: newCat, error: catError } = await supabase
-            .from('categories')
-            .insert([{ name: newCategoryName.trim().toLowerCase(), type: type as 'income' | 'expense' }])
-            .select().single();
-          if (catError) throw catError;
-          categoryId = newCat.id;
-        }
-
-        if (type !== 'transfer' && isAddingBudgetCategory && newBudgetCategoryName.trim()) {
-          const { data: newCat, error: catError } = await supabase
-            .from('budget_categories')
-            .insert([{ name: newBudgetCategoryName.trim().toLowerCase() }])
-            .select().single();
-          if (catError) throw catError;
-          budgetCategoryId = newCat.id;
-        }
-
-        const insertData: any = {
-          date: formData.date,
-          amount: amountNum,
-          type: type,
-          notes: formData.notes,
-          is_fixed: formData.is_fixed,
-          is_split: formData.is_split,
-          is_necessary: formData.is_necessary,
-        };
-
-        if (type === 'transfer') {
-          insertData.from_account_id = formData.from_account_id;
-          insertData.to_account_id = formData.to_account_id;
-        } else {
-          insertData.account_id = formData.account_id;
-          insertData.category_id = categoryId;
-          insertData.budget_category_id = budgetCategoryId || null;
-        }
-
-        await financeService.recordTransaction(insertData);
-      } else {
-        // Bulk Submit
+      if (result.success) {
+        setSubmitted(true);
+        if (onSuccess) onSuccess();
+      }
+    } else {
+      // Bulk Submit
+      setIsBulkLoading(true);
+      try {
         const validRows = bulkRows.filter(r => r.amount && parseFloat(r.amount) > 0);
         if (validRows.length === 0) throw new Error("No valid rows to save");
 
@@ -232,14 +204,14 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
           }
           await financeService.recordTransaction(insertData);
         }
-      }
 
-      setSubmitted(true);
-      if (onSuccess) onSuccess();
-    } catch (err: any) {
-      showToast('Error: ' + err.message, 'error');
-    } finally {
-      setLoading(false);
+        setSubmitted(true);
+        if (onSuccess) onSuccess();
+      } catch (err: any) {
+        showToast('Error: ' + err.message, 'error');
+      } finally {
+        setIsBulkLoading(false);
+      }
     }
   };
 
@@ -446,7 +418,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                 <div className="flex items-center justify-between mb-8 shrink-0">
                   <h2 className="text-white font-black text-2xl uppercase tracking-tighter">Bulk Entry</h2>
                   <div className="flex items-center gap-3">
-                    <button onClick={handleSubmit} disabled={loading || bulkRows.length === 0} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black hover:bg-white/90 transition-all font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50"><Save size={16} /> {loading ? 'Saving...' : 'Confirm All'}</button>
+                    <button onClick={handleSubmit} disabled={(mode === 'single' ? loading : isBulkLoading) || bulkRows.length === 0} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black hover:bg-white/90 transition-all font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50"><Save size={16} /> {(mode === 'single' ? loading : isBulkLoading) ? 'Saving...' : 'Confirm All'}</button>
                   </div>
                 </div>
 

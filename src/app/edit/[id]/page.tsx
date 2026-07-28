@@ -14,6 +14,7 @@ import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 import { triggerRefresh } from '@/hooks/useData';
+import { useTransactionSubmit } from '@/hooks/useTransactionSubmit';
 
 export default function EditTransaction({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -24,6 +25,8 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
   const [type, setType] = useState<MovementType>('expense');
   const { categories } = useCategories(type as 'income' | 'expense');
   const { budgetCategories } = useBudgetCategories();
+  const { submitTransaction } = useTransactionSubmit();
+  const [oldTx, setOldTx] = useState<Transaction | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -63,6 +66,7 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
           is_necessary: data.is_necessary,
         });
         setType(data.type);
+        setOldTx(data);
       }
       setLoading(false);
     }
@@ -71,51 +75,21 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.amount) return;
+    if (!formData.amount || !oldTx) return;
 
     setSaving(true);
     
-    const amountNum = Math.round(Math.abs(parseFloat(formData.amount.replace(',', '.'))) * 100) / 100;
+    const result = await submitTransaction({
+      type,
+      formData,
+      oldTx
+    });
 
-    const updateData: any = {
-      date: formData.date,
-      amount: amountNum,
-      type: type,
-      notes: formData.notes,
-      is_fixed: formData.is_fixed,
-      is_split: formData.is_split,
-      is_necessary: formData.is_necessary,
-    };
-
-    if (type === 'transfer') {
-      updateData.from_account_id = formData.from_account_id;
-      updateData.to_account_id = formData.to_account_id;
-      updateData.account_id = null;
-      updateData.category_id = null;
-    } else {
-      updateData.account_id = formData.account_id;
-      updateData.category_id = formData.category_id;
-      updateData.budget_category_id = formData.budget_category_id || null;
-      updateData.from_account_id = null;
-      updateData.to_account_id = null;
-    }
-
-    try {
-      // Need the original transaction for reversal
-      const { data: oldTx, error: fetchError } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('id', id)
-        .single();
-      
-      if (fetchError) throw fetchError;
-
-      await financeService.updateTransaction(oldTx, updateData);
+    if (result.success) {
       triggerRefresh();
       router.push('/transactions');
       router.refresh();
-    } catch (error: any) {
-      showToast('Error saving: ' + error.message, 'error');
+    } else {
       setSaving(false);
     }
   };

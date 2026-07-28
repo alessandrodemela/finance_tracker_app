@@ -427,9 +427,3 @@ export function useAccountBalances(startDate: string = '2024-01-01') {
   return { ...data, loading };
 }
 
-function getNextMonth(month: string): string {
-  const [year, m] = month.split('-').map(Number);
-  const nextM = m === 12 ? 1 : m + 1;
-  const nextY = m === 12 ? year + 1 : year;
-  return `${nextY}-${nextM.toString().padStart(2, '0')}-01`;
-}
