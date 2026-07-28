@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 
 import {
@@ -73,7 +73,21 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
   const router = useRouter();
   // Data Fetching
   const { accounts } = useAccounts();
-  const { history, current: currentBalances } = useAccountBalances('2024-01-01');
+  const { history, current: currentBalances, loading: balancesLoading } = useAccountBalances('2024-01-01');
+
+  // Auth User State
+  const [userName, setUserName] = useState('User');
+  const [userInitials, setUserInitials] = useState('U');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) {
+        const name = data.user.user_metadata?.full_name || data.user.email?.split('@')[0] || 'User';
+        setUserName(name);
+        setUserInitials(name.substring(0, 2).toUpperCase());
+      }
+    });
+  }, []);
 
   // Independent KPI time range state
   const [kpiRange, setKpiRange] = useState<KpiRange>('MTD');
@@ -82,7 +96,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
   const kpiDateRange = useMemo(() => getKpiDateRange(kpiRange), [kpiRange]);
 
   // Fetch transactions for KPI range
-  const { transactions: kpiTransactions } = useTransactions(0, kpiDateRange.start, kpiDateRange.end);
+  const { transactions: kpiTransactions, loading: txLoading } = useTransactions(0, kpiDateRange.start, kpiDateRange.end);
 
   // Calculations — Total Net Worth
   const totalBalance = useMemo(() => {
@@ -122,8 +136,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
       <header className="h-24 border-b border-white/5 bg-black/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-10 sticky top-0 z-10 w-full">
         <div className="flex items-center gap-12">
           <div className="flex flex-col">
-            {/* <h1 className="text-2xl font-bold tracking-tight">Full Overview</h1> */}
-            <p className="text-2xl font-bold text-[var(--color-brand-primary)] tracking-tight">Welcome back, Alessandro</p>
+            <p className="text-2xl font-bold text-[var(--color-brand-primary)] tracking-tight">Welcome back, {userName}</p>
           </div>
 
           {/* TOTAL NET WORTH HERO IN HEADER */}
@@ -144,15 +157,6 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2 w-72 focus-within:border-white/20 transition-all group">
-            <Search className="w-4 h-4 text-[var(--color-brand-secondary)]" />
-            <input
-              type="text"
-              placeholder="Search anything..."
-              className="bg-transparent border-none outline-none text-sm text-[var(--color-brand-primary)] placeholder:text-[var(--color-brand-secondary)] w-full"
-            />
-          </div>
-
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
@@ -160,11 +164,6 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
               title={isSensitiveVisible ? "Hide sensitive data" : "Show sensitive data"}
             >
               {isSensitiveVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
-            </button>
-
-            <button className="relative text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-3 right-3 w-1.5 h-1.5 bg-[var(--color-brand-success)] rounded-full border border-black"></span>
             </button>
 
             <button
@@ -189,7 +188,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
             </button>
 
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-700 to-black border border-white/20 flex items-center justify-center shrink-0 text-xs font-bold text-white shadow-xl">
-              AD
+              {userInitials}
             </div>
           </div>
         </div>
@@ -229,18 +228,21 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
               value={income}
               icon={<ArrowUpRight className="w-5 h-5 text-[var(--color-brand-success)]" />}
               isVisible={isSensitiveVisible}
+              loading={txLoading}
             />
             <KPICard
               label="Total Expenses"
               value={expenses}
               icon={<ArrowDownRight className="w-5 h-5 text-[var(--color-brand-danger)]" />}
               isVisible={isSensitiveVisible}
+              loading={txLoading}
             />
             <KPICard
               label="Total Savings"
               value={net}
               icon={<TrendingUp className="w-5 h-5 text-[var(--color-brand-success)]" />}
               isVisible={isSensitiveVisible}
+              loading={txLoading}
             />
           </div>
         </div>
@@ -257,7 +259,11 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                 </div>
               </div>
               <div className="h-[400px] w-full">
-                <NetWorthChart data={chartData} isVisible={isSensitiveVisible} />
+                {balancesLoading ? (
+                  <div className="w-full h-full animate-pulse bg-white/5 rounded-2xl"></div>
+                ) : (
+                  <NetWorthChart data={chartData} isVisible={isSensitiveVisible} />
+                )}
               </div>
             </DashboardCard>
           </div>
@@ -278,24 +284,34 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
 
               </div>
               <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-                {accounts.map(account => (
-                  <div key={account.id} className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5 hover:border-white/10 transition-colors group">
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform shrink-0">
-                        <Wallet className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-white font-bold text-sm">{account.name}</p>
-                        <p className="text-[var(--color-brand-secondary)] text-xs font-medium uppercase">{account.currency}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={cn("text-white font-mono font-bold text-sm", !isSensitiveVisible && "blur-md")}>
-                        € {currentBalances[account.id]?.toLocaleString('it-IT') || '0,00'}
-                      </p>
-                    </div>
+                {balancesLoading ? (
+                  <div className="flex flex-col gap-4">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-16 animate-pulse bg-white/5 rounded-2xl"></div>
+                    ))}
                   </div>
-                ))}
+                ) : accounts.length > 0 ? (
+                  accounts.map(account => (
+                    <div key={account.id} className="flex items-center justify-between p-4 rounded-2xl bg-black/40 border border-white/5 hover:border-white/10 transition-colors group mb-2">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform shrink-0">
+                          <Wallet className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <p className="text-white font-bold text-sm">{account.name}</p>
+                          <p className="text-[var(--color-brand-secondary)] text-xs font-medium uppercase">{account.currency}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={cn("text-white font-mono font-bold text-sm", !isSensitiveVisible && "blur-md")}>
+                          € {currentBalances[account.id]?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-[var(--color-brand-secondary)] text-sm text-center mt-10">No accounts yet.</div>
+                )}
               </div>
             </DashboardCard>
           </div>
@@ -336,7 +352,7 @@ function DashboardCard({ children, className }: { children: React.ReactNode; cla
   );
 }
 
-function KPICard({ label, value, trend, trendUp, icon, isVisible }: any) {
+function KPICard({ label, value, trend, trendUp, icon, isVisible, loading }: any) {
   return (
     <DashboardCard className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-8">
@@ -353,12 +369,16 @@ function KPICard({ label, value, trend, trendUp, icon, isVisible }: any) {
           {label}
         </p>
         <div className="flex items-baseline gap-2">
-          <h2 className={cn(
-            "text-3xl font-bold tracking-tight font-mono text-white",
-            !isVisible && "blur-lg"
-          )}>
-            €{Math.abs(value).toLocaleString('it-IT')}
-          </h2>
+          {loading ? (
+            <div className="h-9 w-32 animate-pulse bg-white/10 rounded-lg"></div>
+          ) : (
+            <h2 className={cn(
+              "text-3xl font-bold tracking-tight font-mono text-white",
+              !isVisible && "blur-lg"
+            )}>
+              €{Math.abs(value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </h2>
+          )}
         </div>
       </div>
     </DashboardCard>

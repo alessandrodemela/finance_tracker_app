@@ -13,13 +13,13 @@ const config: Config = {
       },
       colors: {
         brand: {
-          navy: '#0A0E27',
-          card: '#141B35',
-          primary: '#E8EBF4',
-          secondary: '#5A6B8F',
-          success: '#10B981',
-          danger: '#F05A64',
-          accent: '#00D2FF',
+          navy: 'var(--color-brand-navy)',
+          card: 'var(--color-brand-card)',
+          primary: 'var(--color-brand-primary)',
+          secondary: 'var(--color-brand-secondary)',
+          success: 'var(--color-brand-success)',
+          danger: 'var(--color-brand-danger)',
+          accent: 'var(--color-brand-accent)',
         },
         // Keeping old variables for fallback/gradual migration, but these are the new ones
         background: "var(--background)",
