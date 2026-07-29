@@ -418,7 +418,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                 <div className="flex items-center justify-between mb-8 shrink-0">
                   <h2 className="text-white font-black text-2xl uppercase tracking-tighter">Bulk Entry</h2>
                   <div className="flex items-center gap-3">
-                    <button onClick={handleSubmit} disabled={(mode === 'single' ? loading : isBulkLoading) || bulkRows.length === 0} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black hover:bg-white/90 transition-all font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50"><Save size={16} /> {(mode === 'single' ? loading : isBulkLoading) ? 'Saving...' : 'Confirm All'}</button>
+                    <button onClick={handleSubmit} disabled={isBulkLoading || bulkRows.length === 0} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black hover:bg-white/90 transition-all font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50"><Save size={16} /> {isBulkLoading ? 'Saving...' : 'Confirm All'}</button>
                   </div>
                 </div>
 
