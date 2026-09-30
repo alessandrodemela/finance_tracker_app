@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useBudgetCategories, useTransactions, useBudgets } from '@/hooks/useData';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Edit2, Check, X, Plus } from 'lucide-react';
+import { Edit2, Check, X, Plus, Copy, Loader2 } from 'lucide-react';
 import { useDate } from '@/context/DateContext';
 import { supabase } from '@/lib/supabase';
 import { ProgressBar } from '@/components/ui/ProgressBar';
-import { showToast } from '@/components/ui/GlobalUI';
+import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 
 export function BudgetTab() {
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
@@ -20,6 +20,59 @@ export function BudgetTab() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [isSavingCategory, setIsSavingCategory] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
+
+  /** Returns YYYY-MM for the month before currentMonthStr */
+  const getPrevMonth = () => {
+    const [y, m] = currentMonthStr.split('-').map(Number);
+    const prevM = m === 1 ? 12 : m - 1;
+    const prevY = m === 1 ? y - 1 : y;
+    return `${prevY}-${prevM.toString().padStart(2, '0')}`;
+  };
+
+  const handleCopyPreviousMonth = () => {
+    showConfirm(
+      `Copy budget from ${getPrevMonth()} to ${currentMonthStr}? Existing values will not be overwritten.`,
+      async () => {
+        setIsCopying(true);
+        try {
+          const prevMonth = getPrevMonth();
+          const { data: prevBudgets, error } = await supabase
+            .from('budgets')
+            .select('*')
+            .eq('month', prevMonth);
+
+          if (error) throw error;
+          if (!prevBudgets || prevBudgets.length === 0) {
+            showToast(`No budget found for ${prevMonth}`, 'error');
+            return;
+          }
+
+          let copied = 0;
+          let skipped = 0;
+
+          for (const b of prevBudgets) {
+            // Only copy if current month has no entry for this category
+            if (budgets[b.budget_category_id] === undefined) {
+              const { error: saveErr } = await saveBudget(b.budget_category_id, Number(b.amount));
+              if (!saveErr) copied++;
+            } else {
+              skipped++;
+            }
+          }
+
+          showToast(
+            `Copied ${copied} budgets${skipped > 0 ? ` (${skipped} skipped — already set)` : ''}.`,
+            'success'
+          );
+        } catch (err: any) {
+          showToast('Error copying budget: ' + err.message, 'error');
+        } finally {
+          setIsCopying(false);
+        }
+      }
+    );
+  };
 
   const totalSpent = transactions
     .filter(m => m.type === 'expense')
@@ -77,7 +130,18 @@ export function BudgetTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
+      <div className="flex items-center justify-between gap-3">
+        <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
+        <button
+          onClick={handleCopyPreviousMonth}
+          disabled={isCopying || bgtLoading}
+          className="flex items-center gap-2 px-3 py-2 rounded-xl text-[var(--color-brand-secondary)] hover:text-white hover:bg-white/5 border border-white/5 hover:border-white/10 transition-all text-xs font-bold uppercase tracking-widest shrink-0 disabled:opacity-40"
+          title={`Copy budget from ${getPrevMonth()}`}
+        >
+          {isCopying ? <Loader2 size={14} className="animate-spin" /> : <Copy size={14} />}
+          <span className="hidden sm:inline">Copy Prev.</span>
+        </button>
+      </div>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="glass-panel text-center p-3">

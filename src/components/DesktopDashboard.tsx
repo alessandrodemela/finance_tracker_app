@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
-import Link from 'next/link';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 
 import {
   useTransactions,
@@ -14,7 +13,6 @@ import { useRouter } from 'next/navigation';
 import { useDate } from '@/context/DateContext';
 import {
   Plus,
-  Bell,
   Search,
   ArrowUpRight,
   ArrowDownRight,
@@ -23,8 +21,8 @@ import {
   MoreHorizontal,
   Eye,
   EyeOff,
-  Repeat,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { NetWorthChart } from '@/components/DashboardCharts';
 import { cn } from '@/lib/utils';
@@ -96,8 +94,38 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const kpiDateRange = useMemo(() => getKpiDateRange(kpiRange), [kpiRange]);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  // Fetch ALL transactions for full-period search
+  const { transactions: allTransactions } = useTransactions(0, '2000-01-01', new Date().toISOString().split('T')[0]);
+
   // Fetch transactions for KPI range
   const { transactions: kpiTransactions, loading: txLoading } = useTransactions(0, kpiDateRange.start, kpiDateRange.end);
+
+  // Search results
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return allTransactions.filter(t =>
+      t.notes?.toLowerCase().includes(q) ||
+      t.amount.toString().includes(q) ||
+      t.type.includes(q)
+    ).slice(0, 8);
+  }, [allTransactions, searchQuery]);
+
+  // Close search on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   // Calculations — Total Net Worth
   const totalBalance = useMemo(() => {
@@ -158,6 +186,45 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
         </div>
 
         <div className="flex items-center gap-6">
+          {/* Functional Search Bar */}
+          <div ref={searchRef} className="relative hidden md:block">
+            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2 w-72 focus-within:border-white/20 transition-all group">
+              <Search className="w-4 h-4 text-[var(--color-brand-secondary)]" />
+              <input
+                type="text"
+                placeholder="Search transactions..."
+                value={searchQuery}
+                onChange={e => { setSearchQuery(e.target.value); setIsSearchOpen(true); }}
+                onFocus={() => setIsSearchOpen(true)}
+                className="bg-transparent border-none outline-none text-sm text-[var(--color-brand-primary)] placeholder:text-[var(--color-brand-secondary)] w-full"
+              />
+              {searchQuery && (
+                <button onClick={() => { setSearchQuery(''); setIsSearchOpen(false); }} className="text-[var(--color-brand-secondary)] hover:text-white">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            {isSearchOpen && searchQuery && (
+              <div className="absolute top-full mt-2 w-full bg-[var(--color-brand-card)] border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-50">
+                {searchResults.length === 0 ? (
+                  <div className="px-4 py-4 text-[var(--color-brand-secondary)] text-sm text-center">No results found</div>
+                ) : (
+                  searchResults.map(t => (
+                    <div key={t.id} className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors" onClick={() => router.push(`/edit/${t.id}`)}>
+                      <div className="flex flex-col">
+                        <span className="text-sm text-white font-medium">{t.notes || 'No notes'}</span>
+                        <span className="text-xs text-[var(--color-brand-secondary)]">{t.date} · {t.type}</span>
+                      </div>
+                      <span className={cn('text-sm font-bold font-mono', t.type === 'income' ? 'text-[var(--color-brand-success)]' : 'text-[var(--color-brand-danger)]')}>
+                        {t.type === 'income' ? '+' : '-'}€{Math.abs(Number(t.amount)).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAnnualSummary } from '@/hooks/useData';
-import { ChevronLeft, ChevronRight, Sparkles, TrendingUp, TrendingDown, Target } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target } from 'lucide-react';
 
 import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 
@@ -89,26 +89,7 @@ export function InsightsTab() {
         </div>
       ) : (
         <>
-          {/* AI-like Summary Bubble - COMMENTED OUT
-          <div className="glass-panel p-5 border border-[rgba(0,210,255,0.1)] bg-gradient-to-br from-[rgba(0,210,255,0.05)] to-transparent relative overflow-hidden group">
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--color-brand-accent)] opacity-10 rounded-full blur-3xl pointer-events-none" />
-            <div className="flex items-start gap-3">
-              <div className="p-2.5 rounded-xl bg-[rgba(0,210,255,0.1)] text-[var(--color-brand-accent)]">
-                <Sparkles size={20} />
-              </div>
-              <div className="flex flex-col gap-1.5 pt-1">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">AI Analysis</h3>
-                <p className="text-sm text-[var(--color-brand-secondary)] leading-relaxed">
-                  {growthMessage} Keep an eye on your expenses to maximize your net savings. Over the analyzed period, your average savings were 
-                  <span className="text-white font-bold mx-1">
-                    €{longTermTrends?.avgNet.toLocaleString('it-IT')}
-                  </span> 
-                  annually.
-                </p>
-              </div>
-            </div>
-          </div>
-          */}
+          {/* AI Analysis placeholder — reserved for future Gemini/OpenAI integration */}
 
           {/* 3-Year Totals Grid */}
           <div className="grid grid-cols-2 gap-3 mt-1">
