@@ -132,6 +132,14 @@ export const financeService = {
   },
 
   async recordTransaction(tx: Omit<Transaction, 'id' | 'created_at'>) {
+    // Input validation
+    if (!tx.type || !['income', 'expense', 'transfer'].includes(tx.type)) throw new Error('Invalid transaction type');
+    if (!tx.amount || !isFinite(Number(tx.amount)) || Number(tx.amount) <= 0) throw new Error('Invalid amount: must be a positive number');
+    if (!tx.date) throw new Error('Date is required');
+    if (tx.type !== 'transfer' && !tx.account_id) throw new Error('account_id is required for non-transfer transactions');
+    if (tx.type === 'transfer' && (!tx.from_account_id || !tx.to_account_id)) throw new Error('from_account_id and to_account_id required for transfers');
+    if (tx.type === 'transfer' && tx.from_account_id === tx.to_account_id) throw new Error('Cannot transfer to the same account');
+
     const { data: newTx, error: txError } = await supabase
       .from('transactions')
       .insert([tx])
@@ -188,6 +196,8 @@ export const financeService = {
   },
 
   async deleteTransaction(tx: Transaction) {
+    if (!tx.id) throw new Error('Transaction id is required');
+
     // 1. Revert balance
     if (tx.type === 'income' && tx.account_id) {
       await this.adjustAccountBalance(tx.account_id, -Number(tx.amount));
@@ -207,19 +217,22 @@ export const financeService = {
     if (delError) throw delError;
   },
 
+  /**
+   * Atomic balance adjustment via PostgreSQL RPC.
+   * Replaces the previous READ+UPDATE pattern that was vulnerable to race conditions.
+   * The RPC executes: UPDATE accounts SET active_balance = active_balance + p_amount WHERE id = p_account_id
+   * This is a single atomic SQL statement — no read-modify-write gap.
+   */
   async adjustAccountBalance(accountId: string, amount: number) {
-    const { data: acc } = await supabase
-      .from('accounts')
-      .select('active_balance')
-      .eq('id', accountId)
-      .single();
-    
-    if (acc) {
-      await supabase
-        .from('accounts')
-        .update({ active_balance: Number(acc.active_balance) + amount })
-        .eq('id', accountId);
-    }
+    if (!accountId) throw new Error('adjustAccountBalance: accountId is required');
+    if (!isFinite(amount)) throw new Error('adjustAccountBalance: amount must be a finite number');
+
+    const { error } = await supabase.rpc('adjust_account_balance', {
+      p_account_id: accountId,
+      p_amount: amount,
+    });
+
+    if (error) throw error;
   },
 
   nextMonth(month: string): string {
