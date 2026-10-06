@@ -1,5 +1,5 @@
 import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 export interface MonthlyBreakdownRow {
   month: string;
@@ -45,20 +45,20 @@ export function MonthlyBreakdownTable({ data, isSensitiveVisible = true }: Month
                   "py-2.5 px-3 text-xs text-emerald-400 font-mono text-right transition-all",
                   !isSensitiveVisible && "blur-md select-none"
                 )}>
-                  €{row.income.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                  {formatCurrency(row.income)}
                 </td>
                 <td className={cn(
                   "py-2.5 px-3 text-xs text-rose-400 font-mono text-right transition-all",
                   !isSensitiveVisible && "blur-md select-none"
                 )}>
-                  €{row.expense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                  {formatCurrency(row.expense)}
                 </td>
                 <td className={cn(
                   "py-2.5 px-3 text-xs font-mono font-bold text-right transition-all",
                   row.net >= 0 ? 'text-white' : 'text-rose-400',
                   !isSensitiveVisible && "blur-md select-none"
                 )}>
-                  {row.net < 0 ? '-' : ''}€{Math.abs(row.net).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                  {formatCurrency(row.net)}
                 </td>
                 <td className={cn(
                   "py-2.5 px-3 text-xs font-mono text-slate-400 text-right transition-all",

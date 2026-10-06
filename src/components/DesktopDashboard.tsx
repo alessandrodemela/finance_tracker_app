@@ -24,7 +24,7 @@ import {
   X
 } from 'lucide-react';
 import { NetWorthChart } from '@/components/DashboardCharts';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency, formatDateDDMMYYYY } from '@/lib/utils';
 import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 import { NewAccountModal } from '@/components/modals/NewAccountModal';
 
@@ -161,10 +161,10 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-brand-navy)] text-[var(--color-brand-primary)] animate-in fade-in duration-700 w-full">
       {/* TOP HEADER */}
-      <header className="h-24 border-b border-white/5 bg-black/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-10 sticky top-0 z-10 w-full">
-        <div className="flex items-center gap-12">
-          <div className="flex flex-col">
-            <p className="text-2xl font-bold text-[var(--color-brand-primary)] tracking-tight">Welcome back, {userName}</p>
+      <header className="h-20 sm:h-24 border-b border-white/5 bg-black/80 backdrop-blur-md flex items-center justify-between px-3 sm:px-6 lg:px-10 sticky top-0 z-10 w-full">
+        <div className="flex items-center gap-2 sm:gap-12 min-w-0">
+          <div className="flex flex-col min-w-0">
+            <p className="text-base sm:text-2xl font-bold text-[var(--color-brand-primary)] tracking-tight truncate">Welcome back, {userName}</p>
           </div>
 
           {/* TOTAL NET WORTH HERO IN HEADER */}
@@ -178,13 +178,13 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                 "text-2xl font-bold tracking-tighter text-white font-mono",
                 !isSensitiveVisible && "blur-lg"
               )}>
-                €{totalBalance.toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                {formatCurrency(totalBalance)}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2 sm:gap-6 shrink-0">
           {/* Functional Search Bar */}
           <div ref={searchRef} className="relative hidden md:block">
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl px-4 py-2 w-72 focus-within:border-white/20 transition-all group">
@@ -212,10 +212,10 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                     <div key={t.id} className="flex items-center justify-between px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors" onClick={() => router.push(`/edit/${t.id}`)}>
                       <div className="flex flex-col">
                         <span className="text-sm text-white font-medium">{t.notes || 'No notes'}</span>
-                        <span className="text-xs text-[var(--color-brand-secondary)]">{t.date} · {t.type}</span>
+                        <span className="text-xs text-[var(--color-brand-secondary)]">{formatDateDDMMYYYY(t.date)} · {t.type}</span>
                       </div>
                       <span className={cn('text-sm font-bold font-mono', t.type === 'income' ? 'text-[var(--color-brand-success)]' : 'text-[var(--color-brand-danger)]')}>
-                        {t.type === 'income' ? '+' : '-'}€{Math.abs(Number(t.amount)).toLocaleString('it-IT', { minimumFractionDigits: 2 })}
+                        {formatCurrency(t.amount, { signedType: t.type as 'income' | 'expense' })}
                       </span>
                     </div>
                   ))
@@ -224,13 +224,13 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3">
             <button
               onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
-              className="text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
+              className="text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2 sm:p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
               title={isSensitiveVisible ? "Hide sensitive data" : "Show sensitive data"}
             >
-              {isSensitiveVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+              {isSensitiveVisible ? <Eye className="w-4 h-4 sm:w-5 sm:h-5" /> : <EyeOff className="w-4 h-4 sm:w-5 sm:h-5" />}
             </button>
 
             <button
@@ -238,23 +238,23 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                 await supabase.auth.signOut();
                 router.replace('/login');
               }}
-              className="lg:hidden text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-danger)] transition-colors p-2.5 hover:bg-[var(--color-brand-danger)]/10 rounded-xl border border-transparent"
+              className="lg:hidden text-[var(--color-brand-secondary)] hover:text-[var(--color-brand-danger)] transition-colors p-2 sm:p-2.5 hover:bg-[var(--color-brand-danger)]/10 rounded-xl border border-transparent"
               title="Log Out"
             >
-              <LogOut className="w-5 h-5" />
+              <LogOut className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            <div className="w-px h-8 bg-white/10 mx-2"></div>
+            <div className="hidden sm:block w-px h-8 bg-white/10 mx-1 sm:mx-2"></div>
 
             <button
               onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 bg-white text-black hover:bg-white/90 px-5 py-2.5 rounded-xl font-bold transition-all active:scale-95 shadow-lg"
+              className="flex items-center gap-1.5 sm:gap-2 bg-white text-black hover:bg-white/90 px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold transition-all active:scale-95 shadow-lg shrink-0"
             >
               <Plus className="w-4 h-4" />
-              <span className="text-sm">Add New</span>
+              <span className="text-xs sm:text-sm whitespace-nowrap">Add New</span>
             </button>
 
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-700 to-black border border-white/20 flex items-center justify-center shrink-0 text-xs font-bold text-white shadow-xl">
+            <div className="hidden sm:flex w-10 h-10 rounded-xl bg-gradient-to-br from-zinc-700 to-black border border-white/20 items-center justify-center shrink-0 text-xs font-bold text-white shadow-xl">
               {userInitials}
             </div>
           </div>
@@ -270,13 +270,13 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
             <h2 className="text-[var(--color-brand-secondary)] text-xs font-bold uppercase tracking-[0.15em]">
               Overview
             </h2>
-            <div className="flex items-center gap-1 bg-black border border-white/5 rounded-xl p-1">
+            <div className="flex items-center gap-1 bg-black border border-white/5 rounded-xl p-1 overflow-x-auto max-w-full">
               {KPI_RANGES.map((range) => (
                 <button
                   key={range}
                   onClick={() => setKpiRange(range)}
                   className={cn(
-                    "px-4 py-1.5 text-xs font-bold rounded-lg transition-all",
+                    "px-2.5 sm:px-4 py-1.5 text-xs font-bold rounded-lg transition-all whitespace-nowrap",
                     kpiRange === range
                       ? "bg-white/10 text-white shadow-sm"
                       : "text-[var(--color-brand-secondary)] hover:text-white"
@@ -371,7 +371,7 @@ export function DesktopDashboard({ isSensitiveVisible, setIsSensitiveVisible }: 
                       </div>
                       <div className="text-right">
                         <p className={cn("text-white font-mono font-bold text-sm", !isSensitiveVisible && "blur-md")}>
-                          € {currentBalances[account.id]?.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || '0,00'}
+                          {formatCurrency(currentBalances[account.id] || 0)}
                         </p>
                       </div>
                     </div>
@@ -451,7 +451,7 @@ function KPICard({ label, value, icon, isVisible, loading }: KPICardProps) {
               "text-3xl font-bold tracking-tight font-mono text-white",
               !isVisible && "blur-lg"
             )}>
-              €{Math.abs(value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              {formatCurrency(value)}
             </h2>
           )}
         </div>

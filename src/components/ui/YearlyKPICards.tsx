@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from 'lucide-react';
 import { DashboardCard } from '@/components/ui/DashboardCard';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface YearlyKPICardsProps {
   income: { value: number; trend: number };
@@ -50,7 +50,7 @@ export function YearlyKPICards({
             "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            €{income.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(income.value)}
           </h2>
           {renderTrend(income.trend)}
         </div>
@@ -71,7 +71,7 @@ export function YearlyKPICards({
             "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            €{expenses.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(expenses.value)}
           </h2>
           {renderTrend(expenses.trend, true)}
         </div>
@@ -90,10 +90,10 @@ export function YearlyKPICards({
           </p>
           <h2 className={cn(
             "text-2xl lg:text-3xl font-bold font-mono tracking-tight block transition-all",
-            net.value >= 0 ? "text-white" : "text-[var(--color-brand-danger)]",
+            net.value < 0 && "text-[var(--color-brand-danger)]",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            {net.value < 0 ? '-' : ''}€{Math.abs(net.value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(net.value)}
           </h2>
           {renderTrend(net.trend)}
         </div>

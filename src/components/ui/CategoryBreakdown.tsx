@@ -1,6 +1,6 @@
 import React from 'react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Cell, ReferenceLine } from 'recharts';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 export interface CategoryBudgetItem {
   id: string;
@@ -68,7 +68,7 @@ export function CategoryBreakdown({ items, loading = false, isSensitiveVisible =
               "text-xs text-slate-400 transition-all",
               !isSensitiveVisible && "blur-md select-none"
             )}>
-              (€{totalSpent.toLocaleString('it-IT', { maximumFractionDigits: 0 })} of €{totalBudget.toLocaleString('it-IT', { maximumFractionDigits: 0 })})
+              ({formatCurrency(totalSpent)} of {formatCurrency(totalBudget)})
             </span>
           </div>
         </div>
@@ -119,11 +119,11 @@ export function CategoryBreakdown({ items, loading = false, isSensitiveVisible =
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between gap-4">
                           <span className="text-slate-400">Spent:</span>
-                          <span className="text-white font-mono font-bold">€{data.spent.toLocaleString('it-IT')}</span>
+                          <span className="text-white font-mono font-bold">{formatCurrency(data.spent)}</span>
                         </div>
                         <div className="flex justify-between gap-4">
                           <span className="text-slate-400">Budget:</span>
-                          <span className="text-white font-mono font-bold">€{data.budget.toLocaleString('it-IT')}</span>
+                          <span className="text-white font-mono font-bold">{formatCurrency(data.budget)}</span>
                         </div>
                         <div className="flex justify-between gap-4 pt-1 border-t border-white/10">
                           <span className="text-slate-400">Quota:</span>

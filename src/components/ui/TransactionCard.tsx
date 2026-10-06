@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/lib/utils"
+import { cn, formatCurrency, formatDateDDMMYYYY } from "@/lib/utils"
 import { Edit2, Trash2 } from "lucide-react"
 
 export interface TransactionCardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -22,18 +22,14 @@ export function TransactionCard({
   type, 
   date, 
   icon, 
-  isSensitiveVisible = true,
+  isSensitiveVisible = true, 
   onEdit, 
   onDelete, 
   ...props 
 }: TransactionCardProps) {
   const isIncome = type === "income";
-  const formattedAmount = `${isIncome ? '+' : '-'}€${Math.abs(amount).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-  const formattedDate = date ? new Date(date).toLocaleDateString('it-IT', {
-    day: '2-digit',
-    month: 'short'
-  }) : null;
+  const formattedAmount = formatCurrency(amount, { signedType: isIncome ? 'income' : 'expense' });
+  const formattedDate = date ? formatDateDDMMYYYY(date) : null;
 
   return (
     <div 

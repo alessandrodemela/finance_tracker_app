@@ -9,7 +9,7 @@ import { DashboardCard } from '@/components/ui/DashboardCard';
 import { YearSelector } from '@/components/ui/YearSelector';
 import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 import { CategoryPieChart } from '@/components/DashboardCharts';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface InsightsTabProps {
   isSensitiveVisible?: boolean;
@@ -139,7 +139,7 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                     "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
                     !isSensitiveVisible && "blur-lg select-none"
                   )}>
-                    €{totalIncome.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                    {formatCurrency(totalIncome)}
                   </h2>
                   <div className={cn(
                     "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-2",
@@ -166,7 +166,7 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                     "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
                     !isSensitiveVisible && "blur-lg select-none"
                   )}>
-                    €{totalExpense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                    {formatCurrency(totalExpense)}
                   </h2>
                   <div className={cn(
                     "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-2",
@@ -194,13 +194,13 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                     totalNet >= 0 ? "text-white" : "text-[var(--color-brand-danger)]",
                     !isSensitiveVisible && "blur-lg select-none"
                   )}>
-                    {totalNet < 0 ? '-' : ''}€{Math.abs(totalNet).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                    {formatCurrency(totalNet, { showSign: true })}
                   </h2>
                   <div className={cn(
                     "text-[11px] font-semibold text-slate-400 mt-2 transition-all",
                     !isSensitiveVisible && "blur-sm select-none"
                   )}>
-                    Avg €{(longTermTrends?.avgAnnualNet ?? 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}/yr
+                    Avg {formatCurrency(longTermTrends?.avgAnnualNet ?? 0)}/yr
                   </div>
                 </div>
               </DashboardCard>
@@ -289,7 +289,7 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                         "text-xs font-mono font-bold text-white transition-all",
                         !isSensitiveVisible && "blur-md select-none"
                       )}>
-                        €{(longTermTrends?.avgAnnualNet ?? 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                        {formatCurrency(longTermTrends?.avgAnnualNet ?? 0)}
                       </span>
                     </div>
                   </div>

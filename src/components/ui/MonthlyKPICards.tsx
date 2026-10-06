@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from 'lucide-react';
 import { DashboardCard } from '@/components/ui/DashboardCard';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 interface MonthlyKPICardsProps {
   income: number;
@@ -35,7 +35,7 @@ export function MonthlyKPICards({
             "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(income)}
           </h2>
         </div>
       </DashboardCard>
@@ -55,7 +55,7 @@ export function MonthlyKPICards({
             "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(expenses)}
           </h2>
         </div>
       </DashboardCard>
@@ -76,7 +76,7 @@ export function MonthlyKPICards({
             net < 0 && "text-[var(--color-brand-danger)]",
             !isSensitiveVisible && "blur-lg select-none"
           )}>
-            {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {formatCurrency(net)}
           </h2>
         </div>
       </DashboardCard>

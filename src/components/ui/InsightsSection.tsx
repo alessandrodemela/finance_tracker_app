@@ -1,6 +1,6 @@
 import React from 'react';
 import { Trophy, AlertTriangle, Activity } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, formatCurrency } from '@/lib/utils';
 
 export interface InsightData {
   bestMonth: { month: string; amount: number };
@@ -33,7 +33,7 @@ export function InsightsSection({ data, isSensitiveVisible = true }: InsightsSec
           "text-xs text-[var(--color-brand-success)] font-mono font-bold transition-all",
           !isSensitiveVisible && "blur-md select-none"
         )}>
-          +€{data.bestMonth.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          {formatCurrency(data.bestMonth.amount, { showSign: true })}
         </span>
       </div>
 
@@ -54,7 +54,7 @@ export function InsightsSection({ data, isSensitiveVisible = true }: InsightsSec
           "text-xs text-[var(--color-brand-danger)] font-mono font-bold transition-all",
           !isSensitiveVisible && "blur-md select-none"
         )}>
-          €{data.highestSpending.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          {formatCurrency(data.highestSpending.amount)}
         </span>
       </div>
 
@@ -75,7 +75,7 @@ export function InsightsSection({ data, isSensitiveVisible = true }: InsightsSec
           "text-xs text-cyan-400 font-mono font-bold transition-all",
           !isSensitiveVisible && "blur-md select-none"
         )}>
-          €{data.averageSavings.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          {formatCurrency(data.averageSavings)}
         </span>
       </div>
     </div>
