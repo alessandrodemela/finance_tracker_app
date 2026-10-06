@@ -1,5 +1,5 @@
 import React from 'react';
-import { Lightbulb, Trophy, AlertTriangle, Activity } from 'lucide-react';
+import { Trophy, AlertTriangle, Activity } from 'lucide-react';
 
 export interface InsightData {
   bestMonth: { month: string; amount: number };
@@ -13,58 +13,59 @@ interface InsightsSectionProps {
 
 export function InsightsSection({ data }: InsightsSectionProps) {
   return (
-    <div className="glass-panel p-6 flex flex-col gap-5 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-brand-accent)] opacity-[0.03] rounded-full blur-3xl" />
-      
-      <div className="flex items-center gap-2">
-        <Lightbulb className="text-[var(--color-brand-accent)]" size={20} />
-        <h3 className="text-heading-3 text-white font-bold">Yearly Insights</h3>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 relative z-10">
-        
-        {/* Best Month */}
-        <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(16,185,129,0.3)] transition-colors">
-          <div className="p-2 rounded-lg bg-[rgba(16,185,129,0.1)] mt-0.5">
-            <Trophy size={16} className="text-[#10B981]" />
+    <div className="space-y-3">
+      {/* Best Month */}
+      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+            <Trophy size={14} className="text-emerald-400" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)]">Best Month</span>
-            <span className="text-sm font-semibold text-white mt-0.5 max-w-[200px] truncate">
+          <div>
+            <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-400 block">Best Month</span>
+            <span className="text-xs font-semibold text-white">
               {data.bestMonth.month}
             </span>
-            <span className="text-xs text-[#10B981] font-medium mt-1">€{data.bestMonth.amount.toLocaleString('it-IT')} saved</span>
           </div>
         </div>
+        <span className="text-xs text-emerald-400 font-mono font-bold">
+          +€{data.bestMonth.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+        </span>
+      </div>
 
-        {/* Highest Spending Category */}
-        <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(240,90,100,0.3)] transition-colors">
-          <div className="p-2 rounded-lg bg-[rgba(240,90,100,0.1)] mt-0.5">
-            <AlertTriangle size={16} className="text-[#F05A64]" />
+      {/* Highest Spending Category */}
+      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 flex items-center justify-center shrink-0">
+            <AlertTriangle size={14} className="text-rose-400" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)]">Highest Spending</span>
-            <span className="text-sm font-semibold text-white mt-0.5 max-w-[200px] truncate">
+          <div>
+            <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-400 block">Top Expense Category</span>
+            <span className="text-xs font-semibold text-white">
               {data.highestSpending.category}
             </span>
-            <span className="text-xs text-[#F05A64] font-medium mt-1">€{data.highestSpending.amount.toLocaleString('it-IT')}</span>
           </div>
         </div>
+        <span className="text-xs text-rose-400 font-mono font-bold">
+          €{data.highestSpending.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+        </span>
+      </div>
 
-        {/* Avg Monthly Savings */}
-        <div className="flex items-start gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] hover:border-[rgba(0,210,255,0.3)] transition-colors">
-          <div className="p-2 rounded-lg bg-[rgba(0,210,255,0.1)] mt-0.5">
-            <Activity size={16} className="text-[var(--color-brand-accent)]" />
+      {/* Avg Monthly Savings */}
+      <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700/80 transition-all">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center shrink-0">
+            <Activity size={14} className="text-cyan-400" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)]">Avg Monthly Savings</span>
-            <span className="text-sm font-semibold text-white mt-0.5">
-              €{data.averageSavings.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+          <div>
+            <span className="text-[10px] font-extrabold tracking-wider uppercase text-slate-400 block">Avg Monthly Savings</span>
+            <span className="text-xs font-semibold text-white">
+              Per month this year
             </span>
-            <span className="text-xs text-[var(--color-brand-secondary)] font-medium mt-1">Per month this year</span>
           </div>
         </div>
-
+        <span className="text-xs text-cyan-400 font-mono font-bold">
+          €{data.averageSavings.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+        </span>
       </div>
     </div>
   );

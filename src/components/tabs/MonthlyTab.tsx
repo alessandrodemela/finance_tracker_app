@@ -195,7 +195,7 @@ export function MonthlyTab() {
 
           {/* Secondary Column (4 cols): Month Transactions List */}
           <GridCol span={4}>
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md flex flex-col h-full min-h-[500px]">
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-base font-semibold text-white tracking-tight">Transactions</h3>
                 <span className="text-xs font-mono font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">
@@ -234,7 +234,7 @@ export function MonthlyTab() {
               </div>
 
               {/* List */}
-              <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[580px] custom-scrollbar pr-1">
+              <div className="space-y-2.5 overflow-y-auto max-h-[750px] custom-scrollbar pr-1">
                 {txLoading ? (
                   <div className="py-12 text-center text-slate-400 text-xs">Loading transactions...</div>
                 ) : filteredTransactions.length === 0 ? (

@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
@@ -14,57 +16,70 @@ interface TrendComparisonChartProps {
 export function TrendComparisonChart({ data }: TrendComparisonChartProps) {
   if (data.length === 0) {
     return (
-      <div className="w-full h-full flex justify-center items-center text-[var(--color-brand-secondary)] text-sm font-medium">
-        No income/expense data
+      <div className="w-full h-full flex justify-center items-center text-slate-500 text-sm font-medium">
+        No income/expense data available
       </div>
     );
   }
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+      <LineChart data={data} margin={{ top: 15, right: 15, left: -20, bottom: 0 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#71717A" strokeOpacity={0.15} />
         <XAxis 
           dataKey="month" 
-          stroke="rgba(255,255,255,0.2)" 
-          fontSize={10} 
+          axisLine={false} 
           tickLine={false} 
-          axisLine={false}
+          tick={{ fill: '#71717A', fontSize: 11 }} 
           dy={10} 
         />
         <YAxis 
-          stroke="rgba(255,255,255,0.2)" 
-          fontSize={10} 
+          axisLine={false} 
           tickLine={false} 
-          axisLine={false}
+          tick={{ fill: '#71717A', fontSize: 11 }} 
           tickFormatter={(value) => `€${value >= 1000 ? (value / 1000).toFixed(0) + 'k' : value}`}
         />
         <Tooltip
-          contentStyle={{
-            backgroundColor: '#0d0d12',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '12px',
-            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.5)',
-            fontSize: '12px',
-            fontFamily: 'Inter',
-            fontWeight: 500
+          cursor={{ stroke: 'rgba(255, 255, 255, 0.1)', strokeWidth: 1 }}
+          content={({ active, payload, label }) => {
+            if (active && payload && payload.length) {
+              return (
+                <div className="bg-[#0D0D0D] border border-white/10 p-3 rounded-xl shadow-2xl min-w-[150px]">
+                  <p className="text-[#71717A] text-[10px] font-bold uppercase tracking-widest mb-2">{label}</p>
+                  <div className="space-y-1.5 text-xs">
+                    {payload.map((entry, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-4">
+                        <span className="text-[#E2E8F0] flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.color }} />
+                          {entry.name}
+                        </span>
+                        <span className="text-white font-mono font-bold">
+                          €{Number(entry.value).toLocaleString('it-IT', { minimumFractionDigits: 0 })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+            return null;
           }}
-          itemStyle={{ fontWeight: 700 }}
-          formatter={(value: any, name: any) => [`€ ${Number(value).toFixed(2)}`, String(name).charAt(0).toUpperCase() + String(name).slice(1)]}
         />
         <Line 
           type="monotone" 
           dataKey="income" 
+          name="Income"
           stroke="#10B981" 
-          strokeWidth={2}
+          strokeWidth={2.5}
           dot={{ fill: '#10B981', r: 3, strokeWidth: 0 }}
           activeDot={{ r: 5, strokeWidth: 0 }}
         />
         <Line 
           type="monotone" 
           dataKey="expense" 
+          name="Expense"
           stroke="#F05A64" 
-          strokeWidth={2}
+          strokeWidth={2.5}
           dot={{ fill: '#F05A64', r: 3, strokeWidth: 0 }}
           activeDot={{ r: 5, strokeWidth: 0 }}
         />

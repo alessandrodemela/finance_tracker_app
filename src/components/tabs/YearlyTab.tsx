@@ -2,13 +2,16 @@
 
 import React, { useMemo, useState } from 'react';
 import { useAnnualSummary } from '@/hooks/useData';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageContainer, DashboardGrid, GridCol } from '@/components/ui/DashboardGrid';
+import { YearSelector } from '@/components/ui/YearSelector';
 import { YearlyKPICards } from '@/components/ui/YearlyKPICards';
 import { InsightsSection, InsightData } from '@/components/ui/InsightsSection';
 import { TrendComparisonChart } from '@/components/ui/TrendComparisonChart';
+import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 import { CategoryTreemap } from '@/components/DashboardCharts';
 import { MonthlyBreakdownTable, MonthlyBreakdownRow } from '@/components/ui/MonthlyBreakdownTable';
+import { History, BarChart2 } from 'lucide-react';
 
 interface MonthlyMetricItem {
   income: number;
@@ -18,10 +21,12 @@ interface MonthlyMetricItem {
 
 export function YearlyTab() {
   const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [showMultiYear, setShowMultiYear] = useState<boolean>(false);
   
-  // Fetch current year and previous year for trends
+  // Fetch current year, prev year and two years ago for multi-year comparison
   const { monthlyData: currentYearData, categoryData, loading: cyLoading } = useAnnualSummary(year);
   const { monthlyData: prevYearData, loading: pyLoading } = useAnnualSummary(year - 1);
+  const { monthlyData: prev2YearData, loading: p2yLoading } = useAnnualSummary(year - 2);
 
   const calculateTotal = (data: MonthlyMetricItem[], key: string) => data.reduce((sum, d) => sum + (d[key] || 0), 0);
   const calculateChange = (current: number, previous: number) => {
@@ -29,8 +34,8 @@ export function YearlyTab() {
     return ((current - previous) / previous) * 100;
   };
 
-  // KPIs
-  const { kpis, insights, chartData, tableData } = useMemo(() => {
+  // KPIs & Calculations
+  const { kpis, insights, chartData, tableData, multiYearData } = useMemo(() => {
     const curInc = calculateTotal(currentYearData, 'income');
     const curExp = calculateTotal(currentYearData, 'expense');
     const curNet = curInc - curExp;
@@ -40,6 +45,10 @@ export function YearlyTab() {
     const prevExp = calculateTotal(prevYearData, 'expense');
     const prevNet = prevInc - prevExp;
     const prevRate = prevInc > 0 ? (prevNet / prevInc) * 100 : 0;
+
+    const p2Inc = calculateTotal(prev2YearData, 'income');
+    const p2Exp = calculateTotal(prev2YearData, 'expense');
+    const p2Net = p2Inc - p2Exp;
 
     const kpis = {
       income: { value: curInc, trend: calculateChange(curInc, prevInc) },
@@ -89,75 +98,115 @@ export function YearlyTab() {
       averageSavings: curNet / (trends.length || 1)
     };
 
+    const multiYearData: MultiYearData[] = [
+      { year: String(year - 2), income: p2Inc, expense: p2Exp, net: p2Net },
+      { year: String(year - 1), income: prevInc, expense: prevExp, net: prevNet },
+      { year: String(year), income: curInc, expense: curExp, net: curNet },
+    ].filter(d => d.income > 0 || d.expense > 0);
+
     return { 
       kpis, 
       insights, 
       chartData: trends, 
-      tableData: breakdownRows 
+      tableData: breakdownRows,
+      multiYearData
     };
-
-  }, [currentYearData, prevYearData, categoryData]);
-
-  if (cyLoading || pyLoading) {
-    return <div className="text-center py-10 text-[var(--color-brand-secondary)]">Loading yearly data...</div>;
-  }
+  }, [currentYearData, prevYearData, prev2YearData, categoryData, year]);
 
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto pb-6 animate-in slide-in-from-bottom-[10px] fade-in duration-500">
-      
-      {/* 1. Year Selector */}
-      <div className="flex items-center justify-between p-2">
-        <button 
-          onClick={() => setYear(y => y - 1)}
-          className="p-2.5 rounded-full bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-white transition-colors"
-        >
-          <ChevronLeft size={20} />
-        </button>
-        <span className="text-display-40 text-white font-bold tracking-tight">{year}</span>
-        <button 
-          onClick={() => setYear(y => y + 1)}
-          className="p-2.5 rounded-full bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-white transition-colors"
-        >
-          <ChevronRight size={20} />
-        </button>
-      </div>
+    <div className="flex flex-col min-h-screen bg-[var(--color-brand-navy)] text-[var(--color-brand-primary)] animate-in fade-in duration-500 w-full">
+      {/* 1. Standardized Page Header with YearSelector & Historical Toggle */}
+      <PageHeader
+        title="Yearly Overview"
+        subtitle={`Annual performance and historical comparison for ${year}`}
+        controls={<YearSelector year={year} onChange={setYear} />}
+        actions={
+          <button
+            onClick={() => setShowMultiYear(prev => !prev)}
+            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all border ${
+              showMultiYear 
+                ? 'bg-white text-black border-white shadow-lg' 
+                : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:text-white hover:bg-slate-800'
+            }`}
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>{showMultiYear ? 'Annual View' : 'Multi-Year Compare'}</span>
+          </button>
+        }
+      />
 
-      {/* 2. Yearly KPI Cards */}
-      <YearlyKPICards {...kpis} />
+      {/* 2. Main Page Grid Container */}
+      <PageContainer>
+        {/* Yearly KPI Cards Row */}
+        <YearlyKPICards {...kpis} />
 
-      {/* 3. YoY Comparison Bar */}
-      <div className="glass-panel py-3 px-6 text-center shadow-lg border-x-0 rounded-none bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.02)] to-transparent">
-        <span className="text-xs font-semibold tracking-wider text-[var(--color-brand-secondary)] uppercase">
-          Compared to {year - 1} · {kpis.net.trend >= 0 ? '+' : ''}{kpis.net.trend.toFixed(1)}% Net Growth
-        </span>
-      </div>
+        {/* 12-Column Responsive Dashboard Layout */}
+        <DashboardGrid>
+          {/* Main Column (8 cols): Charts & Breakdown Table */}
+          <GridCol span={8} className="space-y-6">
+            {/* Trend Chart or Multi-Year Compare Chart */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-base font-semibold text-white tracking-tight">
+                    {showMultiYear ? 'Multi-Year Comparison' : 'Income vs Expense Trend'}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    {showMultiYear 
+                      ? 'Annual totals comparison across recent years' 
+                      : `Month-by-month cash flow trajectory for ${year}`}
+                  </p>
+                </div>
+              </div>
+              <div className="h-[250px] w-full">
+                {showMultiYear ? (
+                  <MultiYearComparisonChart data={multiYearData} />
+                ) : (
+                  <TrendComparisonChart data={chartData} />
+                )}
+              </div>
+            </div>
 
-      {/* 4. Insights Section */}
-      <InsightsSection data={insights} />
+            {/* Monthly Breakdown Detailed Table */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h3 className="text-base font-semibold text-white tracking-tight">Monthly Breakdown</h3>
+                  <p className="text-xs text-slate-400">Detailed month-by-month financial statement</p>
+                </div>
+              </div>
+              <MonthlyBreakdownTable data={tableData} />
+            </div>
+          </GridCol>
 
-      {/* 5. Income vs Expense Trend Chart */}
-      <div className="glass-panel p-5 mt-2 relative">
-        <h3 className="text-heading-3 mb-5 px-1 tracking-wide text-white">Income vs Expense</h3>
-        <div className="h-[220px] w-full">
-            <TrendComparisonChart data={chartData} />
-        </div>
-      </div>
+          {/* Secondary Column (4 cols): Insights & Expense Distribution */}
+          <GridCol span={4} className="space-y-6">
+            {/* Key Annual Insights */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold text-white tracking-tight">Yearly Highlights</h3>
+                <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">
+                  {year}
+                </span>
+              </div>
+              <InsightsSection data={insights} />
+            </div>
 
-      {/* 6. Category Distribution */}
-      <div className="glass-panel p-5 mt-2 relative overflow-hidden">
-        <h3 className="text-heading-3 px-1 tracking-wide text-white">Expense Distribution</h3>
-        <span className="text-xs text-[var(--color-brand-secondary)] px-1 mb-5 block">Expense intensity by category for {year}</span>
-        <div className="h-[400px] w-full mt-4">
-            <CategoryTreemap data={categoryData} />
-        </div>
-      </div>
-
-      {/* 7. Monthly Breakdown Table */}
-      <div className="flex flex-col gap-3 mt-4">
-        <h3 className="text-heading-3 px-1 tracking-wide text-white">Monthly Breakdown</h3>
-        <MonthlyBreakdownTable data={tableData} />
-      </div>
-
+            {/* Category Expense Distribution Treemap */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="text-base font-semibold text-white tracking-tight">Expense Distribution</h3>
+                  <p className="text-xs text-slate-400">Category breakdown for {year}</p>
+                </div>
+              </div>
+              <div className="h-[280px] w-full mt-2">
+                <CategoryTreemap data={categoryData} />
+              </div>
+            </div>
+          </GridCol>
+        </DashboardGrid>
+      </PageContainer>
     </div>
   );
 }

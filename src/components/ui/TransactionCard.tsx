@@ -19,16 +19,15 @@ export function TransactionCard({
   subtitle, 
   amount, 
   type, 
-  date,
-  icon,
-  onEdit,
-  onDelete,
+  date, 
+  icon, 
+  onEdit, 
+  onDelete, 
   ...props 
 }: TransactionCardProps) {
   const isIncome = type === "income";
   const formattedAmount = `${isIncome ? '+' : '-'}€${Math.abs(amount).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-  // Formattazione data se presente
   const formattedDate = date ? new Date(date).toLocaleDateString('it-IT', {
     day: '2-digit',
     month: 'short'
@@ -37,51 +36,50 @@ export function TransactionCard({
   return (
     <div 
       className={cn(
-        "rounded-2xl border border-[rgba(99,102,241,0.1)] bg-[#141B35] p-4 flex flex-col gap-3 transition-all relative overflow-hidden group",
+        "rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 flex flex-col gap-2 transition-all relative overflow-hidden group hover:border-slate-700/80 hover:bg-slate-900/60",
         className
       )}
       {...props}
     >
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           {icon && (
             <div className={cn(
-              "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-opacity-30",
-              isIncome ? "bg-[#10B981]/30 text-[#10B981]" : "bg-[#F05A64]/30 text-[#F05A64]"
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+              isIncome ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
             )}>
-              <div className="w-5 h-5 flex items-center justify-center">
-                {icon}
-              </div>
+              {icon}
             </div>
           )}
-          <div className="flex flex-col gap-0.5">
-            <span className="text-body font-medium text-white transition-colors">{title}</span>
-            <div className="flex items-center gap-1.5 opacity-60">
-               <span className="text-[10px] font-bold uppercase tracking-wider">{subtitle}</span>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <span className="text-xs font-semibold text-white truncate">{title}</span>
+            <div className="flex items-center gap-1.5 text-slate-400">
+               <span className="text-[10px] font-bold uppercase tracking-wider truncate">{subtitle}</span>
                {formattedDate && (
                  <>
                    <span className="text-[8px] opacity-40">•</span>
-                   <span className="text-[10px] uppercase">{formattedDate}</span>
+                   <span className="text-[10px] uppercase font-mono">{formattedDate}</span>
                  </>
                )}
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1.5">
+
+        <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "text-body font-bold",
-            isIncome ? "text-[#10B981]" : "text-[#F05A64]"
+            "text-xs font-mono font-bold",
+            isIncome ? "text-emerald-400" : "text-rose-400"
           )}>
             {formattedAmount}
           </div>
           
-          {/* Action Icons under amount */}
           {(onEdit || onDelete) && (
-            <div className="flex items-center gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
               {onEdit && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); onEdit(); }}
-                  className="p-1 rounded-md hover:bg-[rgba(255,255,255,0.08)] active:bg-[rgba(255,255,255,0.15)] text-white transition-colors"
+                  className="p-1 rounded hover:bg-white/10 text-slate-300 hover:text-white transition-colors"
+                  title="Edit"
                 >
                   <Edit2 size={12} />
                 </button>
@@ -89,7 +87,8 @@ export function TransactionCard({
               {onDelete && (
                 <button 
                   onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                  className="p-1 rounded-md hover:bg-[rgba(240,90,100,0.1)] active:bg-[rgba(240,90,100,0.2)] text-[#F05A64] transition-colors"
+                  className="p-1 rounded hover:bg-rose-500/20 text-rose-400 transition-colors"
+                  title="Delete"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -99,5 +98,5 @@ export function TransactionCard({
         </div>
       </div>
     </div>
-  )
+  );
 }

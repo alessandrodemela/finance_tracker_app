@@ -1,11 +1,12 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface YearlyKPICardsProps {
-  income: { value: number, trend: number };
-  expenses: { value: number, trend: number };
-  net: { value: number, trend: number };
-  savingsRate: { value: number, trend: number };
+  income: { value: number; trend: number };
+  expenses: { value: number; trend: number };
+  net: { value: number; trend: number };
+  savingsRate: { value: number; trend: number };
 }
 
 export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPICardsProps) {
@@ -13,21 +14,28 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
     const isPositive = trend >= 0;
     const isGood = invertColors ? !isPositive : isPositive;
     return (
-      <div className={`flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1 ${isGood ? 'text-[#10B981]' : 'text-[#F05A64]'}`}>
-        {isPositive ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-        <span>{Math.abs(trend).toFixed(1)}%</span>
+      <div className={cn(
+        "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1.5",
+        isGood ? 'text-emerald-400' : 'text-rose-400'
+      )}>
+        {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
+        <span>{Math.abs(trend).toFixed(1)}% vs prev year</span>
       </div>
     );
   };
 
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Income */}
-      <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-t-[#10B981]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors h-[110px]">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[#10B981] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none transition-opacity group-hover:opacity-10" />
-        <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">INCOME</span>
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">INCOME</span>
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <ArrowUpRight className="text-emerald-400 w-4 h-4" />
+          </div>
+        </div>
         <div>
-          <span className="text-xl text-[#10B981] font-bold">
+          <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
             €{income.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(income.trend)}
@@ -35,11 +43,15 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
       </div>
 
       {/* Expenses */}
-      <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-t-[#F05A64]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors h-[110px]">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[#F05A64] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none transition-opacity group-hover:opacity-10" />
-        <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">EXPENSES</span>
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">EXPENSES</span>
+          <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+            <ArrowDownRight className="text-rose-400 w-4 h-4" />
+          </div>
+        </div>
         <div>
-          <span className="text-xl text-[#F05A64] font-bold">
+          <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
             €{expenses.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(expenses.trend, true)}
@@ -47,26 +59,42 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
       </div>
 
       {/* Net Savings */}
-      <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-t-[var(--color-brand-accent)]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors h-[110px]">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[var(--color-brand-accent)] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none transition-opacity group-hover:opacity-10" />
-        <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">NET SAVINGS</span>
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">NET SAVINGS</span>
+          <div className={cn(
+            "w-8 h-8 rounded-xl border flex items-center justify-center",
+            net.value >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
+          )}>
+            <TrendingUp className={cn("w-4 h-4", net.value >= 0 ? "text-emerald-400" : "text-rose-400")} />
+          </div>
+        </div>
         <div>
-          <span className="text-xl text-white font-bold">
-            €{net.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <span className={cn(
+            "text-xl lg:text-2xl font-bold font-mono tracking-tight",
+            net.value >= 0 ? "text-white" : "text-rose-400"
+          )}>
+            {net.value < 0 ? '-' : ''}€{Math.abs(net.value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(net.trend)}
         </div>
       </div>
 
       {/* Savings Rate */}
-      <div className="glass-panel p-5 flex flex-col justify-between border-t-2 border-t-[#8b5cf6]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors h-[110px]">
-        <div className="absolute top-0 right-0 w-24 h-24 bg-[#8b5cf6] opacity-5 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none transition-opacity group-hover:opacity-10" />
-        <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">SAVINGS RATE</span>
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">SAVINGS RATE</span>
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <Percent className="text-cyan-400 w-4 h-4" />
+          </div>
+        </div>
         <div>
-          <span className="text-xl text-[#8b5cf6] font-bold">
-            {savingsRate.value.toFixed(1)}%
+          <span className={cn(
+            "text-xl lg:text-2xl font-bold font-mono tracking-tight",
+            savingsRate.value >= 0 ? "text-emerald-400" : "text-rose-400"
+          )}>
+            {savingsRate.value >= 0 ? '+' : ''}{savingsRate.value.toFixed(1)}%
           </span>
-          {/* Note: pp = percentage points but we display as % for simplicity */}
           {renderTrend(savingsRate.trend)}
         </div>
       </div>

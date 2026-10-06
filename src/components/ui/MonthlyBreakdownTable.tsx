@@ -14,50 +14,48 @@ interface MonthlyBreakdownTableProps {
 
 export function MonthlyBreakdownTable({ data }: MonthlyBreakdownTableProps) {
   return (
-    <div className="glass-panel p-0 overflow-hidden w-full">
-      <div className="overflow-x-auto custom-scrollbar">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)]">
-              <th className="py-4 px-4 text-[10px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)] whitespace-nowrap">Month</th>
-              <th className="py-4 px-4 text-[10px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)] text-right whitespace-nowrap">Income</th>
-              <th className="py-4 px-4 text-[10px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)] text-right whitespace-nowrap">Expense</th>
-              <th className="py-4 px-4 text-[10px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)] text-right whitespace-nowrap">Net</th>
-              <th className="py-4 px-4 text-[10px] font-bold tracking-wider uppercase text-[var(--color-brand-secondary)] text-right whitespace-nowrap">Savings %</th>
+    <div className="overflow-x-auto custom-scrollbar">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-slate-800 bg-slate-950/40 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
+            <th className="py-3 px-3">Month</th>
+            <th className="py-3 px-3 text-right">Income</th>
+            <th className="py-3 px-3 text-right">Expense</th>
+            <th className="py-3 px-3 text-right">Net</th>
+            <th className="py-3 px-3 text-right">Savings %</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-800/50">
+          {data.length === 0 ? (
+            <tr>
+              <td colSpan={5} className="py-8 text-center text-slate-500 text-xs">
+                No data available for this year
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {data.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="py-8 text-center text-[var(--color-brand-secondary)] text-sm font-medium">
-                  No data available for this year
+          ) : (
+            data.map((row) => (
+              <tr 
+                key={row.month} 
+                className="hover:bg-slate-800/30 transition-colors"
+              >
+                <td className="py-2.5 px-3 text-xs font-semibold text-white">{row.month}</td>
+                <td className="py-2.5 px-3 text-xs text-emerald-400 font-mono text-right">
+                  €{row.income.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </td>
+                <td className="py-2.5 px-3 text-xs text-rose-400 font-mono text-right">
+                  €{row.expense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </td>
+                <td className={`py-2.5 px-3 text-xs font-mono font-bold text-right ${row.net >= 0 ? 'text-white' : 'text-rose-400'}`}>
+                  {row.net < 0 ? '-' : ''}€{Math.abs(row.net).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
+                </td>
+                <td className="py-2.5 px-3 text-xs font-mono text-slate-400 text-right">
+                  {row.savingsRate.toFixed(1)}%
                 </td>
               </tr>
-            ) : (
-              data.map((row, i) => (
-                <tr 
-                  key={row.month} 
-                  className={`border-b border-[rgba(255,255,255,0.02)] hover:bg-[rgba(255,255,255,0.03)] transition-colors ${i === data.length - 1 ? 'border-none' : ''}`}
-                >
-                  <td className="py-3 px-4 text-sm font-semibold text-white">{row.month}</td>
-                  <td className="py-3 px-4 text-sm text-[#10B981] font-medium text-right">
-                    €{row.income.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-[#F05A64] font-medium text-right">
-                    €{row.expense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className={`py-3 px-4 text-sm font-bold text-right ${row.net >= 0 ? 'text-white' : 'text-[#F05A64]'}`}>
-                    €{row.net.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </td>
-                  <td className="py-3 px-4 text-xs font-semibold text-[var(--color-brand-secondary)] text-right">
-                    {row.savingsRate.toFixed(1)}%
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+            ))
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
