@@ -1,21 +1,31 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useDate } from '@/context/DateContext';
 import { useTransactions, useBudgetCategories, useBudgets, triggerRefresh } from '@/hooks/useData';
 import { Transaction } from '@/types/database';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
-
 import { useRouter } from 'next/navigation';
 import { financeService } from '@/lib/financeService';
+
+import { PageHeader } from '@/components/ui/PageHeader';
+import { PageContainer, DashboardGrid, GridCol } from '@/components/ui/DashboardGrid';
 import { MonthSelector } from '@/components/MonthSelector';
 import { MonthlyKPICards } from '@/components/ui/MonthlyKPICards';
 import { CategoryBreakdown, CategoryBudgetItem } from '@/components/ui/CategoryBreakdown';
 import { DailySpendingChart, DailySpendingData } from '@/components/ui/DailySpendingChart';
 import { TransactionCard } from '@/components/ui/TransactionCard';
+import { Search, Plus, Filter, Calendar } from 'lucide-react';
+import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 
 export function MonthlyTab() {
   const router = useRouter();
+  const { currentDate, setCurrentDate, currentMonthStr } = useDate();
+
+  // Local state for transaction filtering & modals
+  const [txSearch, setTxSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = (tx: Transaction) => {
     showConfirm('Sei sicuro di voler eliminare questa transazione?', async () => {
@@ -28,15 +38,14 @@ export function MonthlyTab() {
       }
     });
   };
-  const { currentDate, setCurrentDate, currentMonthStr } = useDate();
-  
+
   // Data Fetching
   const dateRange = useMemo(() => {
     const [year, month] = currentMonthStr.split('-').map(Number);
     const lastDay = new Date(year, month, 0);
     return {
       start: `${currentMonthStr}-01`,
-      end: `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`
+      end: `${currentMonthStr}-${String(lastDay.getDate()).padStart(2, '0')}`
     };
   }, [currentMonthStr]);
 
@@ -48,15 +57,15 @@ export function MonthlyTab() {
   const { income, expenses, net, savingsRate } = useMemo(() => {
     let inc = 0;
     let exp = 0;
-    
+
     transactions.forEach(t => {
       if (t.type === 'income') inc += Number(t.amount);
       else if (t.type === 'expense') exp += Number(t.amount);
     });
-    
+
     const n = inc - exp;
     const rate = inc > 0 ? (n / inc) * 100 : 0;
-    
+
     return { income: inc, expenses: exp, net: n, savingsRate: rate };
   }, [transactions]);
 
@@ -78,7 +87,6 @@ export function MonthlyTab() {
         budget: budgets[cat.id] || 0
       }))
       .filter(item => item.spent > 0 || item.budget > 0)
-      // Sort by percentage spent
       .sort((a, b) => {
         const p1 = a.budget > 0 ? a.spent / a.budget : (a.spent > 0 ? 1 : 0);
         const p2 = b.budget > 0 ? b.spent / b.budget : (b.spent > 0 ? 1 : 0);
@@ -90,10 +98,9 @@ export function MonthlyTab() {
   const dailyChartData = useMemo<DailySpendingData[]>(() => {
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
     const dataObj: Record<string, number> = {};
-    
-    // Initialize all days to 0
-    for(let i=1; i<=daysInMonth; i++) {
-        dataObj[i.toString().padStart(2, '0')] = 0;
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      dataObj[i.toString().padStart(2, '0')] = 0;
     }
 
     transactions
@@ -108,62 +115,138 @@ export function MonthlyTab() {
       .map(([day, amount]) => ({ day, amount }));
   }, [transactions, currentDate]);
 
+  // Filtered Transactions List
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter(t => {
+      const matchesType = typeFilter === 'all' || t.type === typeFilter;
+      const notes = t.notes || '';
+      const catName = budgetCategories.find(c => c.id === t.budget_category_id)?.name || '';
+      const matchesSearch = !txSearch.trim() ||
+        notes.toLowerCase().includes(txSearch.toLowerCase()) ||
+        catName.toLowerCase().includes(txSearch.toLowerCase()) ||
+        t.amount.toString().includes(txSearch);
+
+      return matchesType && matchesSearch;
+    });
+  }, [transactions, typeFilter, txSearch, budgetCategories]);
+
   return (
-    <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto pb-6 animate-in slide-in-from-bottom-[10px] fade-in duration-500">
-      
-      {/* 1. Month Selector */}
-      <MonthSelector currentDate={currentDate} onChange={setCurrentDate} />
-
-      {/* 2. Monthly KPI Cards */}
-      <MonthlyKPICards income={income} expenses={expenses} net={net} />
-
-      {/* 3. Savings Rate Badge */}
-      <div className="self-center bg-[rgba(20,27,53,0.6)] backdrop-blur-sm rounded-full px-8 py-2.5 border border-[rgba(255,255,255,0.05)] shadow-lg mt-[-10px]">
-        <div className="text-small font-medium tracking-wide flex items-center gap-3">
-          <span className="font-bold text-[var(--color-brand-secondary)] uppercase text-[10px] tracking-widest bg-[rgba(255,255,255,0.05)] px-2 py-1 rounded">Savings Rate</span>
-          <span className={`font-bold text-[14px] ${savingsRate >= 0 ? "text-[#10B981]" : "text-[#F05A64]"}`}>
-            {savingsRate >= 0 ? "+" : ""}{savingsRate.toFixed(1)}%
-          </span>
-        </div>
-      </div>
-
-      {/* 4. Category Breakdown */}
-      <div className="glass-panel p-5 mt-2 overflow-hidden relative">
-        <div className="flex items-center justify-between mb-5 px-1">
-          <h3 className="text-heading-3 tracking-wide text-white">Budget vs Actual</h3>
-          <button 
-            onClick={() => window.location.href = '/budget'}
-            className="text-[10px] font-bold tracking-widest uppercase bg-[rgba(255,255,255,0.05)] hover:bg-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] hover:text-white px-3 py-1.5 rounded transition-all border border-[rgba(255,255,255,0.05)]"
+    <div className="flex flex-col min-h-screen bg-[var(--color-brand-navy)] text-[var(--color-brand-primary)] animate-in fade-in duration-500 w-full">
+      {/* 1. Page Header with Month Selector & Action Button */}
+      <PageHeader
+        title="Monthly Overview"
+        subtitle={`Summary and detailed breakdown for ${currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' })}`}
+        controls={<MonthSelector currentDate={currentDate} onChange={setCurrentDate} />}
+        actions={
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-slate-200 transition-all shadow-lg active:scale-95"
           >
-            Edit Budgeting
+            <Plus className="w-4 h-4" />
+            <span>New Transaction</span>
           </button>
-        </div>
-        <div className="h-full max-h-[300px] overflow-y-auto custom-scrollbar pr-2 pb-2">
-            <CategoryBreakdown items={budgetItems} loading={txLoading || catLoading || bgtLoading} />
-        </div>
-      </div>
+        }
+      />
 
-      {/* 5. Daily Spending Trend Chart */}
-      <div className="glass-panel p-5 mt-1 relative">
-        <h3 className="text-heading-3 mb-5 px-1 tracking-wide text-white">Daily Spending Trend</h3>
-        <div className="h-[200px] w-full">
-            <DailySpendingChart data={dailyChartData} />
-        </div>
-      </div>
+      {/* 2. Main Page Grid Container */}
+      <PageContainer>
+        {/* Monthly KPI Cards Row */}
+        <MonthlyKPICards
+          income={income}
+          expenses={expenses}
+          net={net}
+          savingsRate={savingsRate}
+        />
 
-      {/* 6. Transaction List (Full month) */}
-      <div className="flex flex-col gap-3 mt-4">
-        <h3 className="text-heading-3 px-1 tracking-wide text-white">Monthly Transactions</h3>
-        {txLoading ? (
-            <div className="py-10 text-center text-[var(--color-brand-secondary)] text-sm">Loading transactions...</div>
-        ) : transactions.length === 0 ? (
-            <div className="py-10 text-center glass-panel border-dashed border-[rgba(255,255,255,0.1)] text-[var(--color-brand-secondary)] text-sm">No transactions this month.</div>
-        ) : (
-            transactions.map(tx => {
-                const category = budgetCategories.find(c => c.id === tx.budget_category_id);
-                return (
-                    <TransactionCard 
-                        key={tx.id} 
+        {/* 12-Column Responsive Dashboard Layout */}
+        <DashboardGrid>
+          {/* Main Column (8 cols): Charts & Budget Breakdown */}
+          <GridCol span={8} className="space-y-6">
+            {/* Daily Spending Trend */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-base font-semibold text-white tracking-tight">Daily Spending Trend</h3>
+                  <p className="text-xs text-slate-400">Expense pattern over the current month</p>
+                </div>
+              </div>
+              <div className="h-[240px] w-full">
+                <DailySpendingChart data={dailyChartData} />
+              </div>
+            </div>
+
+            {/* Budget vs Actual Category Breakdown */}
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h3 className="text-base font-semibold text-white tracking-tight">Budget vs Actual</h3>
+                  <p className="text-xs text-slate-400">Category spending against allocated budgets</p>
+                </div>
+                <button
+                  onClick={() => router.push('/budget')}
+                  className="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 px-3 py-1.5 rounded-lg transition-all border border-slate-700/50"
+                >
+                  Edit Budgets
+                </button>
+              </div>
+              <CategoryBreakdown items={budgetItems} loading={txLoading || catLoading || bgtLoading} />
+            </div>
+          </GridCol>
+
+          {/* Secondary Column (4 cols): Month Transactions List */}
+          <GridCol span={4}>
+            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md flex flex-col h-full min-h-[500px]">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-base font-semibold text-white tracking-tight">Transactions</h3>
+                <span className="text-xs font-mono font-medium text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">
+                  {filteredTransactions.length}
+                </span>
+              </div>
+
+              {/* Filters & Search for Transactions */}
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-2 bg-slate-950/60 border border-slate-800 rounded-xl px-3 py-1.5 focus-within:border-slate-700 transition-all">
+                  <Search className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search in month..."
+                    value={txSearch}
+                    onChange={e => setTxSearch(e.target.value)}
+                    className="bg-transparent border-none outline-none text-xs text-white placeholder:text-slate-500 w-full"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-950/40 p-1 rounded-xl border border-slate-800/60">
+                  {(['all', 'expense', 'income'] as const).map(type => (
+                    <button
+                      key={type}
+                      onClick={() => setTypeFilter(type)}
+                      className={`flex-1 text-[10px] font-bold uppercase tracking-wider py-1 rounded-lg transition-all ${
+                        typeFilter === type
+                          ? 'bg-slate-800 text-white shadow-sm border border-slate-700/60'
+                          : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* List */}
+              <div className="flex-1 space-y-2.5 overflow-y-auto max-h-[580px] custom-scrollbar pr-1">
+                {txLoading ? (
+                  <div className="py-12 text-center text-slate-400 text-xs">Loading transactions...</div>
+                ) : filteredTransactions.length === 0 ? (
+                  <div className="py-12 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
+                    No transactions match your filter.
+                  </div>
+                ) : (
+                  filteredTransactions.map(tx => {
+                    const category = budgetCategories.find(c => c.id === tx.budget_category_id);
+                    return (
+                      <TransactionCard
+                        key={tx.id}
                         title={tx.notes || 'No notes'}
                         subtitle={category?.name || 'Uncategorized'}
                         amount={tx.amount}
@@ -171,12 +254,22 @@ export function MonthlyTab() {
                         date={tx.date}
                         onEdit={() => router.push(`/edit/${tx.id}`)}
                         onDelete={() => handleDelete(tx)}
-                    />
-                );
-            })
-        )}
-      </div>
+                      />
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </GridCol>
+        </DashboardGrid>
+      </PageContainer>
 
+      {/* New Transaction Modal */}
+      <NewTransactionModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={() => triggerRefresh()}
+      />
     </div>
   );
 }

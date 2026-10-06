@@ -73,7 +73,7 @@ export default function Dashboard() {
             />
           )}
           {activeTab !== 'home' && (
-            <div className="px-4 lg:px-6 pt-4 pb-10">
+            <div className="w-full pb-10">
               {activeTab === 'monthly' && <MonthlyTab />}
               {activeTab === 'yearly' && <YearlyTab />}
               {activeTab === 'insights' && <InsightsTab />}

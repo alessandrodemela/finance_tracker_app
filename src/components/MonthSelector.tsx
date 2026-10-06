@@ -1,13 +1,15 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface MonthSelectorProps {
   currentDate: Date;
   onChange: (d: Date) => void;
+  className?: string;
 }
 
-export function MonthSelector({ currentDate, onChange }: MonthSelectorProps) {
+export function MonthSelector({ currentDate, onChange, className }: MonthSelectorProps) {
   const handlePrev = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() - 1);
@@ -20,22 +22,31 @@ export function MonthSelector({ currentDate, onChange }: MonthSelectorProps) {
     onChange(newDate);
   };
 
-  const monthName = currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  const monthName = currentDate.toLocaleString('en-US', { month: 'short', year: 'numeric' });
 
   return (
-    <div className="flex items-center justify-between w-full max-w-sm mx-auto mb-6 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.05)] rounded-2xl p-2 backdrop-blur-sm">
+    <div className={cn(
+      "flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-xl p-1 backdrop-blur-md shadow-sm",
+      className
+    )}>
       <button 
         onClick={handlePrev} 
-        className="p-3 text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.05)] rounded-xl transition-all active:scale-95"
+        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all active:scale-95"
+        title="Previous Month"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={18} />
       </button>
-      <h2 className="text-lg font-bold text-white tracking-wide uppercase">{monthName}</h2>
+
+      <span className="text-xs font-bold text-white tracking-wider uppercase px-2 font-mono min-w-[90px] text-center">
+        {monthName}
+      </span>
+
       <button 
         onClick={handleNext} 
-        className="p-3 text-[var(--color-brand-secondary)] hover:text-white hover:bg-[rgba(255,255,255,0.05)] rounded-xl transition-all active:scale-95"
+        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all active:scale-95"
+        title="Next Month"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={18} />
       </button>
     </div>
   );

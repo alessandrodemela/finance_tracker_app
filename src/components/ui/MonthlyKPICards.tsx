@@ -1,41 +1,77 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Equal } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Equal, Percent } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface MonthlyKPICardsProps {
   income: number;
   expenses: number;
   net: number;
+  savingsRate?: number;
 }
 
-export function MonthlyKPICards({ income, expenses, net }: MonthlyKPICardsProps) {
+export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyKPICardsProps) {
   return (
-    <div className="grid grid-cols-3 gap-3">
-        <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 border-b-[#10B981]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-[#10B981] opacity-10 rounded-full blur-2xl -mr-8 -mt-8 pointer-events-none transition-opacity group-hover:opacity-20" />
-          <ArrowUpRight className="text-[#10B981] mb-1" size={24} />
-          <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">INCOME</span>
-          <span className="text-xl text-[#10B981] font-bold">
-            €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* INCOME */}
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">INCOME</span>
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+            <ArrowUpRight className="text-emerald-400 w-4 h-4" />
+          </div>
         </div>
-
-        <div className="glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 border-b-[#F05A64]/50 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors">
-          <div className="absolute top-0 left-0 w-16 h-16 bg-[#F05A64] opacity-10 rounded-full blur-2xl -ml-8 -mt-8 pointer-events-none transition-opacity group-hover:opacity-20" />
-          <ArrowDownRight className="text-[#F05A64] mb-1" size={24} />
-          <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">EXPENSES</span>
-          <span className="text-xl text-[#F05A64] font-bold">
-            €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-        </div>
-
-        <div className={`glass-panel flex flex-col items-center justify-center gap-2 py-6 px-2 border-b-2 relative overflow-hidden group hover:bg-[rgba(255,255,255,0.03)] transition-colors ${net >= 0 ? 'border-b-[#10B981]/50' : 'border-b-[#F05A64]/50'}`}>
-          <div className={`absolute bottom-0 right-0 w-20 h-20 opacity-10 rounded-full blur-2xl -mr-10 -mb-10 pointer-events-none transition-opacity group-hover:opacity-20 ${net >= 0 ? 'bg-[#10B981]' : 'bg-[#F05A64]'}`} />
-          <Equal className={net >= 0 ? "text-[var(--color-brand-accent)] mb-1" : "text-[#F05A64] mb-1"} size={24} />
-          <span className="text-[10px] font-bold tracking-wider text-[var(--color-brand-secondary)] uppercase">NET</span>
-          <span className={`text-xl font-bold z-10 ${net >= 0 ? 'text-white' : 'text-[#F05A64]'}`}>
-            {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+        <div className="text-xl lg:text-2xl font-bold text-white font-mono tracking-tight">
+          €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
+
+      {/* EXPENSES */}
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">EXPENSES</span>
+          <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
+            <ArrowDownRight className="text-rose-400 w-4 h-4" />
+          </div>
+        </div>
+        <div className="text-xl lg:text-2xl font-bold text-white font-mono tracking-tight">
+          €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+      </div>
+
+      {/* NET */}
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">NET BALANCE</span>
+          <div className={cn(
+            "w-8 h-8 rounded-xl border flex items-center justify-center",
+            net >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
+          )}>
+            <Equal className={cn("w-4 h-4", net >= 0 ? "text-emerald-400" : "text-rose-400")} />
+          </div>
+        </div>
+        <div className={cn(
+          "text-xl lg:text-2xl font-bold font-mono tracking-tight",
+          net >= 0 ? "text-white" : "text-rose-400"
+        )}>
+          {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </div>
+      </div>
+
+      {/* SAVINGS RATE */}
+      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">SAVINGS RATE</span>
+          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <Percent className="text-cyan-400 w-4 h-4" />
+          </div>
+        </div>
+        <div className={cn(
+          "text-xl lg:text-2xl font-bold font-mono tracking-tight",
+          (savingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"
+        )}>
+          {savingsRate !== undefined ? `${savingsRate >= 0 ? '+' : ''}${savingsRate.toFixed(1)}%` : '0.0%'}
+        </div>
+      </div>
+    </div>
   );
 }
