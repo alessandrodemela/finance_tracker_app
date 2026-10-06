@@ -58,8 +58,9 @@ export function NewAccountModal({ isOpen, onClose, onSuccess }: NewAccountModalP
       
       setSubmitted(true);
       if (onSuccess) onSuccess();
-    } catch (err: any) {
-      showToast('Error: ' + err.message, 'error');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error occurred';
+      showToast('Error: ' + message, 'error');
     } finally {
       setLoading(false);
     }

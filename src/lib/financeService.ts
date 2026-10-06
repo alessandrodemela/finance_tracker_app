@@ -80,14 +80,20 @@ export const financeService = {
     if (tError) throw tError;
 
     // Aggregate actuals by category
-    const actuals = txs.reduce((acc: any, tx) => {
+    const actuals = txs.reduce((acc: Record<string, number>, tx) => {
       if (tx.budget_category_id) {
         acc[tx.budget_category_id] = (acc[tx.budget_category_id] || 0) + Number(tx.amount);
       }
       return acc;
     }, {});
 
-    return budgets.map((b: any) => {
+    interface BudgetRowWithCategory {
+      budget_category_id: string;
+      amount: number | string;
+      budget_categories?: { name: string } | null;
+    }
+
+    return (budgets as BudgetRowWithCategory[]).map((b) => {
       const actual = actuals[b.budget_category_id] || 0;
       return {
         budget_category_id: b.budget_category_id,
@@ -102,7 +108,7 @@ export const financeService = {
   /**
    * Aggregate totals for a specific year.
    */
-  async getAnnualSummary(year: string) {
+  async getAnnualSummary(year: string): Promise<Record<string, { income: number; expense: number; net: number }>> {
     const { data, error } = await supabase
       .from('transactions')
       .select('amount, type, date')
@@ -116,16 +122,18 @@ export const financeService = {
       return `${year}-${m}`;
     });
 
-    const summary: any = {};
+    const summary: Record<string, { income: number; expense: number; net: number }> = {};
     months.forEach(m => {
       summary[m] = { income: 0, expense: 0, net: 0 };
     });
 
     data.forEach(tx => {
       const m = tx.date.slice(0, 7);
-      if (tx.type === 'income') summary[m].income += Number(tx.amount);
-      if (tx.type === 'expense') summary[m].expense += Number(tx.amount);
-      summary[m].net = summary[m].income - summary[m].expense;
+      if (summary[m]) {
+        if (tx.type === 'income') summary[m].income += Number(tx.amount);
+        if (tx.type === 'expense') summary[m].expense += Number(tx.amount);
+        summary[m].net = summary[m].income - summary[m].expense;
+      }
     });
 
     return summary;

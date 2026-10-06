@@ -2,19 +2,19 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAnnualSummary } from '@/hooks/useData';
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target } from 'lucide-react';
 
 import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 
 export function InsightsTab() {
-  const [baseYear, setBaseYear] = useState<number>(new Date().getFullYear());
+  const [baseYear] = useState<number>(new Date().getFullYear());
   
   // Fetch last 3 years
   const { monthlyData: year1Data, loading: y1Loading } = useAnnualSummary(baseYear);
   const { monthlyData: year2Data, loading: y2Loading } = useAnnualSummary(baseYear - 1);
   const { monthlyData: year3Data, loading: y3Loading } = useAnnualSummary(baseYear - 2);
 
-  const calculateTotal = (data: any[], key: string) => Math.round(data.reduce((sum, d) => sum + (d[key] || 0), 0) || 0);
+  const calculateTotal = (data: Array<Record<string, number>>, key: string) => Math.round(data.reduce((sum, d) => sum + (d[key] || 0), 0) || 0);
 
   const { chartData, longTermTrends, loading } = useMemo(() => {
     if (y1Loading || y2Loading || y3Loading) {
@@ -63,16 +63,6 @@ export function InsightsTab() {
       } 
     };
   }, [year1Data, year2Data, year3Data, baseYear, y1Loading, y2Loading, y3Loading]);
-
-  // Derived messages
-  let growthMessage = "Insufficient data for long-term trends.";
-  if (longTermTrends && longTermTrends.overallGrowth > 0) {
-    growthMessage = `Your income has grown by ${longTermTrends.overallGrowth.toFixed(1)}% over the last 3 years.`;
-  } else if (longTermTrends && longTermTrends.overallGrowth < 0) {
-    growthMessage = `Your income has seen a slight dip or remained stable over the past 3 years.`;
-  } else {
-    growthMessage = `Your income has been very stable over the past 3 years.`;
-  }
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-2xl mx-auto pb-6 animate-in slide-in-from-bottom-[10px] fade-in duration-500">

@@ -10,7 +10,6 @@ import {
 } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useDate } from '@/context/DateContext';
 import {
   Plus,
   Search,
@@ -420,7 +419,15 @@ function DashboardCard({ children, className }: { children: React.ReactNode; cla
   );
 }
 
-function KPICard({ label, value, trend, trendUp, icon, isVisible, loading }: any) {
+interface KPICardProps {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  isVisible: boolean;
+  loading?: boolean;
+}
+
+function KPICard({ label, value, icon, isVisible, loading }: KPICardProps) {
   return (
     <DashboardCard className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-8">

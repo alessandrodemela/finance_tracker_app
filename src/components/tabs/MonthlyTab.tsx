@@ -3,7 +3,7 @@
 import React, { useMemo } from 'react';
 import { useDate } from '@/context/DateContext';
 import { useTransactions, useBudgetCategories, useBudgets, triggerRefresh } from '@/hooks/useData';
-import { Transaction, BudgetCategory } from '@/types/database';
+import { Transaction } from '@/types/database';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 
 import { useRouter } from 'next/navigation';

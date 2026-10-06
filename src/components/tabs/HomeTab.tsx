@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useTransactions, useBudgetCategories, useAccountBalances, useAccounts } from '@/hooks/useData';
 // import { useDate } from '@/context/DateContext'; // Removed as no longer needed for recent transactions filter
-import { Transaction, Account } from '@/types/database';
+import { Account } from '@/types/database';
 
 import { BalanceHero } from '@/components/ui/BalanceHero';
 import { NetWorthTimeRange, TimeRange } from '@/components/ui/NetWorthTimeRange';
@@ -12,7 +12,6 @@ import { AccountsAccordion } from '@/components/ui/AccountsAccordion';
 import { RecentTransactions } from '@/components/ui/RecentTransactions';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { PlusCircle } from 'lucide-react';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 
 interface HomeTabProps {
@@ -22,7 +21,7 @@ interface HomeTabProps {
 export function HomeTab({ isSensitiveVisible = true }: HomeTabProps) {
   const { transactions: recentTransactions, loading: txLoading } = useTransactions(3);
   const { budgetCategories, loading: catLoading } = useBudgetCategories();
-  const { accounts, addAccount, updateAccount, deleteAccount, loading: accLoading } = useAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount } = useAccounts();
   const { history, current: currentBalances } = useAccountBalances('2000-01-01');
 
   // Local State

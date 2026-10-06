@@ -65,8 +65,9 @@ export function BudgetTab() {
             `Copied ${copied} budgets${skipped > 0 ? ` (${skipped} skipped — already set)` : ''}.`,
             'success'
           );
-        } catch (err: any) {
-          showToast('Error copying budget: ' + err.message, 'error');
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          showToast('Error copying budget: ' + message, 'error');
         } finally {
           setIsCopying(false);
         }

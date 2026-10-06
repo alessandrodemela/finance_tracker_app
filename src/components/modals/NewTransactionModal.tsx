@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, ArrowDown, ArrowUp, Repeat, Plus, Save, Calendar, Wallet, Tag, FileText, ChevronRight, Trash2, List, Grid, Copy } from 'lucide-react';
-import { MovementType } from '@/types/database';
+import { MovementType, Transaction } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
-import { supabase } from '@/lib/supabase';
 import { financeService } from '@/lib/financeService';
 import { cn, getLocalDateString } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
@@ -99,7 +98,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
     setBulkRows([...bulkRows, newRow].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
   };
 
-  const updateBulkRow = (id: string, field: keyof BulkRow, value: any) => {
+  const updateBulkRow = <K extends keyof BulkRow>(id: string, field: K, value: BulkRow[K]) => {
     let newRows = bulkRows.map(r => r.id === id ? { ...r, [field]: value } : r);
     if (field === 'date') {
       newRows = newRows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -184,31 +183,31 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
 
         for (const row of validRows) {
           const amountNum = Math.round(Math.abs(parseFloat(row.amount.replace(',', '.'))) * 100) / 100;
-          const insertData: any = {
+          type BulkInsertData = Omit<Transaction, 'id' | 'created_at'>;
+
+          const insertData: BulkInsertData = {
             date: row.date,
             amount: amountNum,
             type: row.type,
-            notes: row.notes,
+            notes: row.notes || null,
             is_fixed: row.is_fixed,
             is_split: row.is_split,
             is_necessary: row.is_necessary,
+            from_account_id: row.type === 'transfer' ? (row.from_account_id || null) : null,
+            to_account_id: row.type === 'transfer' ? (row.to_account_id || null) : null,
+            account_id: row.type === 'transfer' ? null : (row.account_id || null),
+            category_id: row.type === 'transfer' ? null : (row.category_id || null),
+            budget_category_id: row.type === 'transfer' ? null : (row.budget_category_id || null),
           };
 
-          if (row.type === 'transfer') {
-            insertData.from_account_id = row.from_account_id;
-            insertData.to_account_id = row.to_account_id;
-          } else {
-            insertData.account_id = row.account_id;
-            insertData.category_id = row.category_id || null;
-            insertData.budget_category_id = row.budget_category_id || null;
-          }
           await financeService.recordTransaction(insertData);
         }
 
         setSubmitted(true);
         if (onSuccess) onSuccess();
-      } catch (err: any) {
-        showToast('Error: ' + err.message, 'error');
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        showToast('Error: ' + message, 'error');
       } finally {
         setIsBulkLoading(false);
       }
@@ -393,11 +392,15 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
 
                     {type === 'expense' && (
                       <div className="flex items-center gap-6 pt-4">
-                        {[{ id: 'is_fixed', label: 'Fixed' }, { id: 'is_split', label: 'Split' }, { id: 'is_necessary', label: 'Necessary' }].map(opt => (
+                        {([
+                          { id: 'is_fixed' as const, label: 'Fixed' },
+                          { id: 'is_split' as const, label: 'Split' },
+                          { id: 'is_necessary' as const, label: 'Necessary' }
+                        ]).map(opt => (
                           <label key={opt.id} className="flex items-center gap-3 cursor-pointer group select-none">
-                            <div className={cn("w-5 h-5 rounded-md border flex items-center justify-center transition-all", (formData as any)[opt.id] ? "bg-white border-white" : "bg-white/5 border-white/10 group-hover:border-white/20")}>
-                              {(formData as any)[opt.id] && <Plus size={14} className="text-black" />}
-                              <input type="checkbox" className="hidden" checked={(formData as any)[opt.id]} onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })} />
+                            <div className={cn("w-5 h-5 rounded-md border flex items-center justify-center transition-all", formData[opt.id] ? "bg-white border-white" : "bg-white/5 border-white/10 group-hover:border-white/20")}>
+                              {formData[opt.id] && <Plus size={14} className="text-black" />}
+                              <input type="checkbox" className="hidden" checked={formData[opt.id]} onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })} />
                             </div>
                             <span className="text-[10px] font-black text-[var(--color-brand-secondary)] group-hover:text-white uppercase tracking-[0.2em] transition-colors">{opt.label}</span>
                           </label>
@@ -445,7 +448,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                             <input type="checkbox" checked={!!row._ui_checked} onChange={e => updateBulkRow(row.id, '_ui_checked', e.target.checked)} className="w-4 h-4 rounded border-white/20 bg-white/5 accent-white cursor-pointer" />
                           </td>
                           <td className="p-2">
-                            <select value={row.type} onChange={e => updateBulkRow(row.id, 'type', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none cursor-pointer appearance-none font-bold uppercase tracking-widest text-[9px]">
+                            <select value={row.type} onChange={e => updateBulkRow(row.id, 'type', e.target.value as MovementType)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none cursor-pointer appearance-none font-bold uppercase tracking-widest text-[9px]">
                               <option value="expense" className="bg-[#0D0D0D]">Expense</option>
                               <option value="income" className="bg-[#0D0D0D]">Income</option>
                               <option value="transfer" className="bg-[#0D0D0D]">Transfer</option>
@@ -484,15 +487,19 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                           <td className="p-2">
                             {row.type === 'expense' && (
                               <div className="flex items-center gap-2">
-                                {[{ id: 'is_fixed', label: 'F' }, { id: 'is_split', label: 'S' }, { id: 'is_necessary', label: 'N' }].map(opt => (
+                                {([
+                                  { id: 'is_fixed' as const, label: 'F', title: 'Fixed' },
+                                  { id: 'is_split' as const, label: 'S', title: 'Split' },
+                                  { id: 'is_necessary' as const, label: 'N', title: 'Necessary' }
+                                ]).map(opt => (
                                   <button
                                     key={opt.id}
-                                    onClick={() => updateBulkRow(row.id, opt.id as keyof BulkRow, !(row as any)[opt.id])}
+                                    onClick={() => updateBulkRow(row.id, opt.id, !row[opt.id])}
                                     className={cn(
                                       "w-6 h-6 rounded flex items-center justify-center text-[8px] font-black border transition-all",
-                                      (row as any)[opt.id] ? "bg-white border-white text-black" : "bg-white/5 border-white/10 text-white/40 hover:border-white/30"
+                                      row[opt.id] ? "bg-white border-white text-black" : "bg-white/5 border-white/10 text-white/40 hover:border-white/30"
                                     )}
-                                    title={opt.label === 'F' ? 'Fixed' : opt.label === 'S' ? 'Split' : 'Necessary'}
+                                    title={opt.title}
                                   >
                                     {opt.label}
                                   </button>

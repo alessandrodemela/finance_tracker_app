@@ -1,10 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BottomNav } from '@/components/ui/BottomNav';
 import { Home, Calendar, BarChart3, TrendingUp } from 'lucide-react';
-import { HomeTab } from '@/components/tabs/HomeTab';
 import { MonthlyTab } from '@/components/tabs/MonthlyTab';
 import { YearlyTab } from '@/components/tabs/YearlyTab';
 import { InsightsTab } from '@/components/tabs/InsightsTab';
@@ -85,7 +84,7 @@ export default function Dashboard() {
 
       {/* Fixed bottom navigation (Mobile only) */}
       <div className="lg:hidden">
-        <BottomNav items={navItems.map(item => ({ ...item, icon: React.cloneElement(item.icon as React.ReactElement<any>, { size: 24 }) }))} />
+        <BottomNav items={navItems.map(item => ({ ...item, icon: React.cloneElement(item.icon as React.ReactElement<{ size?: number }>, { size: 24 }) }))} />
       </div>
     </div>
   );

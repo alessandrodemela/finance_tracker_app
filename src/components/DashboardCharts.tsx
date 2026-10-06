@@ -2,8 +2,19 @@
 
 import React from 'react';
 import {
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, AreaChart, Area, Cell, TooltipProps
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  Cell,
+  Pie,
+  PieChart,
+  Treemap,
 } from 'recharts';
 
 // Figma Brand Colors (True Dark)
@@ -27,17 +38,41 @@ const CHART_COLORS = [
   '#A1A1AA', // Zinc-400
 ];
 
-const CustomTooltip = ({ active, payload, label, isVisible = true }: any) => {
+const TREEMAP_BRAND_COLORS = [
+  '#1d1d2cff', // Indigo
+  '#0e445dff', // Sky
+  '#10B981', // Emerald
+  '#2b234eff', // Rose
+  '#8B5CF6', // Violet
+  '#03282eff', // Amber
+  '#06B6D4', // Cyan
+];
+
+interface TooltipPayloadItem {
+  name?: string;
+  value?: number;
+  color?: string;
+  payload?: { fill?: string };
+}
+
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayloadItem[];
+  label?: string;
+  isVisible?: boolean;
+}
+
+const CustomTooltip = ({ active, payload, label, isVisible = true }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
       <div className={`bg-[#0D0D0D] border border-white/10 p-4 rounded-xl shadow-2xl min-w-[160px] ${!isVisible ? 'blur-md' : ''}`}>
         <p className="text-[var(--color-brand-secondary)] text-xs font-bold uppercase tracking-widest mb-3">{label}</p>
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index) => (
           <div key={entry.name || index} className="flex items-center justify-between gap-6 mb-2 last:mb-0">
             <span className="text-[#E8EBF4] text-sm flex items-center gap-2">
               <span 
                 className="w-2 h-2 rounded-full" 
-                style={{ backgroundColor: entry.color || entry.payload.fill || COLORS.accent }} 
+                style={{ backgroundColor: entry.color || entry.payload?.fill || COLORS.accent }} 
               />
               {entry.name}
             </span>
@@ -52,7 +87,7 @@ const CustomTooltip = ({ active, payload, label, isVisible = true }: any) => {
   return null;
 };
 
-export const NetWorthChart = ({ data, isVisible = true }: { data: any[], isVisible?: boolean }) => {
+export const NetWorthChart = ({ data, isVisible = true }: { data: Array<{ name: string; amount: number; fullDate?: string }>; isVisible?: boolean }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
@@ -92,7 +127,7 @@ export const NetWorthChart = ({ data, isVisible = true }: { data: any[], isVisib
   );
 };
 
-export const MonthlyBreakdownChart = ({ data, isVisible = true }: { data: any[], isVisible?: boolean }) => {
+export const MonthlyBreakdownChart = ({ data, isVisible = true }: { data: Array<{ month: string; income: number; expenses: number; net: number }>; isVisible?: boolean }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }} barGap={8}>
@@ -119,7 +154,7 @@ export const MonthlyBreakdownChart = ({ data, isVisible = true }: { data: any[],
   );
 };
 
-export const CategoryBarChart = ({ data, isVisible = true }: { data: any[], isVisible?: boolean }) => {
+export const CategoryBarChart = ({ data, isVisible = true }: { data: Array<{ name: string; value: number }>; isVisible?: boolean }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data} layout="vertical" margin={{ top: 0, right: 30, left: 40, bottom: 0 }}>
@@ -135,73 +170,73 @@ export const CategoryBarChart = ({ data, isVisible = true }: { data: any[], isVi
         />
         <Tooltip content={<CustomTooltip isVisible={isVisible} />} cursor={{ fill: COLORS.secondaryText, opacity: 0.1 }} />
         <Bar dataKey="value" name="Amount" radius={[0, 4, 4, 0]} barSize={20}>
-          {data.map((entry: any, index: number) => (
+          {data.map((_, index: number) => (
             <Cell key={`cell-${index}`} fill={index === 0 ? COLORS.accent : COLORS.secondaryText} />
           ))}
         </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
-};// --- ORIGINAL COMPONENTS (RESTORED FOR COMPATIBILITY) ---
+};
 
-export const CategoryTreemap = ({ data }: { data: any[] }) => {
-  const BRAND_COLORS = [
-    '#1d1d2cff', // Indigo
-    '#0e445dff', // Sky
-    '#10B981', // Emerald
-    '#2b234eff', // Rose
-    '#8B5CF6', // Violet
-    '#03282eff', // Amber
-    '#06B6D4', // Cyan
-  ];
+interface TreemapContentProps {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  index?: number;
+  name?: string;
+  value?: number;
+}
 
-  const CustomizedContent = (props: any) => {
-    const { x, y, width, height, index, name, value } = props;
-    if (width < 32 || height < 20) return null;
+const CustomizedTreemapContent = (props: TreemapContentProps) => {
+  const { x = 0, y = 0, width = 0, height = 0, index = 0, name = '', value = 0 } = props;
+  if (width < 32 || height < 20) return null;
 
-    return (
-      <g>
-        <rect
-          x={x}
-          y={y}
-          width={width}
-          height={height}
-          rx={6}
-          ry={6}
-          style={{
-            fill: BRAND_COLORS[index % BRAND_COLORS.length],
-            stroke: 'rgba(13, 13, 18, 0.4)',
-            strokeWidth: 1.5,
-          }}
-        />
-        <text
-          x={x + width / 2}
-          y={y + height / 2 - 4}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="#000000"
-          fontSize={Math.min(width / 8, 11)}
-          fontWeight="50"
-          style={{ pointerEvents: 'none', opacity: 0.9 }}
-        >
-          {name}
-        </text>
-        <text
-          x={x + width / 2}
-          y={y + height / 2 + 10}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="rgba(0,0,0,0.7)"
-          fontSize={Math.min(width / 8, 9)}
-          fontWeight="150"
-          style={{ pointerEvents: 'none' }}
-        >
-          €{value.toFixed(0)}
-        </text>
-      </g>
-    );
-  };
+  return (
+    <g>
+      <rect
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        rx={6}
+        ry={6}
+        style={{
+          fill: TREEMAP_BRAND_COLORS[index % TREEMAP_BRAND_COLORS.length],
+          stroke: 'rgba(13, 13, 18, 0.4)',
+          strokeWidth: 1.5,
+        }}
+      />
+      <text
+        x={x + width / 2}
+        y={y + height / 2 - 4}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="#000000"
+        fontSize={Math.min(width / 8, 11)}
+        fontWeight="50"
+        style={{ pointerEvents: 'none', opacity: 0.9 }}
+      >
+        {name}
+      </text>
+      <text
+        x={x + width / 2}
+        y={y + height / 2 + 10}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fill="rgba(0,0,0,0.7)"
+        fontSize={Math.min(width / 8, 9)}
+        fontWeight="150"
+        style={{ pointerEvents: 'none' }}
+      >
+        €{value.toFixed(0)}
+      </text>
+    </g>
+  );
+};
 
+export const CategoryTreemap = ({ data }: { data: Array<{ name: string; value: number }> }) => {
   return (
     <ResponsiveContainer width="100%" height="100%">
       <Treemap
@@ -210,7 +245,7 @@ export const CategoryTreemap = ({ data }: { data: any[] }) => {
         stroke="#fff"
         fill="#6366F1"
         isAnimationActive={true}
-        content={<CustomizedContent />}
+        content={<CustomizedTreemapContent />}
       >
         <Tooltip content={<CustomTooltip />} />
       </Treemap>
@@ -218,7 +253,7 @@ export const CategoryTreemap = ({ data }: { data: any[] }) => {
   );
 };
 
-export const CategoryPieChart = ({ data }: { data: any[] }) => (
+export const CategoryPieChart = ({ data }: { data: Array<{ name: string; value: number }> }) => (
   <ResponsiveContainer width="100%" height="100%">
     <PieChart>
       <Pie
@@ -231,7 +266,7 @@ export const CategoryPieChart = ({ data }: { data: any[] }) => (
         dataKey="value"
         stroke="none"
       >
-        {data.map((entry: any, index: number) => (
+        {data.map((_, index: number) => (
           <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
         ))}
       </Pie>
@@ -240,7 +275,7 @@ export const CategoryPieChart = ({ data }: { data: any[] }) => (
   </ResponsiveContainer>
 );
 
-export const SpendingTrendChart = ({ data }: { data: any[] }) => (
+export const SpendingTrendChart = ({ data }: { data: Array<{ name: string; amount: number }> }) => (
   <ResponsiveContainer width="100%" height="100%">
     <AreaChart data={data}>
       <defs>
@@ -280,6 +315,3 @@ export const SpendingTrendChart = ({ data }: { data: any[] }) => (
     </AreaChart>
   </ResponsiveContainer>
 );
-
-import { Pie, PieChart, Treemap } from 'recharts';
-

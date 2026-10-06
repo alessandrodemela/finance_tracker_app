@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import { useAnnualSummary, useBudgetCategories } from '@/hooks/useData';
+import { useAnnualSummary } from '@/hooks/useData';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 import { YearlyKPICards } from '@/components/ui/YearlyKPICards';
@@ -10,6 +10,12 @@ import { TrendComparisonChart } from '@/components/ui/TrendComparisonChart';
 import { CategoryTreemap } from '@/components/DashboardCharts';
 import { MonthlyBreakdownTable, MonthlyBreakdownRow } from '@/components/ui/MonthlyBreakdownTable';
 
+interface MonthlyMetricItem {
+  income: number;
+  expense: number;
+  [key: string]: number;
+}
+
 export function YearlyTab() {
   const [year, setYear] = useState<number>(new Date().getFullYear());
   
@@ -17,7 +23,7 @@ export function YearlyTab() {
   const { monthlyData: currentYearData, categoryData, loading: cyLoading } = useAnnualSummary(year);
   const { monthlyData: prevYearData, loading: pyLoading } = useAnnualSummary(year - 1);
 
-  const calculateTotal = (data: any[], key: string) => data.reduce((sum, d) => sum + (d[key] || 0), 0);
+  const calculateTotal = (data: MonthlyMetricItem[], key: string) => data.reduce((sum, d) => sum + (d[key] || 0), 0);
   const calculateChange = (current: number, previous: number) => {
     if (previous === 0) return current > 0 ? 100 : 0;
     return ((current - previous) / previous) * 100;
@@ -47,9 +53,9 @@ export function YearlyTab() {
     
     let bestMonth = { month: 'N/A', amount: -Infinity };
     const breakdownRows: MonthlyBreakdownRow[] = [];
-    const trends: any[] = [];
+    const trends: Array<{ month: string; income: number; expense: number }> = [];
     
-    currentYearData.forEach((d: any, i) => {
+    currentYearData.forEach((d: MonthlyMetricItem, i) => {
       const monthName = months[i];
       const net = d.income - d.expense;
       const rate = d.income > 0 ? (net / d.income) * 100 : 0;
@@ -92,7 +98,7 @@ export function YearlyTab() {
 
   }, [currentYearData, prevYearData, categoryData]);
 
-  if (cyLoading) {
+  if (cyLoading || pyLoading) {
     return <div className="text-center py-10 text-[var(--color-brand-secondary)]">Loading yearly data...</div>;
   }
 

@@ -9,7 +9,6 @@ import { useDate } from '@/context/DateContext';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 import { ChevronLeft, Search, Download, Calendar, Check } from 'lucide-react';
 import { TransactionCard } from '@/components/ui/TransactionCard';
-import { Button } from '@/components/ui/Button';
 import { Transaction } from '@/types/database';
 
 export default function TransactionsPage() {

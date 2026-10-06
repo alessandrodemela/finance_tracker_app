@@ -66,24 +66,22 @@ export function useTransactionSubmit() {
         budgetCategoryId = newCat.id;
       }
 
-      const txData: any = {
+      type TxInsertData = Omit<Transaction, 'id' | 'created_at'>;
+
+      const txData: TxInsertData = {
         date: formData.date,
         amount: amountNum,
         type: type,
-        notes: formData.notes,
+        notes: formData.notes || null,
         is_fixed: formData.is_fixed,
         is_split: formData.is_split,
         is_necessary: formData.is_necessary,
+        account_id: type === 'transfer' ? null : (formData.account_id || null),
+        category_id: type === 'transfer' ? null : (categoryId || null),
+        budget_category_id: type === 'transfer' ? null : (budgetCategoryId || null),
+        from_account_id: type === 'transfer' ? (formData.from_account_id || null) : null,
+        to_account_id: type === 'transfer' ? (formData.to_account_id || null) : null,
       };
-
-      if (type === 'transfer') {
-        txData.from_account_id = formData.from_account_id;
-        txData.to_account_id = formData.to_account_id;
-      } else {
-        txData.account_id = formData.account_id;
-        txData.category_id = categoryId;
-        txData.budget_category_id = budgetCategoryId || null;
-      }
 
       if (oldTx) {
         await financeService.updateTransaction(oldTx, txData);

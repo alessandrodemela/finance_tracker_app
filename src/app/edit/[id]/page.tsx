@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { ChevronLeft, Save, Trash2, Plus, X, ArrowDown, ArrowUp, Repeat } from 'lucide-react';
+import { ChevronLeft, Trash2, Plus, X, ArrowDown, ArrowUp, Repeat } from 'lucide-react';
 import { MovementType, Transaction } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { supabase } from '@/lib/supabase';
@@ -118,8 +118,9 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
         triggerRefresh();
         router.push('/transactions');
         router.refresh();
-      } catch (error: any) {
-        showToast('Error deleting: ' + error.message, 'error');
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        showToast('Error deleting: ' + message, 'error');
         setSaving(false);
       }
     });
@@ -320,22 +321,22 @@ export default function EditTransaction({ params }: { params: Promise<{ id: stri
             {type === 'expense' && (
               <div className="flex items-center justify-between px-2 pt-2">
                 {[
-                  { id: 'is_fixed', label: 'Fixed' },
-                  { id: 'is_split', label: 'Split' },
-                  { id: 'is_necessary', label: 'Necessary' }
+                  { id: 'is_fixed' as const, label: 'Fixed' },
+                  { id: 'is_split' as const, label: 'Split' },
+                  { id: 'is_necessary' as const, label: 'Necessary' }
                 ].map(opt => (
                   <label key={opt.id} className="flex items-center gap-2 cursor-pointer group">
                     <div className={cn(
                       "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
-                      (formData as any)[opt.id]
+                      formData[opt.id]
                         ? "bg-[var(--color-brand-accent)] border-[var(--color-brand-accent)]"
                         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] group-hover:border-[rgba(255,255,255,0.3)]"
                     )}>
-                      {(formData as any)[opt.id] && <Plus size={14} className="text-white" />}
+                      {formData[opt.id] && <Plus size={14} className="text-white" />}
                       <input
                         type="checkbox"
                         className="hidden"
-                        checked={(formData as any)[opt.id]}
+                        checked={formData[opt.id]}
                         onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })}
                       />
                     </div>

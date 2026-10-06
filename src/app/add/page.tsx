@@ -2,17 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { ChevronLeft, Save, Plus, X, ArrowDown, ArrowUp, Repeat } from 'lucide-react';
 import { MovementType } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
-import { supabase } from '@/lib/supabase';
-import { financeService } from '@/lib/financeService';
 import { cn } from '@/lib/utils';
-import { showToast } from '@/components/ui/GlobalUI';
 import { useTransactionSubmit } from '@/hooks/useTransactionSubmit';
 
 export default function AddTransaction() {
@@ -20,7 +16,7 @@ export default function AddTransaction() {
   const { accounts } = useAccounts();
   const [type, setType] = useState<MovementType>('expense');
   const { categories } = useCategories(type as 'income' | 'expense');
-  const { budgetCategories, setBudgetCategories } = useBudgetCategories();
+  const { budgetCategories } = useBudgetCategories();
   const { submitTransaction, loading } = useTransactionSubmit();
   const [submitted, setSubmitted] = useState(false);
   const [lastAccountId, setLastAccountId] = useState<string>('');
@@ -281,22 +277,22 @@ export default function AddTransaction() {
             {type === 'expense' && (
               <div className="flex items-center justify-between px-2 pt-2">
                 {[
-                  { id: 'is_fixed', label: 'Fixed' },
-                  { id: 'is_split', label: 'Split' },
-                  { id: 'is_necessary', label: 'Necessary' }
+                  { id: 'is_fixed' as const, label: 'Fixed' },
+                  { id: 'is_split' as const, label: 'Split' },
+                  { id: 'is_necessary' as const, label: 'Necessary' }
                 ].map(opt => (
                   <label key={opt.id} className="flex items-center gap-2 cursor-pointer group">
                     <div className={cn(
                       "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
-                      (formData as any)[opt.id]
+                      formData[opt.id]
                         ? "bg-[var(--color-brand-accent)] border-[var(--color-brand-accent)]"
                         : "bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] group-hover:border-[rgba(255,255,255,0.3)]"
                     )}>
-                      {(formData as any)[opt.id] && <Plus size={14} className="text-white" />}
+                      {formData[opt.id] && <Plus size={14} className="text-white" />}
                       <input
                         type="checkbox"
                         className="hidden"
-                        checked={(formData as any)[opt.id]}
+                        checked={formData[opt.id]}
                         onChange={(e) => setFormData({ ...formData, [opt.id]: e.target.checked })}
                       />
                     </div>
