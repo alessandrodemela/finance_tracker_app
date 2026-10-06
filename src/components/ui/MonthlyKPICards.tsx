@@ -1,5 +1,6 @@
 import React from 'react';
-import { ArrowUpRight, ArrowDownRight, Equal, Percent } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from 'lucide-react';
+import { DashboardCard } from '@/components/ui/DashboardCard';
 import { cn } from '@/lib/utils';
 
 interface MonthlyKPICardsProps {
@@ -18,75 +19,88 @@ export function MonthlyKPICards({
   isSensitiveVisible = true 
 }: MonthlyKPICardsProps) {
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
       {/* INCOME */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">INCOME</span>
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <ArrowUpRight className="text-emerald-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <ArrowUpRight className="text-[var(--color-brand-success)] w-5 h-5" />
           </div>
         </div>
-        <div className={cn(
-          "text-xl lg:text-2xl font-bold text-white font-mono tracking-tight transition-all",
-          !isSensitiveVisible && "blur-md select-none"
-        )}>
-          €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Total Income
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
+            !isSensitiveVisible && "blur-lg select-none"
+          )}>
+            €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </h2>
         </div>
-      </div>
+      </DashboardCard>
 
       {/* EXPENSES */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">EXPENSES</span>
-          <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-            <ArrowDownRight className="text-rose-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <ArrowDownRight className="text-[var(--color-brand-danger)] w-5 h-5" />
           </div>
         </div>
-        <div className={cn(
-          "text-xl lg:text-2xl font-bold text-white font-mono tracking-tight transition-all",
-          !isSensitiveVisible && "blur-md select-none"
-        )}>
-          €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </div>
-      </div>
-
-      {/* NET */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">NET BALANCE</span>
-          <div className={cn(
-            "w-8 h-8 rounded-xl border flex items-center justify-center",
-            net >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Total Expenses
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
+            !isSensitiveVisible && "blur-lg select-none"
           )}>
-            <Equal className={cn("w-4 h-4", net >= 0 ? "text-emerald-400" : "text-rose-400")} />
+            €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </h2>
+        </div>
+      </DashboardCard>
+
+      {/* NET BALANCE */}
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <TrendingUp className={cn("w-5 h-5", net >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]")} />
           </div>
         </div>
-        <div className={cn(
-          "text-xl lg:text-2xl font-bold font-mono tracking-tight transition-all",
-          net >= 0 ? "text-white" : "text-rose-400",
-          !isSensitiveVisible && "blur-md select-none"
-        )}>
-          {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Net Savings
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
+            net < 0 && "text-[var(--color-brand-danger)]",
+            !isSensitiveVisible && "blur-lg select-none"
+          )}>
+            {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </h2>
         </div>
-      </div>
+      </DashboardCard>
 
       {/* SAVINGS RATE */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-3">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">SAVINGS RATE</span>
-          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-            <Percent className="text-cyan-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <Percent className="text-cyan-400 w-5 h-5" />
           </div>
         </div>
-        <div className={cn(
-          "text-xl lg:text-2xl font-bold font-mono tracking-tight transition-all",
-          (savingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
-          !isSensitiveVisible && "blur-md select-none"
-        )}>
-          {savingsRate !== undefined ? `${savingsRate >= 0 ? '+' : ''}${savingsRate.toFixed(1)}%` : '0.0%'}
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Savings Rate
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold tracking-tight font-mono text-white transition-all",
+            (savingsRate ?? 0) >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]",
+            !isSensitiveVisible && "blur-lg select-none"
+          )}>
+            {savingsRate !== undefined ? `${savingsRate >= 0 ? '+' : ''}${savingsRate.toFixed(1)}%` : '0.0%'}
+          </h2>
         </div>
-      </div>
+      </DashboardCard>
     </div>
   );
 }

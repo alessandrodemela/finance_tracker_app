@@ -5,6 +5,7 @@ import { useAnnualSummary } from '@/hooks/useData';
 import { TrendingUp, TrendingDown, Target, Zap, ArrowUpRight, ArrowDownRight, Eye, EyeOff } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageContainer, DashboardGrid, GridCol } from '@/components/ui/DashboardGrid';
+import { DashboardCard } from '@/components/ui/DashboardCard';
 import { YearSelector } from '@/components/ui/YearSelector';
 import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 import { CategoryPieChart } from '@/components/DashboardCharts';
@@ -122,154 +123,159 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
         ) : (
           <>
             {/* 3-Year Aggregate KPI Cards Row */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {/* 3-Year Total Income */}
-              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">3-YEAR INCOME</span>
-                  <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                    <ArrowUpRight className="text-emerald-400 w-4 h-4" />
+              <DashboardCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+                    <ArrowUpRight className="text-[var(--color-brand-success)] w-5 h-5" />
                   </div>
                 </div>
                 <div>
-                  <span className={cn(
-                    "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
-                    !isSensitiveVisible && "blur-md select-none"
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+                    3-Year Income
+                  </p>
+                  <h2 className={cn(
+                    "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
+                    !isSensitiveVisible && "blur-lg select-none"
                   )}>
                     €{totalIncome.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </span>
+                  </h2>
                   <div className={cn(
-                    "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1.5",
-                    (longTermTrends?.incomeGrowth ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"
+                    "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-2",
+                    (longTermTrends?.incomeGrowth ?? 0) >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]"
                   )}>
                     {(longTermTrends?.incomeGrowth ?? 0) >= 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
                     <span>{Math.abs(longTermTrends?.incomeGrowth ?? 0).toFixed(1)}% 3-yr growth</span>
                   </div>
                 </div>
-              </div>
+              </DashboardCard>
 
               {/* 3-Year Total Expense */}
-              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">3-YEAR EXPENSES</span>
-                  <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-                    <ArrowDownRight className="text-rose-400 w-4 h-4" />
+              <DashboardCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+                    <ArrowDownRight className="text-[var(--color-brand-danger)] w-5 h-5" />
                   </div>
                 </div>
                 <div>
-                  <span className={cn(
-                    "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
-                    !isSensitiveVisible && "blur-md select-none"
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+                    3-Year Expenses
+                  </p>
+                  <h2 className={cn(
+                    "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
+                    !isSensitiveVisible && "blur-lg select-none"
                   )}>
                     €{totalExpense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </span>
+                  </h2>
                   <div className={cn(
-                    "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1.5",
-                    (longTermTrends?.expenseGrowth ?? 0) <= 0 ? "text-emerald-400" : "text-rose-400"
+                    "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-2",
+                    (longTermTrends?.expenseGrowth ?? 0) <= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]"
                   )}>
                     {(longTermTrends?.expenseGrowth ?? 0) >= 0 ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
                     <span>{Math.abs(longTermTrends?.expenseGrowth ?? 0).toFixed(1)}% 3-yr shift</span>
                   </div>
                 </div>
-              </div>
+              </DashboardCard>
 
               {/* 3-Year Net Savings */}
-              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">3-YEAR NET SAVINGS</span>
-                  <div className={cn(
-                    "w-8 h-8 rounded-xl border flex items-center justify-center",
-                    totalNet >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
-                  )}>
-                    <Target className={cn("w-4 h-4", totalNet >= 0 ? "text-emerald-400" : "text-rose-400")} />
+              <DashboardCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+                    <Target className={cn("w-5 h-5", totalNet >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]")} />
                   </div>
                 </div>
                 <div>
-                  <span className={cn(
-                    "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
-                    totalNet >= 0 ? "text-white" : "text-rose-400",
-                    !isSensitiveVisible && "blur-md select-none"
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+                    3-Year Net Savings
+                  </p>
+                  <h2 className={cn(
+                    "text-2xl lg:text-3xl font-bold font-mono tracking-tight block transition-all",
+                    totalNet >= 0 ? "text-white" : "text-[var(--color-brand-danger)]",
+                    !isSensitiveVisible && "blur-lg select-none"
                   )}>
                     {totalNet < 0 ? '-' : ''}€{Math.abs(totalNet).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
-                  </span>
+                  </h2>
                   <div className={cn(
-                    "text-[11px] font-semibold text-slate-400 mt-1.5 transition-all",
+                    "text-[11px] font-semibold text-slate-400 mt-2 transition-all",
                     !isSensitiveVisible && "blur-sm select-none"
                   )}>
                     Avg €{(longTermTrends?.avgAnnualNet ?? 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}/yr
                   </div>
                 </div>
-              </div>
+              </DashboardCard>
 
               {/* Overall Savings Rate */}
-              <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">AVG SAVINGS RATE</span>
-                  <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <Zap className="text-cyan-400 w-4 h-4" />
+              <DashboardCard className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+                    <Zap className="text-cyan-400 w-5 h-5" />
                   </div>
                 </div>
                 <div>
-                  <span className={cn(
-                    "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
-                    (longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
-                    !isSensitiveVisible && "blur-md select-none"
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+                    Avg Savings Rate
+                  </p>
+                  <h2 className={cn(
+                    "text-2xl lg:text-3xl font-bold font-mono tracking-tight block transition-all",
+                    (longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]",
+                    !isSensitiveVisible && "blur-lg select-none"
                   )}>
                     {(longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? '+' : ''}
                     {(longTermTrends?.threeYearSavingsRate ?? 0).toFixed(1)}%
-                  </span>
-                  <div className="text-[11px] font-semibold text-slate-400 mt-1.5">
+                  </h2>
+                  <div className="text-[11px] font-semibold text-slate-400 mt-2">
                     Across 3-year window
                   </div>
                 </div>
-              </div>
+              </DashboardCard>
             </div>
 
             {/* 12-Column Responsive Dashboard Layout */}
             <DashboardGrid>
               {/* Main Column (8 cols): 3-Year Comparison Chart */}
               <GridCol span={8} className="space-y-6">
-                <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-                  <div className="flex items-center justify-between mb-5">
+                <DashboardCard>
+                  <div className="flex items-center justify-between mb-8">
                     <div>
-                      <h3 className="text-base font-semibold text-white tracking-tight">3-Year Trend Comparison</h3>
-                      <p className="text-xs text-slate-400">Income vs expense totals from {baseYear - 2} to {baseYear}</p>
+                      <h3 className="text-white font-bold text-lg">3-Year Trend Comparison</h3>
+                      <p className="text-[var(--color-brand-secondary)] text-sm">Income vs expense totals from {baseYear - 2} to {baseYear}</p>
                     </div>
                   </div>
-                  <div className="h-[280px] w-full">
+                  <div className="h-[300px] w-full">
                     <MultiYearComparisonChart data={chartData} />
                   </div>
-                </div>
+                </DashboardCard>
               </GridCol>
 
               {/* Secondary Column (4 cols): Category Distribution & Summary Stats */}
               <GridCol span={4} className="space-y-6">
                 {/* Year Category Distribution */}
-                <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-                  <div className="flex items-center justify-between mb-3">
+                <DashboardCard>
+                  <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-base font-semibold text-white tracking-tight">Category Distribution</h3>
-                      <p className="text-xs text-slate-400">Expense breakdown for {baseYear}</p>
+                      <h3 className="text-white font-bold text-lg">Category Distribution</h3>
+                      <p className="text-[var(--color-brand-secondary)] text-sm">Expense breakdown for {baseYear}</p>
                     </div>
                   </div>
-                  <div className="h-[220px] w-full flex items-center justify-center">
+                  <div className="h-[230px] w-full flex items-center justify-center">
                     {year1Categories.length === 0 ? (
                       <div className="text-slate-500 text-xs">No category data for {baseYear}</div>
                     ) : (
                       <CategoryPieChart data={year1Categories} />
                     )}
                   </div>
-                </div>
+                </DashboardCard>
 
                 {/* Annual Financial Health Metric */}
-                <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-                  <h3 className="text-base font-semibold text-white tracking-tight mb-3">Long-term Velocity</h3>
+                <DashboardCard>
+                  <h3 className="text-white font-bold text-lg mb-4">Long-term Velocity</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-black/40 border border-white/5">
                       <span className="text-xs text-slate-400">Net Savings Growth</span>
                       <span className={cn(
                         "text-xs font-mono font-bold transition-all",
-                        (longTermTrends?.savingsGrowth ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
+                        (longTermTrends?.savingsGrowth ?? 0) >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]",
                         !isSensitiveVisible && "blur-sm select-none"
                       )}>
                         {(longTermTrends?.savingsGrowth ?? 0) >= 0 ? '+' : ''}
@@ -277,7 +283,7 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
+                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-black/40 border border-white/5">
                       <span className="text-xs text-slate-400">Annual Average Net</span>
                       <span className={cn(
                         "text-xs font-mono font-bold text-white transition-all",
@@ -287,7 +293,7 @@ export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }
                       </span>
                     </div>
                   </div>
-                </div>
+                </DashboardCard>
               </GridCol>
             </DashboardGrid>
           </>

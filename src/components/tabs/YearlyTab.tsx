@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { useAnnualSummary } from '@/hooks/useData';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageContainer, DashboardGrid, GridCol } from '@/components/ui/DashboardGrid';
+import { DashboardCard } from '@/components/ui/DashboardCard';
 import { YearSelector } from '@/components/ui/YearSelector';
 import { YearlyKPICards } from '@/components/ui/YearlyKPICards';
 import { InsightsSection, InsightData } from '@/components/ui/InsightsSection';
@@ -161,65 +162,65 @@ export function YearlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }: 
           {/* Main Column (8 cols): Charts & Breakdown Table */}
           <GridCol span={8} className="space-y-6">
             {/* Trend Chart or Multi-Year Compare Chart */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-              <div className="flex items-center justify-between mb-5">
+            <DashboardCard>
+              <div className="flex items-center justify-between mb-8">
                 <div>
-                  <h3 className="text-base font-semibold text-white tracking-tight">
+                  <h3 className="text-white font-bold text-lg">
                     {showMultiYear ? 'Multi-Year Comparison' : 'Income vs Expense Trend'}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-[var(--color-brand-secondary)] text-sm">
                     {showMultiYear 
                       ? 'Annual totals comparison across recent years' 
                       : `Month-by-month cash flow trajectory for ${year}`}
                   </p>
                 </div>
               </div>
-              <div className="h-[250px] w-full">
+              <div className="h-[280px] w-full">
                 {showMultiYear ? (
                   <MultiYearComparisonChart data={multiYearData} />
                 ) : (
                   <TrendComparisonChart data={chartData} />
                 )}
               </div>
-            </div>
+            </DashboardCard>
 
             {/* Monthly Breakdown Detailed Table */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-              <div className="flex items-center justify-between mb-4">
+            <DashboardCard>
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-base font-semibold text-white tracking-tight">Monthly Breakdown</h3>
-                  <p className="text-xs text-slate-400">Detailed month-by-month financial statement</p>
+                  <h3 className="text-white font-bold text-lg">Monthly Breakdown</h3>
+                  <p className="text-[var(--color-brand-secondary)] text-sm">Detailed month-by-month financial statement</p>
                 </div>
               </div>
               <MonthlyBreakdownTable data={tableData} isSensitiveVisible={isSensitiveVisible} />
-            </div>
+            </DashboardCard>
           </GridCol>
 
           {/* Secondary Column (4 cols): Insights & Expense Distribution */}
           <GridCol span={4} className="space-y-6">
             {/* Key Annual Insights */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-base font-semibold text-white tracking-tight">Yearly Highlights</h3>
-                <span className="text-xs font-mono text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-md border border-slate-700/50">
+            <DashboardCard>
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-white font-bold text-lg">Yearly Highlights</h3>
+                <span className="text-xs font-mono text-slate-400 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
                   {year}
                 </span>
               </div>
               <InsightsSection data={insights} isSensitiveVisible={isSensitiveVisible} />
-            </div>
+            </DashboardCard>
 
             {/* Category Expense Distribution Treemap */}
-            <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-5 lg:p-6 backdrop-blur-md">
-              <div className="flex items-center justify-between mb-3">
+            <DashboardCard>
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-base font-semibold text-white tracking-tight">Expense Distribution</h3>
-                  <p className="text-xs text-slate-400">Category breakdown for {year}</p>
+                  <h3 className="text-white font-bold text-lg">Expense Distribution</h3>
+                  <p className="text-[var(--color-brand-secondary)] text-sm">Category breakdown for {year}</p>
                 </div>
               </div>
               <div className="h-[280px] w-full mt-2">
                 <CategoryTreemap data={categoryData} />
               </div>
-            </div>
+            </DashboardCard>
           </GridCol>
         </DashboardGrid>
       </PageContainer>

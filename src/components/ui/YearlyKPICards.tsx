@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, TrendingUp, Percent } from 'lucide-react';
+import { DashboardCard } from '@/components/ui/DashboardCard';
 import { cn } from '@/lib/utils';
 
 interface YearlyKPICardsProps {
@@ -22,8 +23,8 @@ export function YearlyKPICards({
     const isGood = invertColors ? !isPositive : isPositive;
     return (
       <div className={cn(
-        "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1.5",
-        isGood ? 'text-emerald-400' : 'text-rose-400',
+        "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-2",
+        isGood ? 'text-[var(--color-brand-success)]' : 'text-[var(--color-brand-danger)]',
         !isSensitiveVisible && "blur-sm select-none"
       )}>
         {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
@@ -33,87 +34,92 @@ export function YearlyKPICards({
   };
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Income */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">INCOME</span>
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-            <ArrowUpRight className="text-emerald-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <ArrowUpRight className="text-[var(--color-brand-success)] w-5 h-5" />
           </div>
         </div>
         <div>
-          <span className={cn(
-            "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
-            !isSensitiveVisible && "blur-md select-none"
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Total Income
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
+            !isSensitiveVisible && "blur-lg select-none"
           )}>
             €{income.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+          </h2>
           {renderTrend(income.trend)}
         </div>
-      </div>
+      </DashboardCard>
 
       {/* Expenses */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">EXPENSES</span>
-          <div className="w-8 h-8 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center">
-            <ArrowDownRight className="text-rose-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <ArrowDownRight className="text-[var(--color-brand-danger)] w-5 h-5" />
           </div>
         </div>
         <div>
-          <span className={cn(
-            "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
-            !isSensitiveVisible && "blur-md select-none"
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Total Expenses
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl text-white font-bold font-mono tracking-tight block transition-all",
+            !isSensitiveVisible && "blur-lg select-none"
           )}>
             €{expenses.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+          </h2>
           {renderTrend(expenses.trend, true)}
         </div>
-      </div>
+      </DashboardCard>
 
       {/* Net Savings */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">NET SAVINGS</span>
-          <div className={cn(
-            "w-8 h-8 rounded-xl border flex items-center justify-center",
-            net.value >= 0 ? "bg-emerald-500/10 border-emerald-500/20" : "bg-rose-500/10 border-rose-500/20"
-          )}>
-            <TrendingUp className={cn("w-4 h-4", net.value >= 0 ? "text-emerald-400" : "text-rose-400")} />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <TrendingUp className={cn("w-5 h-5", net.value >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]")} />
           </div>
         </div>
         <div>
-          <span className={cn(
-            "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
-            net.value >= 0 ? "text-white" : "text-rose-400",
-            !isSensitiveVisible && "blur-md select-none"
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Net Savings
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold font-mono tracking-tight block transition-all",
+            net.value >= 0 ? "text-white" : "text-[var(--color-brand-danger)]",
+            !isSensitiveVisible && "blur-lg select-none"
           )}>
             {net.value < 0 ? '-' : ''}€{Math.abs(net.value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
+          </h2>
           {renderTrend(net.trend)}
         </div>
-      </div>
+      </DashboardCard>
 
       {/* Savings Rate */}
-      <div className="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-4 lg:p-5 relative overflow-hidden backdrop-blur-md group hover:border-slate-700/80 transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold tracking-widest text-slate-400 uppercase">SAVINGS RATE</span>
-          <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-            <Percent className="text-cyan-400 w-4 h-4" />
+      <DashboardCard className="p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-12 h-12 rounded-2xl flex items-center justify-center border bg-white/5 border-white/10 transition-colors">
+            <Percent className="text-cyan-400 w-5 h-5" />
           </div>
         </div>
         <div>
-          <span className={cn(
-            "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
-            savingsRate.value >= 0 ? "text-emerald-400" : "text-rose-400",
-            !isSensitiveVisible && "blur-md select-none"
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-2 text-[var(--color-brand-secondary)]">
+            Savings Rate
+          </p>
+          <h2 className={cn(
+            "text-2xl lg:text-3xl font-bold font-mono tracking-tight block transition-all",
+            savingsRate.value >= 0 ? "text-[var(--color-brand-success)]" : "text-[var(--color-brand-danger)]",
+            !isSensitiveVisible && "blur-lg select-none"
           )}>
             {savingsRate.value >= 0 ? '+' : ''}{savingsRate.value.toFixed(1)}%
-          </span>
+          </h2>
           {renderTrend(savingsRate.trend)}
         </div>
-      </div>
+      </DashboardCard>
     </div>
   );
 }

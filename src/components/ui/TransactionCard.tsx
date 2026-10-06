@@ -38,7 +38,7 @@ export function TransactionCard({
   return (
     <div 
       className={cn(
-        "rounded-xl border border-slate-800/80 bg-slate-950/60 p-3 flex flex-col gap-2 transition-all relative overflow-hidden group hover:border-slate-700/80 hover:bg-slate-900/60",
+        "rounded-2xl border border-white/5 bg-black/40 p-3.5 flex flex-col gap-2 transition-all relative overflow-hidden group hover:border-white/10 hover:bg-white/[0.02]",
         className
       )}
       {...props}

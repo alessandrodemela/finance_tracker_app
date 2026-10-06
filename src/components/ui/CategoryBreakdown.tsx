@@ -54,7 +54,7 @@ export function CategoryBreakdown({ items, loading = false, isSensitiveVisible =
   return (
     <div className="space-y-6">
       {/* Top summary header with total budget quota reached */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl bg-slate-950/50 border border-slate-800/80">
+      <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-black/40 border border-white/5">
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Total Budget Utilization</span>
           <div className="flex items-baseline gap-2 mt-0.5">

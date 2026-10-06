@@ -19,15 +19,15 @@ export function MonthlyBreakdownTable({ data, isSensitiveVisible = true }: Month
     <div className="overflow-x-auto custom-scrollbar">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="border-b border-slate-800 bg-slate-950/40 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-            <th className="py-3 px-3">Month</th>
-            <th className="py-3 px-3 text-right">Income</th>
-            <th className="py-3 px-3 text-right">Expense</th>
-            <th className="py-3 px-3 text-right">Net</th>
-            <th className="py-3 px-3 text-right">Savings %</th>
+          <tr className="border-b border-white/10 bg-black/40 text-[10px] font-extrabold uppercase tracking-wider text-[var(--color-brand-secondary)]">
+            <th className="py-3.5 px-3">Month</th>
+            <th className="py-3.5 px-3 text-right">Income</th>
+            <th className="py-3.5 px-3 text-right">Expense</th>
+            <th className="py-3.5 px-3 text-right">Net</th>
+            <th className="py-3.5 px-3 text-right">Savings %</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/50">
+        <tbody className="divide-y divide-white/5">
           {data.length === 0 ? (
             <tr>
               <td colSpan={5} className="py-8 text-center text-slate-500 text-xs">
@@ -38,9 +38,9 @@ export function MonthlyBreakdownTable({ data, isSensitiveVisible = true }: Month
             data.map((row) => (
               <tr 
                 key={row.month} 
-                className="hover:bg-slate-800/30 transition-colors"
+                className="hover:bg-white/[0.03] transition-colors"
               >
-                <td className="py-2.5 px-3 text-xs font-semibold text-white">{row.month}</td>
+                <td className="py-3 px-3 text-xs font-bold text-white">{row.month}</td>
                 <td className={cn(
                   "py-2.5 px-3 text-xs text-emerald-400 font-mono text-right transition-all",
                   !isSensitiveVisible && "blur-md select-none"
