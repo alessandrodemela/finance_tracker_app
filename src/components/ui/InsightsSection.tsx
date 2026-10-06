@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trophy, AlertTriangle, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 export interface InsightData {
   bestMonth: { month: string; amount: number };
@@ -9,9 +10,10 @@ export interface InsightData {
 
 interface InsightsSectionProps {
   data: InsightData;
+  isSensitiveVisible?: boolean;
 }
 
-export function InsightsSection({ data }: InsightsSectionProps) {
+export function InsightsSection({ data, isSensitiveVisible = true }: InsightsSectionProps) {
   return (
     <div className="space-y-3">
       {/* Best Month */}
@@ -27,7 +29,10 @@ export function InsightsSection({ data }: InsightsSectionProps) {
             </span>
           </div>
         </div>
-        <span className="text-xs text-emerald-400 font-mono font-bold">
+        <span className={cn(
+          "text-xs text-emerald-400 font-mono font-bold transition-all",
+          !isSensitiveVisible && "blur-md select-none"
+        )}>
           +€{data.bestMonth.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
         </span>
       </div>
@@ -45,7 +50,10 @@ export function InsightsSection({ data }: InsightsSectionProps) {
             </span>
           </div>
         </div>
-        <span className="text-xs text-rose-400 font-mono font-bold">
+        <span className={cn(
+          "text-xs text-rose-400 font-mono font-bold transition-all",
+          !isSensitiveVisible && "blur-md select-none"
+        )}>
           €{data.highestSpending.amount.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
         </span>
       </div>
@@ -63,7 +71,10 @@ export function InsightsSection({ data }: InsightsSectionProps) {
             </span>
           </div>
         </div>
-        <span className="text-xs text-cyan-400 font-mono font-bold">
+        <span className={cn(
+          "text-xs text-cyan-400 font-mono font-bold transition-all",
+          !isSensitiveVisible && "blur-md select-none"
+        )}>
           €{data.averageSavings.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
         </span>
       </div>

@@ -15,10 +15,15 @@ import { MonthlyKPICards } from '@/components/ui/MonthlyKPICards';
 import { CategoryBreakdown, CategoryBudgetItem } from '@/components/ui/CategoryBreakdown';
 import { DailySpendingChart, DailySpendingData } from '@/components/ui/DailySpendingChart';
 import { TransactionCard } from '@/components/ui/TransactionCard';
-import { Search, Plus, Filter, Calendar } from 'lucide-react';
+import { Search, Plus, Filter, Calendar, Eye, EyeOff } from 'lucide-react';
 import { NewTransactionModal } from '@/components/modals/NewTransactionModal';
 
-export function MonthlyTab() {
+interface MonthlyTabProps {
+  isSensitiveVisible?: boolean;
+  setIsSensitiveVisible?: (visible: boolean) => void;
+}
+
+export function MonthlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }: MonthlyTabProps) {
   const router = useRouter();
   const { currentDate, setCurrentDate, currentMonthStr } = useDate();
 
@@ -138,13 +143,24 @@ export function MonthlyTab() {
         subtitle={`Summary and detailed breakdown for ${currentDate.toLocaleString('en-US', { month: 'long', year: 'numeric' })}`}
         controls={<MonthSelector currentDate={currentDate} onChange={setCurrentDate} />}
         actions={
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-slate-200 transition-all shadow-lg active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Transaction</span>
-          </button>
+          <div className="flex items-center gap-3">
+            {setIsSensitiveVisible && (
+              <button
+                onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
+                className="text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
+                title={isSensitiveVisible ? "Hide sensitive data" : "Show sensitive data"}
+              >
+                {isSensitiveVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+              </button>
+            )}
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white text-black font-semibold text-xs rounded-xl hover:bg-slate-200 transition-all shadow-lg active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Transaction</span>
+            </button>
+          </div>
         }
       />
 
@@ -156,6 +172,7 @@ export function MonthlyTab() {
           expenses={expenses}
           net={net}
           savingsRate={savingsRate}
+          isSensitiveVisible={isSensitiveVisible}
         />
 
         {/* 12-Column Responsive Dashboard Layout */}
@@ -189,7 +206,11 @@ export function MonthlyTab() {
                   Edit Budgets
                 </button>
               </div>
-              <CategoryBreakdown items={budgetItems} loading={txLoading || catLoading || bgtLoading} />
+              <CategoryBreakdown 
+                items={budgetItems} 
+                loading={txLoading || catLoading || bgtLoading} 
+                isSensitiveVisible={isSensitiveVisible}
+              />
             </div>
           </GridCol>
 
@@ -252,6 +273,7 @@ export function MonthlyTab() {
                         amount={tx.amount}
                         type={tx.type as "income" | "expense"}
                         date={tx.date}
+                        isSensitiveVisible={isSensitiveVisible}
                         onEdit={() => router.push(`/edit/${tx.id}`)}
                         onDelete={() => handleDelete(tx)}
                       />

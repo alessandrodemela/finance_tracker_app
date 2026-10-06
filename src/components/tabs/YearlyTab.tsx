@@ -11,7 +11,7 @@ import { TrendComparisonChart } from '@/components/ui/TrendComparisonChart';
 import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYearComparisonChart';
 import { CategoryTreemap } from '@/components/DashboardCharts';
 import { MonthlyBreakdownTable, MonthlyBreakdownRow } from '@/components/ui/MonthlyBreakdownTable';
-import { History, BarChart2 } from 'lucide-react';
+import { History, BarChart2, Eye, EyeOff } from 'lucide-react';
 
 interface MonthlyMetricItem {
   income: number;
@@ -19,7 +19,12 @@ interface MonthlyMetricItem {
   [key: string]: number;
 }
 
-export function YearlyTab() {
+interface YearlyTabProps {
+  isSensitiveVisible?: boolean;
+  setIsSensitiveVisible?: (visible: boolean) => void;
+}
+
+export function YearlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }: YearlyTabProps) {
   const [year, setYear] = useState<number>(new Date().getFullYear());
   const [showMultiYear, setShowMultiYear] = useState<boolean>(false);
   
@@ -121,24 +126,35 @@ export function YearlyTab() {
         subtitle={`Annual performance and historical comparison for ${year}`}
         controls={<YearSelector year={year} onChange={setYear} />}
         actions={
-          <button
-            onClick={() => setShowMultiYear(prev => !prev)}
-            className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all border ${
-              showMultiYear 
-                ? 'bg-white text-black border-white shadow-lg' 
-                : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:text-white hover:bg-slate-800'
-            }`}
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>{showMultiYear ? 'Annual View' : 'Multi-Year Compare'}</span>
-          </button>
+          <div className="flex items-center gap-3">
+            {setIsSensitiveVisible && (
+              <button
+                onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
+                className="text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
+                title={isSensitiveVisible ? "Hide sensitive data" : "Show sensitive data"}
+              >
+                {isSensitiveVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+              </button>
+            )}
+            <button
+              onClick={() => setShowMultiYear(prev => !prev)}
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl transition-all border ${
+                showMultiYear 
+                  ? 'bg-white text-black border-white shadow-lg' 
+                  : 'bg-slate-900/80 text-slate-300 border-slate-800 hover:text-white hover:bg-slate-800'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              <span>{showMultiYear ? 'Annual View' : 'Multi-Year Compare'}</span>
+            </button>
+          </div>
         }
       />
 
       {/* 2. Main Page Grid Container */}
       <PageContainer>
         {/* Yearly KPI Cards Row */}
-        <YearlyKPICards {...kpis} />
+        <YearlyKPICards {...kpis} isSensitiveVisible={isSensitiveVisible} />
 
         {/* 12-Column Responsive Dashboard Layout */}
         <DashboardGrid>
@@ -175,7 +191,7 @@ export function YearlyTab() {
                   <p className="text-xs text-slate-400">Detailed month-by-month financial statement</p>
                 </div>
               </div>
-              <MonthlyBreakdownTable data={tableData} />
+              <MonthlyBreakdownTable data={tableData} isSensitiveVisible={isSensitiveVisible} />
             </div>
           </GridCol>
 
@@ -189,7 +205,7 @@ export function YearlyTab() {
                   {year}
                 </span>
               </div>
-              <InsightsSection data={insights} />
+              <InsightsSection data={insights} isSensitiveVisible={isSensitiveVisible} />
             </div>
 
             {/* Category Expense Distribution Treemap */}

@@ -9,6 +9,7 @@ export interface TransactionCardProps extends React.HTMLAttributes<HTMLDivElemen
   type: "income" | "expense";
   date?: string;
   icon?: React.ReactNode;
+  isSensitiveVisible?: boolean;
   onEdit?: () => void;
   onDelete?: () => void;
 }
@@ -21,6 +22,7 @@ export function TransactionCard({
   type, 
   date, 
   icon, 
+  isSensitiveVisible = true,
   onEdit, 
   onDelete, 
   ...props 
@@ -67,8 +69,9 @@ export function TransactionCard({
 
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
-            "text-xs font-mono font-bold",
-            isIncome ? "text-emerald-400" : "text-rose-400"
+            "text-xs font-mono font-bold transition-all",
+            isIncome ? "text-emerald-400" : "text-rose-400",
+            !isSensitiveVisible && "blur-md select-none"
           )}>
             {formattedAmount}
           </div>

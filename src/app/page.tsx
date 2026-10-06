@@ -74,9 +74,24 @@ export default function Dashboard() {
           )}
           {activeTab !== 'home' && (
             <div className="w-full pb-10">
-              {activeTab === 'monthly' && <MonthlyTab />}
-              {activeTab === 'yearly' && <YearlyTab />}
-              {activeTab === 'insights' && <InsightsTab />}
+              {activeTab === 'monthly' && (
+                <MonthlyTab 
+                  isSensitiveVisible={isSensitiveVisible} 
+                  setIsSensitiveVisible={setIsSensitiveVisible} 
+                />
+              )}
+              {activeTab === 'yearly' && (
+                <YearlyTab 
+                  isSensitiveVisible={isSensitiveVisible} 
+                  setIsSensitiveVisible={setIsSensitiveVisible} 
+                />
+              )}
+              {activeTab === 'insights' && (
+                <InsightsTab 
+                  isSensitiveVisible={isSensitiveVisible} 
+                  setIsSensitiveVisible={setIsSensitiveVisible} 
+                />
+              )}
             </div>
           )}
         </div>

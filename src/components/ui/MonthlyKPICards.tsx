@@ -7,9 +7,16 @@ interface MonthlyKPICardsProps {
   expenses: number;
   net: number;
   savingsRate?: number;
+  isSensitiveVisible?: boolean;
 }
 
-export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyKPICardsProps) {
+export function MonthlyKPICards({ 
+  income, 
+  expenses, 
+  net, 
+  savingsRate,
+  isSensitiveVisible = true 
+}: MonthlyKPICardsProps) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {/* INCOME */}
@@ -20,7 +27,10 @@ export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyK
             <ArrowUpRight className="text-emerald-400 w-4 h-4" />
           </div>
         </div>
-        <div className="text-xl lg:text-2xl font-bold text-white font-mono tracking-tight">
+        <div className={cn(
+          "text-xl lg:text-2xl font-bold text-white font-mono tracking-tight transition-all",
+          !isSensitiveVisible && "blur-md select-none"
+        )}>
           €{income.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
@@ -33,7 +43,10 @@ export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyK
             <ArrowDownRight className="text-rose-400 w-4 h-4" />
           </div>
         </div>
-        <div className="text-xl lg:text-2xl font-bold text-white font-mono tracking-tight">
+        <div className={cn(
+          "text-xl lg:text-2xl font-bold text-white font-mono tracking-tight transition-all",
+          !isSensitiveVisible && "blur-md select-none"
+        )}>
           €{expenses.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
       </div>
@@ -50,8 +63,9 @@ export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyK
           </div>
         </div>
         <div className={cn(
-          "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-          net >= 0 ? "text-white" : "text-rose-400"
+          "text-xl lg:text-2xl font-bold font-mono tracking-tight transition-all",
+          net >= 0 ? "text-white" : "text-rose-400",
+          !isSensitiveVisible && "blur-md select-none"
         )}>
           {net < 0 ? '-' : ''}€{Math.abs(net).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </div>
@@ -66,8 +80,9 @@ export function MonthlyKPICards({ income, expenses, net, savingsRate }: MonthlyK
           </div>
         </div>
         <div className={cn(
-          "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-          (savingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"
+          "text-xl lg:text-2xl font-bold font-mono tracking-tight transition-all",
+          (savingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
+          !isSensitiveVisible && "blur-md select-none"
         )}>
           {savingsRate !== undefined ? `${savingsRate >= 0 ? '+' : ''}${savingsRate.toFixed(1)}%` : '0.0%'}
         </div>

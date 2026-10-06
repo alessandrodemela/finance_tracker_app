@@ -1,4 +1,5 @@
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 export interface MonthlyBreakdownRow {
   month: string;
@@ -10,9 +11,10 @@ export interface MonthlyBreakdownRow {
 
 interface MonthlyBreakdownTableProps {
   data: MonthlyBreakdownRow[];
+  isSensitiveVisible?: boolean;
 }
 
-export function MonthlyBreakdownTable({ data }: MonthlyBreakdownTableProps) {
+export function MonthlyBreakdownTable({ data, isSensitiveVisible = true }: MonthlyBreakdownTableProps) {
   return (
     <div className="overflow-x-auto custom-scrollbar">
       <table className="w-full text-left border-collapse">
@@ -39,16 +41,29 @@ export function MonthlyBreakdownTable({ data }: MonthlyBreakdownTableProps) {
                 className="hover:bg-slate-800/30 transition-colors"
               >
                 <td className="py-2.5 px-3 text-xs font-semibold text-white">{row.month}</td>
-                <td className="py-2.5 px-3 text-xs text-emerald-400 font-mono text-right">
+                <td className={cn(
+                  "py-2.5 px-3 text-xs text-emerald-400 font-mono text-right transition-all",
+                  !isSensitiveVisible && "blur-md select-none"
+                )}>
                   €{row.income.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                 </td>
-                <td className="py-2.5 px-3 text-xs text-rose-400 font-mono text-right">
+                <td className={cn(
+                  "py-2.5 px-3 text-xs text-rose-400 font-mono text-right transition-all",
+                  !isSensitiveVisible && "blur-md select-none"
+                )}>
                   €{row.expense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                 </td>
-                <td className={`py-2.5 px-3 text-xs font-mono font-bold text-right ${row.net >= 0 ? 'text-white' : 'text-rose-400'}`}>
+                <td className={cn(
+                  "py-2.5 px-3 text-xs font-mono font-bold text-right transition-all",
+                  row.net >= 0 ? 'text-white' : 'text-rose-400',
+                  !isSensitiveVisible && "blur-md select-none"
+                )}>
                   {row.net < 0 ? '-' : ''}€{Math.abs(row.net).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                 </td>
-                <td className="py-2.5 px-3 text-xs font-mono text-slate-400 text-right">
+                <td className={cn(
+                  "py-2.5 px-3 text-xs font-mono text-slate-400 text-right transition-all",
+                  !isSensitiveVisible && "blur-md select-none"
+                )}>
                   {row.savingsRate.toFixed(1)}%
                 </td>
               </tr>

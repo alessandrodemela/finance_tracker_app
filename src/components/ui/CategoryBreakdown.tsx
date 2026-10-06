@@ -12,9 +12,10 @@ export interface CategoryBudgetItem {
 interface CategoryBreakdownProps {
   items: CategoryBudgetItem[];
   loading?: boolean;
+  isSensitiveVisible?: boolean;
 }
 
-export function CategoryBreakdown({ items, loading = false }: CategoryBreakdownProps) {
+export function CategoryBreakdown({ items, loading = false, isSensitiveVisible = true }: CategoryBreakdownProps) {
   if (loading) {
     return (
       <div className="h-64 flex justify-center items-center text-slate-400 text-sm font-medium">
@@ -32,7 +33,6 @@ export function CategoryBreakdown({ items, loading = false }: CategoryBreakdownP
   }
 
   // Prepare chart data for vertical bars
-  // percentage = spent / budget * 100
   const chartData = items.map(item => {
     const percent = item.budget > 0 ? (item.spent / item.budget) * 100 : item.spent > 0 ? 100 : 0;
     const isOver = item.budget > 0 && item.spent > item.budget;
@@ -58,8 +58,16 @@ export function CategoryBreakdown({ items, loading = false }: CategoryBreakdownP
         <div>
           <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Total Budget Utilization</span>
           <div className="flex items-baseline gap-2 mt-0.5">
-            <span className="text-2xl font-bold font-mono text-white">{totalPercent}%</span>
-            <span className="text-xs text-slate-400">
+            <span className={cn(
+              "text-2xl font-bold font-mono text-white transition-all",
+              !isSensitiveVisible && "blur-md select-none"
+            )}>
+              {totalPercent}%
+            </span>
+            <span className={cn(
+              "text-xs text-slate-400 transition-all",
+              !isSensitiveVisible && "blur-md select-none"
+            )}>
               (€{totalSpent.toLocaleString('it-IT', { maximumFractionDigits: 0 })} of €{totalBudget.toLocaleString('it-IT', { maximumFractionDigits: 0 })})
             </span>
           </div>
@@ -103,7 +111,10 @@ export function CategoryBreakdown({ items, loading = false }: CategoryBreakdownP
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-[#0D0D0D] border border-white/10 p-3 rounded-xl shadow-2xl min-w-[160px]">
+                    <div className={cn(
+                      "bg-[#0D0D0D] border border-white/10 p-3 rounded-xl shadow-2xl min-w-[160px]",
+                      !isSensitiveVisible && "blur-md select-none"
+                    )}>
                       <p className="text-[#71717A] text-[10px] font-bold uppercase tracking-widest mb-2">{data.name}</p>
                       <div className="space-y-1 text-xs">
                         <div className="flex justify-between gap-4">

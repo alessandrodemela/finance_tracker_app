@@ -7,16 +7,24 @@ interface YearlyKPICardsProps {
   expenses: { value: number; trend: number };
   net: { value: number; trend: number };
   savingsRate: { value: number; trend: number };
+  isSensitiveVisible?: boolean;
 }
 
-export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPICardsProps) {
+export function YearlyKPICards({ 
+  income, 
+  expenses, 
+  net, 
+  savingsRate,
+  isSensitiveVisible = true 
+}: YearlyKPICardsProps) {
   const renderTrend = (trend: number, invertColors = false) => {
     const isPositive = trend >= 0;
     const isGood = invertColors ? !isPositive : isPositive;
     return (
       <div className={cn(
         "flex items-center gap-1 text-[11px] font-bold tracking-wide mt-1.5",
-        isGood ? 'text-emerald-400' : 'text-rose-400'
+        isGood ? 'text-emerald-400' : 'text-rose-400',
+        !isSensitiveVisible && "blur-sm select-none"
       )}>
         {isPositive ? <ArrowUpRight size={13} /> : <ArrowDownRight size={13} />}
         <span>{Math.abs(trend).toFixed(1)}% vs prev year</span>
@@ -35,7 +43,10 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
           </div>
         </div>
         <div>
-          <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
+          <span className={cn(
+            "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
+            !isSensitiveVisible && "blur-md select-none"
+          )}>
             €{income.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(income.trend)}
@@ -51,7 +62,10 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
           </div>
         </div>
         <div>
-          <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
+          <span className={cn(
+            "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
+            !isSensitiveVisible && "blur-md select-none"
+          )}>
             €{expenses.value.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
           {renderTrend(expenses.trend, true)}
@@ -71,8 +85,9 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
         </div>
         <div>
           <span className={cn(
-            "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-            net.value >= 0 ? "text-white" : "text-rose-400"
+            "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
+            net.value >= 0 ? "text-white" : "text-rose-400",
+            !isSensitiveVisible && "blur-md select-none"
           )}>
             {net.value < 0 ? '-' : ''}€{Math.abs(net.value).toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
@@ -90,8 +105,9 @@ export function YearlyKPICards({ income, expenses, net, savingsRate }: YearlyKPI
         </div>
         <div>
           <span className={cn(
-            "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-            savingsRate.value >= 0 ? "text-emerald-400" : "text-rose-400"
+            "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
+            savingsRate.value >= 0 ? "text-emerald-400" : "text-rose-400",
+            !isSensitiveVisible && "blur-md select-none"
           )}>
             {savingsRate.value >= 0 ? '+' : ''}{savingsRate.value.toFixed(1)}%
           </span>

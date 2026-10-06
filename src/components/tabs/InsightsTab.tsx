@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useAnnualSummary } from '@/hooks/useData';
-import { TrendingUp, TrendingDown, Target, Zap, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { TrendingUp, TrendingDown, Target, Zap, ArrowUpRight, ArrowDownRight, Eye, EyeOff } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { PageContainer, DashboardGrid, GridCol } from '@/components/ui/DashboardGrid';
 import { YearSelector } from '@/components/ui/YearSelector';
@@ -10,7 +10,12 @@ import { MultiYearComparisonChart, MultiYearData } from '@/components/ui/MultiYe
 import { CategoryPieChart } from '@/components/DashboardCharts';
 import { cn } from '@/lib/utils';
 
-export function InsightsTab() {
+interface InsightsTabProps {
+  isSensitiveVisible?: boolean;
+  setIsSensitiveVisible?: (visible: boolean) => void;
+}
+
+export function InsightsTab({ isSensitiveVisible = true, setIsSensitiveVisible }: InsightsTabProps) {
   const [baseYear, setBaseYear] = useState<number>(new Date().getFullYear());
 
   // Fetch last 3 years
@@ -89,11 +94,22 @@ export function InsightsTab() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--color-brand-navy)] text-[var(--color-brand-primary)] animate-in fade-in duration-500 w-full">
-      {/* 1. Page Header with Base Year Selector */}
+      {/* 1. Page Header with Base Year Selector & Eye toggle */}
       <PageHeader
         title="Insights & Trends"
         subtitle={`Multi-year financial intelligence and patterns (${baseYear - 2} – ${baseYear})`}
         controls={<YearSelector year={baseYear} onChange={setBaseYear} />}
+        actions={
+          setIsSensitiveVisible ? (
+            <button
+              onClick={() => setIsSensitiveVisible(!isSensitiveVisible)}
+              className="text-[var(--color-brand-secondary)] hover:text-white transition-colors p-2.5 hover:bg-white/5 rounded-xl border border-transparent hover:border-white/10"
+              title={isSensitiveVisible ? "Hide sensitive data" : "Show sensitive data"}
+            >
+              {isSensitiveVisible ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
+            </button>
+          ) : undefined
+        }
       />
 
       {/* 2. Main Page Grid Container */}
@@ -116,7 +132,10 @@ export function InsightsTab() {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
+                  <span className={cn(
+                    "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
+                    !isSensitiveVisible && "blur-md select-none"
+                  )}>
                     €{totalIncome.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                   </span>
                   <div className={cn(
@@ -138,7 +157,10 @@ export function InsightsTab() {
                   </div>
                 </div>
                 <div>
-                  <span className="text-xl lg:text-2xl text-white font-bold font-mono tracking-tight">
+                  <span className={cn(
+                    "text-xl lg:text-2xl text-white font-bold font-mono tracking-tight block transition-all",
+                    !isSensitiveVisible && "blur-md select-none"
+                  )}>
                     €{totalExpense.toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                   </span>
                   <div className={cn(
@@ -164,12 +186,16 @@ export function InsightsTab() {
                 </div>
                 <div>
                   <span className={cn(
-                    "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-                    totalNet >= 0 ? "text-white" : "text-rose-400"
+                    "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
+                    totalNet >= 0 ? "text-white" : "text-rose-400",
+                    !isSensitiveVisible && "blur-md select-none"
                   )}>
                     {totalNet < 0 ? '-' : ''}€{Math.abs(totalNet).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                   </span>
-                  <div className="text-[11px] font-semibold text-slate-400 mt-1.5">
+                  <div className={cn(
+                    "text-[11px] font-semibold text-slate-400 mt-1.5 transition-all",
+                    !isSensitiveVisible && "blur-sm select-none"
+                  )}>
                     Avg €{(longTermTrends?.avgAnnualNet ?? 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}/yr
                   </div>
                 </div>
@@ -185,8 +211,9 @@ export function InsightsTab() {
                 </div>
                 <div>
                   <span className={cn(
-                    "text-xl lg:text-2xl font-bold font-mono tracking-tight",
-                    (longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"
+                    "text-xl lg:text-2xl font-bold font-mono tracking-tight block transition-all",
+                    (longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
+                    !isSensitiveVisible && "blur-md select-none"
                   )}>
                     {(longTermTrends?.threeYearSavingsRate ?? 0) >= 0 ? '+' : ''}
                     {(longTermTrends?.threeYearSavingsRate ?? 0).toFixed(1)}%
@@ -241,8 +268,9 @@ export function InsightsTab() {
                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
                       <span className="text-xs text-slate-400">Net Savings Growth</span>
                       <span className={cn(
-                        "text-xs font-mono font-bold",
-                        (longTermTrends?.savingsGrowth ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400"
+                        "text-xs font-mono font-bold transition-all",
+                        (longTermTrends?.savingsGrowth ?? 0) >= 0 ? "text-emerald-400" : "text-rose-400",
+                        !isSensitiveVisible && "blur-sm select-none"
                       )}>
                         {(longTermTrends?.savingsGrowth ?? 0) >= 0 ? '+' : ''}
                         {(longTermTrends?.savingsGrowth ?? 0).toFixed(1)}%
@@ -251,7 +279,10 @@ export function InsightsTab() {
 
                     <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950/60 border border-slate-800/60">
                       <span className="text-xs text-slate-400">Annual Average Net</span>
-                      <span className="text-xs font-mono font-bold text-white">
+                      <span className={cn(
+                        "text-xs font-mono font-bold text-white transition-all",
+                        !isSensitiveVisible && "blur-md select-none"
+                      )}>
                         €{(longTermTrends?.avgAnnualNet ?? 0).toLocaleString('it-IT', { maximumFractionDigits: 0 })}
                       </span>
                     </div>
