@@ -206,7 +206,11 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
         setSubmitted(true);
         if (onSuccess) onSuccess();
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
+        const message = err instanceof Error
+          ? err.message
+          : (err && typeof err === 'object' && 'message' in err)
+            ? String((err as { message: unknown }).message)
+            : 'Unknown error';
         showToast('Error: ' + message, 'error');
       } finally {
         setIsBulkLoading(false);
