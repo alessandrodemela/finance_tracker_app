@@ -226,21 +226,31 @@ export const financeService = {
   },
 
   /**
-   * Atomic balance adjustment via PostgreSQL RPC.
-   * Replaces the previous READ+UPDATE pattern that was vulnerable to race conditions.
-   * The RPC executes: UPDATE accounts SET active_balance = active_balance + p_amount WHERE id = p_account_id
-   * This is a single atomic SQL statement — no read-modify-write gap.
+   * Adjusts an account's active_balance by the given amount.
+   * Uses a direct read+update since the RPC function is not deployed yet.
    */
   async adjustAccountBalance(accountId: string, amount: number) {
     if (!accountId) throw new Error('adjustAccountBalance: accountId is required');
     if (!isFinite(amount)) throw new Error('adjustAccountBalance: amount must be a finite number');
 
-    const { error } = await supabase.rpc('adjust_account_balance', {
-      p_account_id: accountId,
-      p_amount: amount,
-    });
+    // Read current balance
+    const { data: account, error: readError } = await supabase
+      .from('accounts')
+      .select('active_balance')
+      .eq('id', accountId)
+      .single();
 
-    if (error) throw error;
+    if (readError) throw readError;
+    if (!account) throw new Error(`Account ${accountId} not found`);
+
+    const newBalance = Number(account.active_balance) + amount;
+
+    const { error: updateError } = await supabase
+      .from('accounts')
+      .update({ active_balance: newBalance })
+      .eq('id', accountId);
+
+    if (updateError) throw updateError;
   },
 
   nextMonth(month: string): string {
