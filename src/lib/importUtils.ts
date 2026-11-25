@@ -70,10 +70,11 @@ function normalizeDate(val: unknown): string {
     }
   }
   const str = normalizeString(val);
-  // Handle DD/MM/YYYY or DD-MM-YYYY
-  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  // Handle DD/MM/YYYY or DD-MM-YYYY (and 2-digit year DD/MM/YY)
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   if (dmyMatch) {
-    return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+    const year = dmyMatch[3].length === 2 ? `20${dmyMatch[3]}` : dmyMatch[3];
+    return `${year}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
   }
   // Handle YYYY-MM-DD (strip optional time)
   const ymdMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
@@ -104,9 +105,9 @@ export async function parseImportFile(
     });
   } else if (ext === 'xlsx' || ext === 'xls') {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
+    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, { defval: '' });
+    rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, { defval: '', raw: true });
   } else {
     throw new Error('Formato file non supportato. Usa .csv, .xlsx o .xls');
   }
