@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { X, ArrowDown, ArrowUp, Repeat, Plus, Save, Calendar, Wallet, Tag, FileText, ChevronRight, Trash2, List, Grid, Copy } from 'lucide-react';
+import { X, ArrowDown, ArrowUp, Repeat, Plus, Save, Calendar, Wallet, Tag, FileText, ChevronRight, Trash2, List, Grid, Copy, Upload, AlertTriangle } from 'lucide-react';
 import { MovementType, Transaction } from '@/types/database';
 import { useAccounts, useCategories, useBudgetCategories } from '@/hooks/useData';
 import { financeService } from '@/lib/financeService';
+import { parseImportFile } from '@/lib/importUtils';
 import { cn, getLocalDateString } from '@/lib/utils';
 import { Button } from '@/components/ui/Button';
 import { showToast } from '@/components/ui/GlobalUI';
@@ -63,6 +64,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
 
   // Bulk state
   const [bulkRows, setBulkRows] = useState<BulkRow[]>([]);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
 
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
@@ -141,11 +143,42 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
       _ui_checked: false,
     }]);
     setSubmitted(false);
+    setImportWarnings([]);
     setMode('bulk');
     setIsAddingCategory(false);
     setNewCategoryName('');
     setIsAddingBudgetCategory(false);
     setNewBudgetCategoryName('');
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const result = await parseImportFile(
+        file,
+        accounts,
+        expenseCategories,
+        incomeCategories,
+        budgetCategories
+      );
+
+      if (result.rows.length === 0) {
+        showToast('Nessuna transazione valida trovata nel file.', 'error');
+        return;
+      }
+
+      setBulkRows(result.rows);
+      setImportWarnings(result.warnings);
+      setMode('bulk');
+      showToast(`${result.rows.length} righe caricate in anteprima!`, 'success');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Errore durante la lettura del file';
+      showToast(message, 'error');
+    } finally {
+      e.target.value = '';
+    }
   };
 
   useEffect(() => {
@@ -255,6 +288,15 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
           <>
             {/* Header / Mode Switcher */}
             <div className="absolute top-8 right-10 z-20 flex items-center gap-3">
+              <label className="flex items-center gap-2 px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest cursor-pointer bg-white/5 hover:bg-white/10 text-white/80 hover:text-white transition-all border border-white/10">
+                <Upload size={12} /> Import Excel/CSV
+                <input
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                />
+              </label>
               <div className="flex items-center bg-white/5 rounded-xl p-1 border border-white/10">
                 <button 
                   onClick={() => setMode('single')}
@@ -428,6 +470,20 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                     <button onClick={handleSubmit} disabled={isBulkLoading || bulkRows.length === 0} className="flex items-center gap-2 px-6 py-2 rounded-xl bg-white text-black hover:bg-white/90 transition-all font-black text-xs uppercase tracking-[0.2em] disabled:opacity-50"><Save size={16} /> {isBulkLoading ? 'Saving...' : 'Confirm All'}</button>
                   </div>
                 </div>
+
+                {importWarnings.length > 0 && (
+                  <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs flex items-start gap-3 shrink-0">
+                    <AlertTriangle size={16} className="shrink-0 mt-0.5 text-amber-400" />
+                    <div className="flex flex-col gap-1">
+                      <span className="font-bold uppercase tracking-wider text-[10px] text-amber-400">Note sull&apos;importazione</span>
+                      <ul className="list-disc list-inside space-y-0.5 text-amber-100/80">
+                        {importWarnings.map((w, idx) => (
+                          <li key={idx}>{w}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
 
                 <div className="flex-1 overflow-auto rounded-2xl border border-white/5 bg-black/40 shadow-2xl custom-scrollbar">
                   <table className="w-full text-left text-[11px] text-white border-collapse">
