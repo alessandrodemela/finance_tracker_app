@@ -53,6 +53,21 @@ function getField(raw: Record<string, unknown>, candidates: string[]): unknown {
   return undefined;
 }
 
+const MONTH_MAP: Record<string, string> = {
+  gen: '01', gennaio: '01', jan: '01', january: '01',
+  feb: '02', febbraio: '02', february: '02',
+  mar: '03', marzo: '03', march: '03',
+  apr: '04', aprile: '04', april: '04',
+  mag: '05', maggio: '05', may: '05',
+  giu: '06', giugno: '06', jun: '06', june: '06',
+  lug: '07', luglio: '07', jul: '07', july: '07',
+  ago: '08', agosto: '08', aug: '08', august: '08',
+  set: '09', settembre: '09', sep: '09', sept: '09', september: '09',
+  ott: '10', ottobre: '10', oct: '10', october: '10',
+  nov: '11', novembre: '11', november: '11',
+  dic: '12', dicembre: '12', dec: '12', december: '12',
+};
+
 function normalizeDate(val: unknown): string {
   if (val instanceof Date && !isNaN(val.getTime())) {
     const y = val.getFullYear();
@@ -70,17 +85,31 @@ function normalizeDate(val: unknown): string {
     }
   }
   const str = normalizeString(val);
-  // Handle DD/MM/YYYY or DD-MM-YYYY (and 2-digit year DD/MM/YY)
-  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (!str) return '';
+
+  // Handle YYYY-MM-DD / YYYY/MM/DD / YYYY.MM.DD (strip optional time)
+  const ymdMatch = str.match(/^(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/);
+  if (ymdMatch) {
+    return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
+  }
+
+  // Handle DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY (and 2-digit year)
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
   if (dmyMatch) {
     const year = dmyMatch[3].length === 2 ? `20${dmyMatch[3]}` : dmyMatch[3];
     return `${year}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
   }
-  // Handle YYYY-MM-DD (strip optional time)
-  const ymdMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (ymdMatch) {
-    return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
+
+  // Handle Italian/English text months: "24 set 2026", "24-set-26", "24 settembre 2026"
+  const textMonthMatch = str.match(/^(\d{1,2})[\s\/\-\.]+([a-zA-Zàèéìòù]+)[\s\/\-\.]+(\d{2,4})/);
+  if (textMonthMatch) {
+    const month = MONTH_MAP[textMonthMatch[2].toLowerCase()];
+    if (month) {
+      const year = textMonthMatch[3].length === 2 ? `20${textMonthMatch[3]}` : textMonthMatch[3];
+      return `${year}-${month}-${textMonthMatch[1].padStart(2, '0')}`;
+    }
   }
+
   return str;
 }
 
@@ -117,6 +146,8 @@ export async function parseImportFile(
   let missingAccountCount = 0;
   let missingCategoryCount = 0;
   let transferCount = 0;
+  let invalidDateCount = 0;
+  let invalidDateSample: string | null = null;
 
   for (const raw of rawRows) {
     const rawType = normalizeString(raw['Type'] ?? raw['type']).toLowerCase();
@@ -126,7 +157,14 @@ export async function parseImportFile(
     }
 
     const type = rawType as MovementType;
-    const date = normalizeDate(getField(raw, ['Data Valuta', 'Date', 'Data']));
+    const rawDateVal = getField(raw, ['Data Valuta', 'Date', 'Data', 'Data Operazione']);
+    const date = normalizeDate(rawDateVal);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      invalidDateCount++;
+      if (invalidDateSample === null) {
+        invalidDateSample = `${String(rawDateVal)} (colonne: ${Object.keys(raw).join(', ')})`;
+      }
+    }
     const rawAmount = normalizeString(raw['Amount'] ?? raw['amount']).replace(',', '.');
     const amountNum = parseFloat(rawAmount);
     const amount = isNaN(amountNum) ? '' : String(Math.abs(amountNum));
@@ -203,6 +241,9 @@ export async function parseImportFile(
   }
   if (transferCount > 0) {
     warnings.push(`${transferCount} trasferimenti richiedono la selezione del conto di destinazione (To Account).`);
+  }
+  if (invalidDateCount > 0) {
+    warnings.push(`${invalidDateCount} righe con data non riconosciuta (es. "${invalidDateSample}").`);
   }
 
   return { rows, skippedCount, warnings };
