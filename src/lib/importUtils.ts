@@ -43,9 +43,24 @@ function parseBooleanFlag(val: unknown): boolean {
   return str === '1' || str === 'true' || str === 'si' || str === 'sì' || str === 'yes';
 }
 
+function getField(raw: Record<string, unknown>, candidates: string[]): unknown {
+  const lowerCandidates = candidates.map((c) => c.toLowerCase());
+  for (const key of Object.keys(raw)) {
+    if (lowerCandidates.includes(key.trim().toLowerCase())) {
+      return raw[key];
+    }
+  }
+  return undefined;
+}
+
 function normalizeDate(val: unknown): string {
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    const y = val.getFullYear();
+    const m = String(val.getMonth() + 1).padStart(2, '0');
+    const d = String(val.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
   if (typeof val === 'number') {
-    // Excel serial date
     const parsed = XLSX.SSF.parse_date_code(val);
     if (parsed) {
       const y = parsed.y;
@@ -55,10 +70,15 @@ function normalizeDate(val: unknown): string {
     }
   }
   const str = normalizeString(val);
-  // Handle DD/MM/YYYY
-  const dmyMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  // Handle DD/MM/YYYY or DD-MM-YYYY
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
   if (dmyMatch) {
-    return `${dmyMatch[3]}-${dmyMatch[2]}-${dmyMatch[1]}`;
+    return `${dmyMatch[3]}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+  }
+  // Handle YYYY-MM-DD (strip optional time)
+  const ymdMatch = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (ymdMatch) {
+    return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
   }
   return str;
 }
@@ -105,7 +125,7 @@ export async function parseImportFile(
     }
 
     const type = rawType as MovementType;
-    const date = normalizeDate(raw['Data Valuta'] ?? raw['Date'] ?? raw['date']);
+    const date = normalizeDate(getField(raw, ['Data Valuta', 'Date', 'Data']));
     const rawAmount = normalizeString(raw['Amount'] ?? raw['amount']).replace(',', '.');
     const amountNum = parseFloat(rawAmount);
     const amount = isNaN(amountNum) ? '' : String(Math.abs(amountNum));
