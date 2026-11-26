@@ -145,6 +145,7 @@ export const financeService = {
     if (!tx.amount || !isFinite(Number(tx.amount)) || Number(tx.amount) <= 0) throw new Error('Invalid amount: must be a positive number');
     if (!tx.date) throw new Error('Date is required');
     if (tx.type !== 'transfer' && !tx.account_id) throw new Error('account_id is required for non-transfer transactions');
+    if (tx.type !== 'transfer' && !tx.category_id) throw new Error('category_id is required for non-transfer transactions');
     if (tx.type === 'transfer' && (!tx.from_account_id || !tx.to_account_id)) throw new Error('from_account_id and to_account_id required for transfers');
     if (tx.type === 'transfer' && tx.from_account_id === tx.to_account_id) throw new Error('Cannot transfer to the same account');
 

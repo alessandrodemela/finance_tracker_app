@@ -101,7 +101,17 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
   };
 
   const updateBulkRow = <K extends keyof BulkRow>(id: string, field: K, value: BulkRow[K]) => {
-    let newRows = bulkRows.map(r => r.id === id ? { ...r, [field]: value } : r);
+    let newRows = bulkRows.map(r => {
+      if (r.id !== id) return r;
+      const updated = { ...r, [field]: value };
+      if (field === 'type') {
+        updated.category_id = '';
+        if (value === 'transfer') {
+          updated.budget_category_id = '';
+        }
+      }
+      return updated;
+    });
     if (field === 'date') {
       newRows = newRows.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
@@ -211,8 +221,32 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
       // Bulk Submit
       setIsBulkLoading(true);
       try {
-        const validRows = bulkRows.filter(r => r.amount && parseFloat(r.amount) > 0);
+        const validRows = bulkRows.filter(r => r.amount && parseFloat(r.amount.replace(',', '.')) > 0);
         if (validRows.length === 0) throw new Error("No valid rows to save");
+
+        // Pre-validate every row before inserting any to avoid partial imports
+        for (let i = 0; i < validRows.length; i++) {
+          const row = validRows[i];
+          const label = `Riga #${i + 1}${row.notes ? ` (${row.notes})` : ''}`;
+          if (!row.date) {
+            throw new Error(`${label}: data mancante`);
+          }
+          if (row.type === 'transfer') {
+            if (!row.from_account_id || !row.to_account_id) {
+              throw new Error(`${label}: seleziona sia il conto di partenza (From) che quello di destinazione (To)`);
+            }
+            if (row.from_account_id === row.to_account_id) {
+              throw new Error(`${label}: i conti From e To non possono essere uguali`);
+            }
+          } else {
+            if (!row.account_id) {
+              throw new Error(`${label}: seleziona un Account`);
+            }
+            if (!row.category_id) {
+              throw new Error(`${label}: seleziona una Category`);
+            }
+          }
+        }
 
         for (const row of validRows) {
           const amountNum = Math.round(Math.abs(parseFloat(row.amount.replace(',', '.'))) * 100) / 100;
@@ -515,7 +549,7 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                             </select>
                           </td>
                           <td className="p-2">
-                            <input type="date" value={row.date} onChange={e => updateBulkRow(row.id, 'date', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none text-[10px] font-bold" />
+                            <input type="date" value={row.date} onChange={e => updateBulkRow(row.id, 'date', e.target.value)} className={cn("w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none text-[10px] font-bold", !row.date && "ring-1 ring-amber-500/60 bg-amber-500/10")} />
                           </td>
                           <td className="p-2 relative">
                             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20">€</span>
@@ -524,16 +558,16 @@ export function NewTransactionModal({ isOpen, onClose, onSuccess }: NewTransacti
                           <td className="p-2">
                             {row.type === 'transfer' ? (
                               <div className="flex flex-col gap-1">
-                                <select value={row.from_account_id} onChange={e => updateBulkRow(row.id, 'from_account_id', e.target.value)} className="w-full bg-white/5 border-none rounded-md p-1.5 text-white outline-none text-[9px] font-bold appearance-none"><option value="" className="bg-[#0D0D0D]">From...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
-                                <select value={row.to_account_id} onChange={e => updateBulkRow(row.id, 'to_account_id', e.target.value)} className="w-full bg-white/5 border-none rounded-md p-1.5 text-white outline-none text-[9px] font-bold appearance-none"><option value="" className="bg-[#0D0D0D]">To...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
+                                <select value={row.from_account_id} onChange={e => updateBulkRow(row.id, 'from_account_id', e.target.value)} className={cn("w-full bg-white/5 border-none rounded-md p-1.5 text-white outline-none text-[9px] font-bold appearance-none", !row.from_account_id && "ring-1 ring-amber-500/60 bg-amber-500/10")}><option value="" className="bg-[#0D0D0D]">From...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
+                                <select value={row.to_account_id} onChange={e => updateBulkRow(row.id, 'to_account_id', e.target.value)} className={cn("w-full bg-white/5 border-none rounded-md p-1.5 text-white outline-none text-[9px] font-bold appearance-none", !row.to_account_id && "ring-1 ring-amber-500/60 bg-amber-500/10")}><option value="" className="bg-[#0D0D0D]">To...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
                               </div>
                             ) : (
-                              <select value={row.account_id} onChange={e => updateBulkRow(row.id, 'account_id', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none appearance-none font-bold text-[10px]"><option value="" className="bg-[#0D0D0D]">Select...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
+                              <select value={row.account_id} onChange={e => updateBulkRow(row.id, 'account_id', e.target.value)} className={cn("w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none appearance-none font-bold text-[10px]", !row.account_id && "ring-1 ring-amber-500/60 bg-amber-500/10")}><option value="" className="bg-[#0D0D0D]">Select...</option>{accounts.map(a => <option key={a.id} value={a.id} className="bg-[#0D0D0D]">{a.name}</option>)}</select>
                             )}
                           </td>
                           <td className="p-2">
                             {row.type !== 'transfer' && (
-                              <select value={row.category_id} onChange={e => updateBulkRow(row.id, 'category_id', e.target.value)} className="w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none appearance-none font-bold text-[10px]"><option value="" className="bg-[#0D0D0D]">Category...</option>{(row.type === 'expense' ? expenseCategories : incomeCategories).map(c => <option key={c.id} value={c.id} className="bg-[#0D0D0D]">{c.name}</option>)}</select>
+                              <select value={row.category_id} onChange={e => updateBulkRow(row.id, 'category_id', e.target.value)} className={cn("w-full bg-white/5 border-none rounded-lg p-2 text-white outline-none appearance-none font-bold text-[10px]", !row.category_id && "ring-1 ring-amber-500/60 bg-amber-500/10")}><option value="" className="bg-[#0D0D0D]">Category...</option>{(row.type === 'expense' ? expenseCategories : incomeCategories).map(c => <option key={c.id} value={c.id} className="bg-[#0D0D0D]">{c.name}</option>)}</select>
                             )}
                           </td>
                           <td className="p-2">
