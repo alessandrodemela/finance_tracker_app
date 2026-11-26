@@ -1,12 +1,13 @@
 import * as React from "react"
 import { cn, formatCurrency, formatDateDDMMYYYY } from "@/lib/utils"
+import { MovementType } from "@/types/database"
 import { Edit2, Trash2 } from "lucide-react"
 
 export interface TransactionCardProps extends React.HTMLAttributes<HTMLDivElement> {
   title: string;
   subtitle: string;
   amount: number;
-  type: "income" | "expense";
+  type: MovementType;
   date?: string;
   icon?: React.ReactNode;
   isSensitiveVisible?: boolean;
@@ -28,7 +29,10 @@ export function TransactionCard({
   ...props 
 }: TransactionCardProps) {
   const isIncome = type === "income";
-  const formattedAmount = formatCurrency(amount, { signedType: isIncome ? 'income' : 'expense' });
+  const isTransfer = type === "transfer";
+  const formattedAmount = isTransfer
+    ? formatCurrency(amount)
+    : formatCurrency(amount, { signedType: isIncome ? 'income' : 'expense' });
   const formattedDate = date ? formatDateDDMMYYYY(date) : null;
 
   return (
@@ -44,7 +48,11 @@ export function TransactionCard({
           {icon && (
             <div className={cn(
               "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
-              isIncome ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+              isIncome
+                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                : isTransfer
+                  ? "bg-sky-500/10 text-sky-400 border border-sky-500/20"
+                  : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
             )}>
               {icon}
             </div>
@@ -66,7 +74,7 @@ export function TransactionCard({
         <div className="flex flex-col items-end gap-1 shrink-0">
           <div className={cn(
             "text-xs font-mono font-bold transition-all",
-            isIncome ? "text-emerald-400" : "text-rose-400",
+            isIncome ? "text-emerald-400" : isTransfer ? "text-sky-400" : "text-rose-400",
             !isSensitiveVisible && "blur-md select-none"
           )}>
             {formattedAmount}

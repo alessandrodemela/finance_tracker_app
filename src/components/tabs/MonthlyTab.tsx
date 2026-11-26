@@ -3,7 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { useDate } from '@/context/DateContext';
 import { useTransactions, useBudgetCategories, useBudgets, triggerRefresh } from '@/hooks/useData';
-import { Transaction } from '@/types/database';
+import { Transaction, MovementType } from '@/types/database';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 import { useRouter } from 'next/navigation';
 import { financeService } from '@/lib/financeService';
@@ -30,7 +30,7 @@ export function MonthlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }:
 
   // Local state for transaction filtering & modals
   const [txSearch, setTxSearch] = useState('');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'expense' | 'income'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | MovementType>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = (tx: Transaction) => {
@@ -239,7 +239,7 @@ export function MonthlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }:
                 </div>
 
                 <div className="flex items-center gap-1.5 bg-slate-950/40 p-1 rounded-xl border border-slate-800/60">
-                  {(['all', 'expense', 'income'] as const).map(type => (
+                  {(['all', 'expense', 'income', 'transfer'] as const).map(type => (
                     <button
                       key={type}
                       onClick={() => setTypeFilter(type)}
@@ -272,7 +272,7 @@ export function MonthlyTab({ isSensitiveVisible = true, setIsSensitiveVisible }:
                         title={tx.notes || 'No notes'}
                         subtitle={category?.name || 'Uncategorized'}
                         amount={tx.amount}
-                        type={tx.type as "income" | "expense"}
+                        type={tx.type}
                         date={tx.date}
                         isSensitiveVisible={isSensitiveVisible}
                         onEdit={() => router.push(`/edit/${tx.id}`)}

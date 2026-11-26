@@ -51,7 +51,7 @@ export function RecentTransactions({
                 title={tx.notes || 'No notes'}
                 subtitle={cat?.name || 'Uncategorized'}
                 amount={tx.amount}
-                type={tx.type as "income" | "expense"}
+                type={tx.type}
                 date={tx.date}
                 onEdit={() => router.push(`/edit/${tx.id}`)}
                 onDelete={() => handleDelete(tx)}

@@ -9,7 +9,7 @@ import { useDate } from '@/context/DateContext';
 import { showToast, showConfirm } from '@/components/ui/GlobalUI';
 import { ChevronLeft, Search, Download, Calendar, Check } from 'lucide-react';
 import { TransactionCard } from '@/components/ui/TransactionCard';
-import { Transaction } from '@/types/database';
+import { Transaction, MovementType } from '@/types/database';
 
 export default function TransactionsPage() {
   const router = useRouter();
@@ -43,15 +43,18 @@ export default function TransactionsPage() {
   const { transactions, loading } = useTransactions(0, activeRange.start, activeRange.end);
   const { budgetCategories } = useBudgetCategories();
   const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<'all' | MovementType>('all');
 
   const filteredTransactions = useMemo(() => {
-    if (!search.trim()) return transactions;
-    const s = search.toLowerCase();
-    return transactions.filter(t => 
-      t.notes?.toLowerCase().includes(s) || 
-      t.amount.toString().includes(s)
-    );
-  }, [transactions, search]);
+    const s = search.trim().toLowerCase();
+    return transactions.filter(t => {
+      const matchesType = typeFilter === 'all' || t.type === typeFilter;
+      const matchesSearch = !s ||
+        t.notes?.toLowerCase().includes(s) ||
+        t.amount.toString().includes(s);
+      return matchesType && matchesSearch;
+    });
+  }, [transactions, search, typeFilter]);
 
   const handleApplyFilter = () => {
     setActiveRange(inputRange);
@@ -161,6 +164,22 @@ export default function TransactionsPage() {
               className="w-full bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.08)] rounded-2xl py-3.5 pl-12 pr-4 text-sm text-white placeholder-[var(--color-brand-secondary)] outline-none focus:border-[var(--color-brand-accent)] focus:bg-[rgba(255,255,255,0.05)] transition-all shadow-inner"
             />
           </div>
+
+          <div className="flex items-center gap-1.5 bg-[rgba(255,255,255,0.03)] p-1.5 rounded-2xl border border-[rgba(255,255,255,0.08)]">
+            {(['all', 'expense', 'income', 'transfer'] as const).map(type => (
+              <button
+                key={type}
+                onClick={() => setTypeFilter(type)}
+                className={`flex-1 text-[10px] font-bold uppercase tracking-wider py-2 rounded-xl transition-all ${
+                  typeFilter === type
+                    ? 'bg-[var(--color-brand-accent)] text-white shadow-lg shadow-[rgba(99,102,241,0.2)]'
+                    : 'text-[var(--color-brand-secondary)] hover:text-white'
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Transactions list */}
@@ -184,7 +203,7 @@ export default function TransactionsPage() {
                      title={tx.notes || 'No notes'}
                      subtitle={category?.name || 'Uncategorized'}
                      amount={tx.amount}
-                     type={tx.type as "income" | "expense"}
+                     type={tx.type}
                      date={tx.date}
                      onEdit={() => router.push(`/edit/${tx.id}`)}
                      onDelete={() => handleDelete(tx)}
