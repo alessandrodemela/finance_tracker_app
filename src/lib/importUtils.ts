@@ -46,11 +46,34 @@ function parseBooleanFlag(val: unknown): boolean {
 function getField(raw: Record<string, unknown>, candidates: string[]): unknown {
   const lowerCandidates = candidates.map((c) => c.toLowerCase());
   for (const key of Object.keys(raw)) {
-    if (lowerCandidates.includes(key.trim().toLowerCase())) {
+    const cleanKey = key.replace(/^\uFEFF/, '').trim().toLowerCase();
+    if (lowerCandidates.includes(cleanKey)) {
       return raw[key];
     }
   }
   return undefined;
+}
+
+function parseAmount(val: unknown): string {
+  let str = normalizeString(val).replace(/\s/g, '').replace(/€/g, '');
+  if (!str) return '';
+
+  const hasDot = str.includes('.');
+  const hasComma = str.includes(',');
+
+  if (hasDot && hasComma) {
+    // Decide based on which separator appears last
+    if (str.lastIndexOf(',') > str.lastIndexOf('.')) {
+      str = str.replace(/\./g, '').replace(',', '.');
+    } else {
+      str = str.replace(/,/g, '');
+    }
+  } else if (hasComma) {
+    str = str.replace(',', '.');
+  }
+
+  const num = parseFloat(str);
+  return isNaN(num) ? '' : String(Math.abs(num));
 }
 
 const MONTH_MAP: Record<string, string> = {
@@ -68,7 +91,34 @@ const MONTH_MAP: Record<string, string> = {
   dic: '12', dicembre: '12', dec: '12', december: '12',
 };
 
-function normalizeDate(val: unknown): string {
+const SLASH_DATE_RE = /^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})(?:\s.*)?$/;
+
+function detectSlashDateOrder(rawDates: unknown[]): 'MDY' | 'DMY' {
+  let mdyEvidence = 0;
+  let dmyEvidence = 0;
+
+  for (const val of rawDates) {
+    if (typeof val !== 'string') continue;
+    const match = val.trim().match(SLASH_DATE_RE);
+    if (!match) continue;
+    const first = parseInt(match[1], 10);
+    const second = parseInt(match[2], 10);
+    if (second > 12 && first <= 12) mdyEvidence++;
+    if (first > 12 && second <= 12) dmyEvidence++;
+  }
+
+  return mdyEvidence > dmyEvidence ? 'MDY' : 'DMY';
+}
+
+function isValidIsoDate(str: string): boolean {
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return false;
+  const month = parseInt(match[2], 10);
+  const day = parseInt(match[3], 10);
+  return month >= 1 && month <= 12 && day >= 1 && day <= 31;
+}
+
+function normalizeDate(val: unknown, preferredOrder: 'MDY' | 'DMY'): string {
   if (val instanceof Date && !isNaN(val.getTime())) {
     const y = val.getFullYear();
     const m = String(val.getMonth() + 1).padStart(2, '0');
@@ -93,11 +143,33 @@ function normalizeDate(val: unknown): string {
     return `${ymdMatch[1]}-${ymdMatch[2].padStart(2, '0')}-${ymdMatch[3].padStart(2, '0')}`;
   }
 
-  // Handle DD/MM/YYYY, DD-MM-YYYY, DD.MM.YYYY (and 2-digit year)
-  const dmyMatch = str.match(/^(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/);
-  if (dmyMatch) {
-    const year = dmyMatch[3].length === 2 ? `20${dmyMatch[3]}` : dmyMatch[3];
-    return `${year}-${dmyMatch[2].padStart(2, '0')}-${dmyMatch[1].padStart(2, '0')}`;
+  // Handle DD/MM/YYYY or MM/DD/YYYY (and 2-digit year)
+  const slashMatch = str.match(SLASH_DATE_RE);
+  if (slashMatch) {
+    const first = parseInt(slashMatch[1], 10);
+    const second = parseInt(slashMatch[2], 10);
+    const year = slashMatch[3].length === 2 ? `20${slashMatch[3]}` : slashMatch[3];
+
+    let day: number;
+    let month: number;
+
+    if (second > 12 && first <= 12) {
+      // Unambiguously MM/DD/YYYY (US)
+      month = first;
+      day = second;
+    } else if (first > 12 && second <= 12) {
+      // Unambiguously DD/MM/YYYY (IT)
+      day = first;
+      month = second;
+    } else if (preferredOrder === 'MDY') {
+      month = first;
+      day = second;
+    } else {
+      day = first;
+      month = second;
+    }
+
+    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
   }
 
   // Handle Italian/English text months: "24 set 2026", "24-set-26", "24 settembre 2026"
@@ -134,12 +206,15 @@ export async function parseImportFile(
     });
   } else if (ext === 'xlsx' || ext === 'xls') {
     const buffer = await file.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array', cellDates: true });
+    const workbook = XLSX.read(buffer, { type: 'array' });
     const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
     rawRows = XLSX.utils.sheet_to_json<Record<string, unknown>>(firstSheet, { defval: '', raw: true });
   } else {
     throw new Error('Formato file non supportato. Usa .csv, .xlsx o .xls');
   }
+
+  const dateColumns = ['Data Valuta', 'Date', 'Data', 'Data Operazione'];
+  const preferredOrder = detectSlashDateOrder(rawRows.map((r) => getField(r, dateColumns)));
 
   const rows: ImportedBulkRow[] = [];
   let skippedCount = 0;
@@ -150,27 +225,26 @@ export async function parseImportFile(
   let invalidDateSample: string | null = null;
 
   for (const raw of rawRows) {
-    const rawType = normalizeString(raw['Type'] ?? raw['type']).toLowerCase();
+    const rawType = normalizeString(getField(raw, ['Type', 'Tipo'])).toLowerCase();
     if (!VALID_TYPES.has(rawType)) {
       skippedCount++;
       continue;
     }
 
     const type = rawType as MovementType;
-    const rawDateVal = getField(raw, ['Data Valuta', 'Date', 'Data', 'Data Operazione']);
-    const date = normalizeDate(rawDateVal);
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+    const rawDateVal = getField(raw, dateColumns);
+    const date = normalizeDate(rawDateVal, preferredOrder);
+    if (!isValidIsoDate(date)) {
       invalidDateCount++;
       if (invalidDateSample === null) {
-        invalidDateSample = `${String(rawDateVal)} (colonne: ${Object.keys(raw).join(', ')})`;
+        invalidDateSample = `${String(rawDateVal)} -> "${date}" (colonne: ${Object.keys(raw).join(', ')})`;
       }
     }
-    const rawAmount = normalizeString(raw['Amount'] ?? raw['amount']).replace(',', '.');
-    const amountNum = parseFloat(rawAmount);
-    const amount = isNaN(amountNum) ? '' : String(Math.abs(amountNum));
+
+    const amount = parseAmount(getField(raw, ['Amount', 'Importo']));
 
     // Match Account
-    const accountName = normalizeString(raw['Account'] ?? raw['account']);
+    const accountName = normalizeString(getField(raw, ['Account', 'Conto']));
     const matchedAccount = !isNoneValue(accountName)
       ? accounts.find((a) => a.name.toLowerCase() === accountName.toLowerCase())
       : undefined;
@@ -180,7 +254,7 @@ export async function parseImportFile(
     }
 
     // Match Category
-    const categoryName = normalizeString(raw['Category'] ?? raw['category']);
+    const categoryName = normalizeString(getField(raw, ['Category', 'Categoria']));
     const categoryPool = type === 'income' ? incomeCategories : expenseCategories;
     const matchedCategory =
       type !== 'transfer' && !isNoneValue(categoryName)
@@ -192,20 +266,20 @@ export async function parseImportFile(
     }
 
     // Match Macro Category (budget_category_id)
-    const macroName = normalizeString(raw['Macro Category'] ?? raw['macro_category'] ?? raw['Macro']);
+    const macroName = normalizeString(getField(raw, ['Macro Category', 'macro_category', 'Macro']));
     const matchedMacro =
       type !== 'transfer' && !isNoneValue(macroName)
         ? budgetCategories.find((b) => b.name.toLowerCase() === macroName.toLowerCase())
         : undefined;
 
     // Note (Descrizione viene ignorata come richiesto)
-    const notes = normalizeString(raw['Note'] ?? raw['Notes'] ?? raw['notes']);
+    const notes = normalizeString(getField(raw, ['Note', 'Notes']));
 
     // Flag is*: se type è expense, 1 -> true, vuoto -> false; altrimenti tutto false
     const isExpense = type === 'expense';
-    const is_fixed = isExpense ? parseBooleanFlag(raw['is fixed'] ?? raw['is_fixed']) : false;
-    const is_split = isExpense ? parseBooleanFlag(raw['is split'] ?? raw['is_split']) : false;
-    const is_necessary = isExpense ? parseBooleanFlag(raw['is necessary'] ?? raw['is_necessary']) : false;
+    const is_fixed = isExpense ? parseBooleanFlag(getField(raw, ['is fixed', 'is_fixed'])) : false;
+    const is_split = isExpense ? parseBooleanFlag(getField(raw, ['is split', 'is_split'])) : false;
+    const is_necessary = isExpense ? parseBooleanFlag(getField(raw, ['is necessary', 'is_necessary'])) : false;
 
     if (type === 'transfer') {
       transferCount++;
@@ -214,7 +288,7 @@ export async function parseImportFile(
     rows.push({
       id: generateId(),
       type,
-      date,
+      date: isValidIsoDate(date) ? date : '',
       amount,
       account_id: type === 'transfer' ? '' : (matchedAccount?.id ?? ''),
       from_account_id: type === 'transfer' ? (matchedAccount?.id ?? '') : '',
